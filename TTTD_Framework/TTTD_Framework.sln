@@ -5,6 +5,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Framework", "TTTD_Fram
 EndProject
 Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "TTTD_WindowsStore", "TTTD_WindowsStore\TTTD_WindowsStore.jsproj", "{7EF4BC33-4FE5-4293-9BCE-C4DC8C7933AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Builder", "TTTD_Builder\TTTD_Builder.csproj", "{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Builder.Lib", "TTTD_Builder.Lib\TTTD_Builder.Lib.csproj", "{AE4CE606-1087-43C8-843E-0F20396879DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Builder.Lib.JSONReaderWriter", "TTTD_Builder.Lib.JSONReaderWriter\TTTD_Builder.Lib.JSONReaderWriter.csproj", "{5A47C472-7D02-4A1C-B09F-8170DC8717D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +57,36 @@ Global
 		{7EF4BC33-4FE5-4293-9BCE-C4DC8C7933AA}.Release|x86.ActiveCfg = Release|x86
 		{7EF4BC33-4FE5-4293-9BCE-C4DC8C7933AA}.Release|x86.Build.0 = Release|x86
 		{7EF4BC33-4FE5-4293-9BCE-C4DC8C7933AA}.Release|x86.Deploy.0 = Release|x86
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Release|ARM.ActiveCfg = Release|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Release|x64.ActiveCfg = Release|Any CPU
+		{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}.Release|x86.ActiveCfg = Release|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{AE4CE606-1087-43C8-843E-0F20396879DB}.Release|x86.ActiveCfg = Release|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Release|ARM.ActiveCfg = Release|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Release|x64.ActiveCfg = Release|Any CPU
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

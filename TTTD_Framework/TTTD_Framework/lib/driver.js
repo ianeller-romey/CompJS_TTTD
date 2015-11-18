@@ -18,7 +18,7 @@
         document.body.appendChild(errorElem);
     };
 
-    if (window.addEventListener == null) {
+    if (window.addEventListener === null) {
         errorState("Browser does not support window.addEventListener");
     } else {
         var initialize = function () {

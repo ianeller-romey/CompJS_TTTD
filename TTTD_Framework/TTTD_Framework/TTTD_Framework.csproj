@@ -73,7 +73,6 @@
     <Content Include="lib\behaviors\behavior-score.js" />
     <Content Include="lib\behaviors\behavior-scorpion.js" />
     <Content Include="lib\behaviors\behavior-spider.js" />
-    <Content Include="lib\cheats.js" />
     <Content Include="lib\driver.js" />
     <Content Include="lib\engines\aud-engine.js" />
     <Content Include="lib\engines\bhv-engine.js" />
@@ -85,9 +84,6 @@
     <Content Include="lib\engines\phys-engine.js" />
     <Content Include="lib\engines\services-engine.js" />
     <Content Include="lib\math\vector-2d.js" />
-    <Content Include="lib\shaders\shader-emboss.js" />
-    <Content Include="lib\shaders\shader-point-light.js" />
-    <Content Include="lib\shaders\shader-texture-color-change.js" />
     <Content Include="lib\shaders\shader-texture.js" />
     <Content Include="lib\utilities.js" />
   </ItemGroup>

@@ -82,7 +82,7 @@
     };
 
     namespace.Comp.Inst.Transformation.prototype.setPosition = function (x, y) {
-        this.position = this.position.setAndNotify(new Vector2D(x, y));
+        this.position = this.position.setAndNotify(new Math.Vector2D(x, y));
     };
 
     namespace.Comp.Inst.Transformation.prototype.setRotation = function (rot) {
@@ -90,11 +90,11 @@
     };
 
     namespace.Comp.Inst.Transformation.prototype.setScale = function (x, y) {
-        this.scale = this.scale.setAndNotify(new Vector2D(x, y));
+        this.scale = this.scale.setAndNotify(new Math.Vector2D(x, y));
     };
 
     namespace.Comp.Inst.Transformation.prototype.setVelocity = function (x, y) {
-        this.velocity = this.velocity.setAndNotify(new Vector2D(x, y));
+        this.velocity = this.velocity.setAndNotify(new Math.Vector2D(x, y));
     };
 
     ////////

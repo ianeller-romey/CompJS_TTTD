@@ -12,6 +12,43 @@ String.prototype.isAlphanumeric = function () {
 /****************/
 /* Linq-esque behavior */
 /****************/
+if (!Array.prototype.indexOf) { // intentional truthiness
+    Array.prototype.indexOf = function (value) {
+        for (var index = 0; 0 < this.length; ++index) {
+            if (this[i] === value) {
+                return index;
+            }
+        }
+        return -1;
+    };
+}
+
+Array.prototype.max = function (predicate) {
+    var val = null;
+    if (this.length) { // intentional truthiness
+        val = predicate(this[0]);
+        for (var i = 1; i < this.length; ++i) {
+            if (predicate(this[i]) > val) {
+                val = predicate(this[i]);
+            }
+        }
+    }
+    return val;
+};
+
+Array.prototype.min = function (predicate) {
+    var val = null;
+    if (this.length) { // intentional truthiness
+        val = predicate(this[0]);
+        for (var i = 1; i < this.length; ++i) {
+            if (predicate(this[i]) < val) {
+                val = predicate(this[i]);
+            }
+        }
+    }
+    return val;
+};
+
 Array.prototype.addRange = function (range) {
     for (var i = 0, len = range.length; i < len; ++i) {
         this.push(range[i]);
@@ -85,6 +122,14 @@ Array.prototype.aggregate = function (predicate) {
         }
     }
     return aggregateValue;
+};
+
+Array.prototype.first = function () {
+    return (this.length) /* intentional truthiness */ ? this[0] : null;
+};
+
+Array.prototype.last = function () {
+    return (this.length) /* intentional truthiness */ ? this[this.length - 1] : null;
 };
 
 /****************/
