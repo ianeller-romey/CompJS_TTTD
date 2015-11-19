@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class LevelLayout
+    public class LevelLayout : IHasId
     {
         public int Id { get; set; }
         public int LevelId { get; set; }

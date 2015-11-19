@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class GraphicsInstanceDefinition
+    public class GraphicsInstanceDefinition : IHasId
     {
         public int Id { get; set; }
         public int EntityInstanceDefinitionId { get; set; }

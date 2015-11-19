@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class FontTextureDefinition
+    public class FontTextureDefinition : IHasId
     {
         public int Id { get; set; }
         public int GraphicsInstanceDefinitionId { get; set; }

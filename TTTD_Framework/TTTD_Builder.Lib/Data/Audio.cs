@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class Audio
+    public class Audio : IHasId
     {
         public int Id { get; set; }
         public int AudioTypeId { get; set; }

@@ -6,15 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+using Data = TTTD_Builder.Lib.Data;
 
 
 namespace TTTD_Builder.Lib.JSONReaderWriter
 {
-    public static class Writer<T> : TTTD_Builder.Lib.IWriter<T>
+    public class Writer : TTTD_Builder.Lib.IWriter
     {
         #region MEMBER FIELDS
 
         const string c_jsonExtension = ".json";
+        static readonly JsonSerializerSettings s_jsonSerializerSettings = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
         #endregion
 
@@ -23,19 +27,20 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public void Write(IEnumerable<T> objectsToWrite, DateTime time)
+        public void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector) where T : Data.IHasId
         {
-            if(objectsToWrite == null || !objectsToWrite.Any())
+            if(selector == null || objectsToWrite == null || !objectsToWrite.Any())
                 return;
 
-            string timeStamp = time.ToString("dd-MM-yyyy");
+            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select())
+                return;
 
-            if (!Directory.Exists(timeStamp))
-                Directory.CreateDirectory(timeStamp);
+            if (!Directory.Exists(selector.DataStore))
+                Directory.CreateDirectory(selector.DataStore);
 
-            string fileName = Path.Combine(timeStamp, typeof(T).Name, c_jsonExtension);
+            string fileName = Path.Combine(selector.DataStore, Path.ChangeExtension(typeof(T).Name, c_jsonExtension));
 
-            File.WriteAllLines(fileName, objectsToWrite.Select(x => JsonConvert.SerializeObject(x)));
+            File.WriteAllText(fileName, JsonConvert.SerializeObject(objectsToWrite, s_jsonSerializerSettings));
         }
 
         #endregion

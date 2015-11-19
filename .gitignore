@@ -1,3 +1,7 @@
+#nuget packages
+TTTD_Framework/packages/Newtonsoft.Json.7.0.1/lib
+TTTD_Framework/packages/Newtonsoft.Json.7.0.1/tools
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

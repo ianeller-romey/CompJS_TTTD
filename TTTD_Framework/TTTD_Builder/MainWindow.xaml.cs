@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Managers;
+
+
 namespace TTTD_Builder
 {
     /// <summary>
@@ -20,9 +24,110 @@ namespace TTTD_Builder
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region MEMBER FIELDS
+
+        Menu m_menu_main;
+        MenuItem
+            m_menuItem_file,
+            m_menuItem_loadReaderWriter,
+            m_menuItem_loadData,
+            m_menuItem_saveData,
+            m_menuItem_setup;
+        Grid m_grid_main;
+        TabControl m_tabControl_controls;
+
+        #endregion
+
+
+        #region MEMBER METHODS
+
+        #region Public Functionality
+
         public MainWindow()
         {
             InitializeComponent();
+
+            Content = CreateControls();
         }
+
+        #endregion
+
+
+        #region Private Functionality
+
+        private UIElement CreateControls()
+        {
+            m_menu_main = new Menu();
+
+            ////////
+            // File
+            m_menuItem_loadReaderWriter = new MenuItem() { Header = "Load ReaderWriter DLL" };
+            m_menuItem_loadReaderWriter.Click += MenuItem_LoadReaderWriter_Click;
+
+            m_menuItem_file = new MenuItem() { Header = "File" };
+            m_menuItem_file.Items.Add(m_menuItem_loadReaderWriter);
+
+            m_menu_main.Items.Add(m_menuItem_file);
+
+            ////////
+            // Toolbar
+            DockPanel dockPanel_main = new DockPanel();
+            dockPanel_main.Children.Add(m_menu_main);
+            DockPanel.SetDock(m_menu_main, Dock.Top);
+
+            ////////
+            // grid
+            m_grid_main = new Grid();
+            m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0, GridUnitType.Star) });
+            m_grid_main.SetGridRowColumn(dockPanel_main, 0, 0);
+
+            return m_grid_main;
+        }
+
+        private void MenuItem_LoadReaderWriter_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem != null && menuItem == m_menuItem_loadReaderWriter)
+            {
+                var window = new Window_OpenFile("Select ReaderWriter DLL", string.Empty, new[] { new Window_OpenFile.Filter("DLL Files (.dll)", "*.dll") });
+                window.ShowDialog();
+                if (window.Accepted)
+                {
+                    ReaderWriterManager.LoadDLL(window.FileName);
+
+                    m_menuItem_loadData = new MenuItem() { Header = "Load Data" };
+                    m_menuItem_loadData.Click += MenuItem_LoadData_Click;
+                    m_menuItem_file.Items.Add(m_menuItem_loadData);
+
+                    m_menuItem_saveData = new MenuItem() { Header = "Save Data" };
+                    m_menuItem_saveData.Click += MenuItem_SaveData_Click;
+                    m_menuItem_file.Items.Add(m_menuItem_saveData);
+
+                    m_menuItem_setup = new MenuItem() { Header = "Setup" };
+                    m_menuItem_setup.Click += MenuItem_Setup_Click;
+                    m_menuItem_file.Items.Add(m_menuItem_setup);
+                }
+            }
+        }
+
+        private void MenuItem_LoadData_Click(object sender, RoutedEventArgs e)
+        {
+            DataManager.Load();
+        }
+
+        private void MenuItem_SaveData_Click(object sender, RoutedEventArgs e)
+        {
+            DataManager.Save();
+        }
+
+        private void MenuItem_Setup_Click(object sender, RoutedEventArgs e)
+        {
+            //throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #endregion
     }
 }

@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Data\AudioType.cs" />
     <Compile Include="Data\CollisionType.cs" />
+    <Compile Include="Data\IHasId.cs" />
     <Compile Include="Data\Shader.cs" />
     <Compile Include="Data\PhysType.cs" />
     <Compile Include="Data\AnimationFrameDefinition.cs" />
@@ -54,8 +55,8 @@
     <Compile Include="Data\PhysicsInstanceDefinition.cs" />
     <Compile Include="Data\LevelLayout.cs" />
     <Compile Include="IReader.cs" />
+    <Compile Include="IDataStoreSelector.cs" />
     <Compile Include="IWriter.cs" />
-    <Compile Include="Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

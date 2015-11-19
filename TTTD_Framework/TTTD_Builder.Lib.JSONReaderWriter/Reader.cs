@@ -6,15 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+using Data = TTTD_Builder.Lib.Data;
 
 
 namespace TTTD_Builder.Lib.JSONReaderWriter
 {
-    public static class Reader<T> : TTTD_Builder.Lib.IReader<T>
+    public class Reader : TTTD_Builder.Lib.IReader
     {
         #region MEMBER FIELDS
 
         const string c_jsonExtension = ".json";
+        static readonly JsonSerializerSettings s_jsonSerializerSettings = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
         #endregion
 
@@ -23,16 +27,20 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public IEnumerable<T>  Write(DateTime time)
+        public IEnumerable<T> Read<T>(IDataStoreSelector selector) where T : Data.IHasId
         {
-            string timeStamp = time.ToString("dd-MM-yyyy");
-
-            if (!Directory.Exists(timeStamp))
+            if (selector == null)
                 return null;
 
-            string fileName = Path.Combine(timeStamp, typeof(T).Name, c_jsonExtension);
+            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select())
+                return null;
 
-            return File.ReadAllLines(fileName).Select(x => JsonConvert.DeserializeObject<T>(x)).ToList();
+            if (!Directory.Exists(selector.DataStore))
+                return null;
+
+            string fileName = Path.Combine(selector.DataStore, typeof(T).Name, c_jsonExtension);
+
+            return (File.Exists(fileName)) ? JsonConvert.DeserializeObject<IEnumerable<T>>(File.ReadAllText(fileName), s_jsonSerializerSettings) : null;
         }
 
         #endregion

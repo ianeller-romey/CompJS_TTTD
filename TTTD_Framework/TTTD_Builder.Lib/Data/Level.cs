@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class Level
+    public class Level : IHasId
     {
         public int Id { get; set; }
         public string Name { get; set; }

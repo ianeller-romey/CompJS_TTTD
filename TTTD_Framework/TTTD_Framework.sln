@@ -6,6 +6,9 @@ EndProject
 Project("{262852C6-CD72-467D-83FE-5EEB1973A190}") = "TTTD_WindowsStore", "TTTD_WindowsStore\TTTD_WindowsStore.jsproj", "{7EF4BC33-4FE5-4293-9BCE-C4DC8C7933AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Builder", "TTTD_Builder\TTTD_Builder.csproj", "{39438A75-E1F6-4CB1-BD1F-75C661C9D8B6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5A47C472-7D02-4A1C-B09F-8170DC8717D8} = {5A47C472-7D02-4A1C-B09F-8170DC8717D8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_Builder.Lib", "TTTD_Builder.Lib\TTTD_Builder.Lib.csproj", "{AE4CE606-1087-43C8-843E-0F20396879DB}"
 EndProject

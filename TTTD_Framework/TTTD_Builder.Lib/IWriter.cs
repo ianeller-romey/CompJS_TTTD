@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Data = TTTD_Builder.Lib.Data;
+
+
 namespace TTTD_Builder.Lib
 {
-    public interface IWriter<T>
+    public interface IWriter
     {
-        void Write(IEnumerable<T> objectsToWrite, DateTime time);
+        void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector) where T : Data.IHasId;    
     }
 }

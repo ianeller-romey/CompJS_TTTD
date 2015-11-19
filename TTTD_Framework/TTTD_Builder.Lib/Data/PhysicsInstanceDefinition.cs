@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class PhysicsInstanceDefinition
+    public class PhysicsInstanceDefinition : IHasId
     {
         public int Id { get; set; }
         public int EntityInstanceDefinitionId { get; set; }

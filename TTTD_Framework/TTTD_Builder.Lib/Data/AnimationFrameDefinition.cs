@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class AnimationFrameDefinition
+    public class AnimationFrameDefinition : IHasId
     {
         public int Id { get; set; }
         public int AnimationStateDefinitionId { get; set; }

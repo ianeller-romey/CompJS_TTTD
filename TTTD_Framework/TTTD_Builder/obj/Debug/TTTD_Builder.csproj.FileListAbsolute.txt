@@ -1,0 +1,15 @@
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.csprojResolveAssemblyReference.cache
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\MainWindow.baml
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\MainWindow.g.cs
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\App.g.cs
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder_MarkupCompile.cache
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.g.resources
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.Properties.Resources.resources
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.csproj.GenerateResource.Cache
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.exe.config
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.exe
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.Lib.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.Lib.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.exe
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.pdb

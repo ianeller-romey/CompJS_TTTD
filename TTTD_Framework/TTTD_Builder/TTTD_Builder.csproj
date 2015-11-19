@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -53,6 +54,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Helpers\GroupBox_Activatable.cs" />
+    <Compile Include="Controls\Helpers\Window_AcceptCancel.cs" />
+    <Compile Include="Controls\Helpers\Window_OpenFile.cs" />
+    <Compile Include="Controls\UserControl_CollisionType.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Managers\DataManager.cs" />
+    <Compile Include="Managers\ReaderWriterManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -93,6 +101,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TTTD_Builder.Lib\TTTD_Builder.Lib.csproj">
+      <Project>{ae4ce606-1087-43c8-843e-0f20396879db}</Project>
+      <Name>TTTD_Builder.Lib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
