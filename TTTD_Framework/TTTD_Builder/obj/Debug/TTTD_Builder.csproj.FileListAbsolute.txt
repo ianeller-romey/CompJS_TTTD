@@ -13,3 +13,5 @@ C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\D
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\TTTD_Builder.Lib.pdb
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.exe
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\obj\Debug\TTTD_Builder.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\AutoMapper.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\AutoMapper.xml

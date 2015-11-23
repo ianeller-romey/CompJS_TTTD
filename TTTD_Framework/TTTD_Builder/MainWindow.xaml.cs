@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Controls.TabControls;
 using TTTD_Builder.Managers;
 
 
@@ -96,6 +97,8 @@ namespace TTTD_Builder
                 {
                     ReaderWriterManager.LoadDLL(window.FileName);
 
+                    ////////
+                    // MenuItems
                     m_menuItem_loadData = new MenuItem() { Header = "Load Data" };
                     m_menuItem_loadData.Click += MenuItem_LoadData_Click;
                     m_menuItem_file.Items.Add(m_menuItem_loadData);
@@ -107,6 +110,12 @@ namespace TTTD_Builder
                     m_menuItem_setup = new MenuItem() { Header = "Setup" };
                     m_menuItem_setup.Click += MenuItem_Setup_Click;
                     m_menuItem_file.Items.Add(m_menuItem_setup);
+
+                    ////////
+                    // TabControls
+                    m_tabControl_controls = new TabControl();
+                    m_tabControl_controls.Items.Add(new TabItem_CollisionType());
+                    m_grid_main.SetGridRowColumn(m_tabControl_controls, 1, 0);
                 }
             }
         }

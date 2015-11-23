@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class BehaviorInstanceDefinition : IHasId
+    public class BehaviorInstanceDefinition
     {
         public int Id { get; set; }
         public int EntityInstanceDefinitionId { get; set; }

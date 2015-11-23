@@ -27,7 +27,7 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public IEnumerable<T> Read<T>(IDataStoreSelector selector) where T : Data.IHasId
+        public IEnumerable<T> Read<T>(IDataStoreSelector selector)
         {
             if (selector == null)
                 return null;
@@ -38,7 +38,7 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
             if (!Directory.Exists(selector.DataStore))
                 return null;
 
-            string fileName = Path.Combine(selector.DataStore, typeof(T).Name, c_jsonExtension);
+            string fileName = Path.Combine(selector.DataStore, Path.ChangeExtension(typeof(T).Name, c_jsonExtension));
 
             return (File.Exists(fileName)) ? JsonConvert.DeserializeObject<IEnumerable<T>>(File.ReadAllText(fileName), s_jsonSerializerSettings) : null;
         }

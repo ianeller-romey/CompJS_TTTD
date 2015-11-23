@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TTTD_Builder.Lib.Data
 {
-    public class FontTextureDefinition : IHasId
+    public class FontTextureDefinition
     {
         public int Id { get; set; }
         public int GraphicsInstanceDefinitionId { get; set; }

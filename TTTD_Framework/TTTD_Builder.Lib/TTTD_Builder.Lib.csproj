@@ -41,7 +41,6 @@
   <ItemGroup>
     <Compile Include="Data\AudioType.cs" />
     <Compile Include="Data\CollisionType.cs" />
-    <Compile Include="Data\IHasId.cs" />
     <Compile Include="Data\Shader.cs" />
     <Compile Include="Data\PhysType.cs" />
     <Compile Include="Data\AnimationFrameDefinition.cs" />

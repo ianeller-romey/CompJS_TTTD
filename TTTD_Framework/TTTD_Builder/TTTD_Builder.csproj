@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
@@ -54,10 +58,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\Helpers\GroupBox_Activatable.cs" />
+    <Compile Include="Controls\Helpers\ComboBox_NewAndSelect.cs" />
+    <Compile Include="Controls\Helpers\Grid_Activatable.cs" />
     <Compile Include="Controls\Helpers\Window_AcceptCancel.cs" />
     <Compile Include="Controls\Helpers\Window_OpenFile.cs" />
-    <Compile Include="Controls\UserControl_CollisionType.cs" />
+    <Compile Include="Controls\TabControls\TabItem_CollisionType.cs" />
+    <Compile Include="Controls\UserControls\UserControl_CollisionType.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Managers\DataManager.cs" />
     <Compile Include="Managers\ReaderWriterManager.cs" />
@@ -75,6 +81,23 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Data\AnimationFrameDefinition.cs" />
+    <Compile Include="Model\Data\AnimationStateDefinition.cs" />
+    <Compile Include="Model\Data\Audio.cs" />
+    <Compile Include="Model\Data\AudioType.cs" />
+    <Compile Include="Model\Data\Base\DataBase.cs" />
+    <Compile Include="Model\Data\BehaviorInstanceDefinition.cs" />
+    <Compile Include="Model\Data\CollisionType.cs" />
+    <Compile Include="Model\Data\EntityInstanceDefinition.cs" />
+    <Compile Include="Model\Data\FontTextureDefinition.cs" />
+    <Compile Include="Model\Data\GraphicsInstanceDefinition.cs" />
+    <Compile Include="Model\Data\Interfaces\IHasName.cs" />
+    <Compile Include="Model\Data\Interfaces\IHasId.cs" />
+    <Compile Include="Model\Data\Level.cs" />
+    <Compile Include="Model\Data\LevelLayout.cs" />
+    <Compile Include="Model\Data\PhysicsInstanceDefinition.cs" />
+    <Compile Include="Model\Data\PhysType.cs" />
+    <Compile Include="Model\Data\Shader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -92,6 +115,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TTTD_Builder.Lib.Data
+using TTTD_Builder.Model.Base;
+
+
+namespace TTTD_Builder.Model.Data
 {
-    public interface IHasId
+    public class PhysType : DataBase
     {
-        int Id { get; }
     }
 }

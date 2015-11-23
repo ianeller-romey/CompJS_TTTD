@@ -27,7 +27,7 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector) where T : Data.IHasId
+        public void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector)
         {
             if(selector == null || objectsToWrite == null || !objectsToWrite.Any())
                 return;
