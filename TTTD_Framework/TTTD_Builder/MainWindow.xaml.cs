@@ -112,17 +112,17 @@ namespace TTTD_Builder
                     m_menuItem_file.Items.Add(m_menuItem_setup);
 
                     ////////
-                    // TabControls
-                    m_tabControl_controls = new TabControl();
-                    m_tabControl_controls.Items.Add(new TabItem_CollisionType());
-                    m_grid_main.SetGridRowColumn(m_tabControl_controls, 1, 0);
+                    // Additional controls
+                    CreateAdditionalControls();
                 }
             }
         }
 
         private void MenuItem_LoadData_Click(object sender, RoutedEventArgs e)
         {
+            RemoveAdditionalControls();
             DataManager.Load();
+            CreateAdditionalControls();
         }
 
         private void MenuItem_SaveData_Click(object sender, RoutedEventArgs e)
@@ -133,6 +133,33 @@ namespace TTTD_Builder
         private void MenuItem_Setup_Click(object sender, RoutedEventArgs e)
         {
             //throw new NotImplementedException();
+        }
+
+        private void RemoveAdditionalControls()
+        {
+            m_tabControl_controls.Items.Clear();
+            m_grid_main.Children.Remove(m_tabControl_controls);
+        }
+
+        private void CreateAdditionalControls()
+        {
+            ////////
+            // TabControls
+            TabItem tabItem_audio = new TabItem() { Header = "Audio" };
+
+            TabItem tabItem_behavior = new TabItem() { Header = "Behavior" };
+
+            TabItem tabItem_graphics = new TabItem() { Header = "Graphics" };
+
+            TabControl tabControl_physics = new TabControl();
+            tabControl_physics.Items.Add(new TabItem_CollisionType());
+            tabControl_physics.Items.Add(new TabItem_PhysType());
+            TabItem tabItem_physics = new TabItem() { Header = "Physics" };
+            tabItem_physics.Content = tabControl_physics;
+
+            m_tabControl_controls = new TabControl();
+            m_tabControl_controls.Items.Add(tabItem_physics);
+            m_grid_main.SetGridRowColumn(m_tabControl_controls, 1, 0);
         }
 
         #endregion

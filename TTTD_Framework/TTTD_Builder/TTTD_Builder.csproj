@@ -58,11 +58,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\Helpers\ComboBox_NewAndSelect.cs" />
+    <Compile Include="Controls\Helpers\UserControl_NewAndSelect.cs" />
     <Compile Include="Controls\Helpers\Grid_Activatable.cs" />
     <Compile Include="Controls\Helpers\Window_AcceptCancel.cs" />
     <Compile Include="Controls\Helpers\Window_OpenFile.cs" />
+    <Compile Include="Controls\TabControls\TabItem_PhysType.cs" />
     <Compile Include="Controls\TabControls\TabItem_CollisionType.cs" />
+    <Compile Include="Controls\UserControls\UserControl_PhysType.cs" />
     <Compile Include="Controls\UserControls\UserControl_CollisionType.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Managers\DataManager.cs" />

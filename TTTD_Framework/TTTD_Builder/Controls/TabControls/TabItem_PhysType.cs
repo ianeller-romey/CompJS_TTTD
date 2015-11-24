@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 using TTTD_Builder.Controls.Helpers;
 using TTTD_Builder.Managers;
@@ -14,13 +13,13 @@ using TTTD_Builder.Model.Data;
 
 namespace TTTD_Builder.Controls.TabControls
 {
-    public class TabItem_CollisionType : TabItem
+    public class TabItem_PhysType : TabItem
     {
         #region MEMBER FIELDS
 
         Grid m_grid_main;
-        UserControl_NewAndSelect<CollisionType> m_comboBox_collisionTypes;
-        UserControl_CollisionType m_userControl_collisionType;
+        UserControl_NewAndSelect<PhysType> m_comboBox_physTypes;
+        UserControl_PhysType m_userControl_physType;
 
         #endregion
 
@@ -29,9 +28,9 @@ namespace TTTD_Builder.Controls.TabControls
 
         #region Public Functionality
 
-        public TabItem_CollisionType()
+        public TabItem_PhysType()
         {
-            Header = "Collision Types";
+            Header = "Phys Types";
             CreateControls();
         }
 
@@ -48,8 +47,8 @@ namespace TTTD_Builder.Controls.TabControls
 
             ////////
             // ComboBox
-            m_comboBox_collisionTypes = new UserControl_NewAndSelect<CollisionType>(DataManager.CollisionTypes, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_collisionTypes, 0, 0);
+            m_comboBox_physTypes = new UserControl_NewAndSelect<PhysType>(DataManager.PhysTypes, New, Select);
+            m_grid_main.SetGridRowColumn(m_comboBox_physTypes, 0, 0);
 
             ////////
             // Fin
@@ -58,23 +57,23 @@ namespace TTTD_Builder.Controls.TabControls
 
         private void RemoveUserControl()
         {
-            if (m_userControl_collisionType != null)
-                m_grid_main.Children.Remove(m_userControl_collisionType);
-            m_userControl_collisionType = null;
+            if (m_userControl_physType != null)
+                m_grid_main.Children.Remove(m_userControl_physType);
+            m_userControl_physType = null;
         }
 
         private void New()
         {
             RemoveUserControl();
-            m_userControl_collisionType = new UserControl_CollisionType(null);
-            m_grid_main.SetGridRowColumn(m_userControl_collisionType, 1, 0);
+            m_userControl_physType = new UserControl_PhysType(null);
+            m_grid_main.SetGridRowColumn(m_userControl_physType, 1, 0);
         }
 
-        private void Select(CollisionType collisionType)
+        private void Select(PhysType physType)
         {
             RemoveUserControl();
-            m_userControl_collisionType = new UserControl_CollisionType(collisionType);
-            m_grid_main.SetGridRowColumn(m_userControl_collisionType, 1, 0);
+            m_userControl_physType = new UserControl_PhysType(physType);
+            m_grid_main.SetGridRowColumn(m_userControl_physType, 1, 0);
         }
 
         #endregion
