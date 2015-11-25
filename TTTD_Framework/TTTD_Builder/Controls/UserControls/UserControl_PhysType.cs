@@ -39,6 +39,17 @@ namespace TTTD_Builder.Controls
             m_physType = physType;
 
             CreateControls();
+
+            if (m_physType == null)
+            {
+                m_textBlock_id.Text = "N/A";
+                m_textBox_name.Text = string.Empty;
+            }
+            else
+            {
+                m_textBlock_id.Text = m_physType.Id.ToString();
+                m_textBox_name.Text = m_physType.Name;
+            }
         }
 
         #endregion
@@ -54,7 +65,7 @@ namespace TTTD_Builder.Controls
 
             ////////
             // Id
-            m_textBlock_id = new TextBlock() { VerticalAlignment = VerticalAlignment.Center, Text = (m_physType != null) ? m_physType.Id.ToString() : "N/A" };
+            m_textBlock_id = new TextBlock() { VerticalAlignment = VerticalAlignment.Center };
             Label label_id = new Label() { Content = "Id: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
@@ -65,7 +76,7 @@ namespace TTTD_Builder.Controls
 
             ////////
             // Name
-            m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center, Text = (m_physType != null) ? m_physType.Name : string.Empty };
+            m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
             Label label_name = new Label() { Content = "Name: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });

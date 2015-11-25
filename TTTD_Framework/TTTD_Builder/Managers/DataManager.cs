@@ -155,10 +155,12 @@ namespace TTTD_Builder.Managers
 
             Mapper.Configuration.CreateMap<ModelData.LevelLayout, LibData.LevelLayout>()
                 .ForMember(dest => dest.LevelId, opt => opt.MapFrom(src => src.Level.Id))
-                .ForMember(dest => dest.EntityInstanceDefinitionId, opt => opt.MapFrom(src => src.EntityInstanceDefinition.Id));
+                .ForMember(dest => dest.EntityInstanceDefinitionId, opt => opt.MapFrom(src => src.EntityInstanceDefinition.Id))
+                .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data));
             Mapper.Configuration.CreateMap<LibData.LevelLayout, ModelData.LevelLayout>()
                 .ForMember(dest => dest.Level, opt => opt.MapFrom(src => Levels.FirstOrDefault(x => x.Id == src.LevelId)))
-                .ForMember(dest => dest.EntityInstanceDefinition, opt => opt.MapFrom(src => EntityInstanceDefinitions.FirstOrDefault(x => x.Id == src.EntityInstanceDefinitionId)));
+                .ForMember(dest => dest.EntityInstanceDefinition, opt => opt.MapFrom(src => EntityInstanceDefinitions.FirstOrDefault(x => x.Id == src.EntityInstanceDefinitionId)))
+                .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.Data));
         }
 
         public static void Load()

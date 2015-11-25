@@ -62,8 +62,13 @@
     <Compile Include="Controls\Helpers\Grid_Activatable.cs" />
     <Compile Include="Controls\Helpers\Window_AcceptCancel.cs" />
     <Compile Include="Controls\Helpers\Window_OpenFile.cs" />
+    <Compile Include="Controls\TabControls\TabItem_EntityInstanceDefinition.cs" />
+    <Compile Include="Controls\TabControls\TabItem_AudioType.cs" />
     <Compile Include="Controls\TabControls\TabItem_PhysType.cs" />
     <Compile Include="Controls\TabControls\TabItem_CollisionType.cs" />
+    <Compile Include="Controls\UserControls\UserControl_BehaviorInstanceDefinition.cs" />
+    <Compile Include="Controls\UserControls\UserControl_EntityInstanceDefinition.cs" />
+    <Compile Include="Controls\UserControls\UserControl_AudioType.cs" />
     <Compile Include="Controls\UserControls\UserControl_PhysType.cs" />
     <Compile Include="Controls\UserControls\UserControl_CollisionType.cs" />
     <Compile Include="Extensions.cs" />

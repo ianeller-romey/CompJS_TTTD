@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace TTTD_Builder.Model.Data
 
         private Level m_level;
         private EntityInstanceDefinition m_entityInstanceDefinition;
+        private ObservableCollection<KeyValuePair<string, object>> m_data;
         private double? m_x;
         private double? m_y;
 
@@ -33,6 +35,12 @@ namespace TTTD_Builder.Model.Data
         {
             get { return m_entityInstanceDefinition; }
             set { if (value != m_entityInstanceDefinition) { m_entityInstanceDefinition = value; NotifyPropertyChanged("EntityInstanceDefinition"); } }
+        }
+
+        public ObservableCollection<KeyValuePair<string, object>> Data
+        {
+            get { return m_data; }
+            set { if (value != m_data) { m_data = value; NotifyPropertyChanged("Data"); } }
         }
 
         public double? X

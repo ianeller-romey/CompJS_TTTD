@@ -13,11 +13,11 @@ using TTTD_Builder.Model.Data;
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_CollisionType : UserControl
+    public class UserControl_EntityInstanceDefinition : UserControl
     {
         #region MEMBER FIELDS
 
-        private CollisionType m_collisionType;
+        private EntityInstanceDefinition m_entityInstanceDefinition;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
@@ -34,21 +34,21 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_CollisionType(CollisionType collisionType)
+        public UserControl_EntityInstanceDefinition(EntityInstanceDefinition entityInstanceDefinition)
         {
-            m_collisionType = collisionType;
+            m_entityInstanceDefinition = entityInstanceDefinition;
 
             CreateControls();
 
-            if (m_collisionType == null)
+            if (m_entityInstanceDefinition == null)
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
             }
             else
             {
-                m_textBlock_id.Text = m_collisionType.Id.ToString();
-                m_textBox_name.Text = m_collisionType.Name;
+                m_textBlock_id.Text = m_entityInstanceDefinition.Id.ToString();
+                m_textBox_name.Text = m_entityInstanceDefinition.Name;
             }
         }
 
@@ -87,17 +87,17 @@ namespace TTTD_Builder.Controls
 
             ////////
             // GroupBox
-            m_groupBox = new Grid_Activatable("Collision Type", grid_main, false);
+            m_groupBox = new Grid_Activatable("Entity Instance Definition", grid_main, false);
             m_groupBox.ChangesAccepted += () =>
                 {
-                    if (m_collisionType == null)
+                    if (m_entityInstanceDefinition == null)
                         AddNewData();
                     else
                         UpdateExistingData();
                 };
             m_groupBox.ChangesCancelled += () =>
                 {
-                    if (m_collisionType == null)
+                    if (m_entityInstanceDefinition == null)
                         RevertData();
                     else
                         RevertExistingData();
@@ -108,16 +108,16 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_collisionType = new CollisionType();
-            m_collisionType.Id = DataManager.GenerateId<CollisionType>();
-            m_collisionType.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition = new EntityInstanceDefinition();
+            m_entityInstanceDefinition.Id = DataManager.GenerateId<EntityInstanceDefinition>();
+            m_entityInstanceDefinition.Name = m_textBox_name.Text;
 
-            DataManager.CollisionTypes.Add(m_collisionType);
+            DataManager.EntityInstanceDefinitions.Add(m_entityInstanceDefinition);
         }
 
         private void UpdateExistingData()
         {
-            m_collisionType.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition.Name = m_textBox_name.Text;
         }
 
         private void RevertData()
@@ -127,7 +127,7 @@ namespace TTTD_Builder.Controls
 
         private void RevertExistingData()
         {
-            m_textBox_name.Text = m_collisionType.Name;
+            m_textBox_name.Text = m_entityInstanceDefinition.Name;
         }
 
         #endregion
