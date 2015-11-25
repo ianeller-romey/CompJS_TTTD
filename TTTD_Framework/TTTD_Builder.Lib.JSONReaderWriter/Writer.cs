@@ -27,12 +27,12 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector)
+        public void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector, string defaultPath)
         {
             if(selector == null || objectsToWrite == null || !objectsToWrite.Any())
                 return;
 
-            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select())
+            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select(defaultPath))
                 return;
 
             if (!Directory.Exists(selector.DataStore))

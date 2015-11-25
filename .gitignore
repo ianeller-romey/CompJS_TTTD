@@ -12,10 +12,12 @@ TTTD_Framework/TTTD_WindowsStore/bin
 TTTD_Framework/TTTD_WindowsStore/obj
 
 #nuget packages
-TTTD_Framework/packages/Newtonsoft.Json.7.0.1/lib
-TTTD_Framework/packages/Newtonsoft.Json.7.0.1/tools
 TTTD_Framework/packages/AutoMapper.4.1.1/lib
 TTTD_Framework/packages/AutoMapper.4.1.1/tools
+TTTD_Framework/packages/Extended.Wpf.Toolkit.2.5/lib
+TTTD_Framework/packages/Extended.Wpf.Toolkit.2.5/tools
+TTTD_Framework/packages/Newtonsoft.Json.7.0.1/lib
+TTTD_Framework/packages/Newtonsoft.Json.7.0.1/tools
 
 # Windows image file caches
 Thumbs.db

@@ -49,6 +49,20 @@ namespace TTTD_Builder
             InitializeComponent();
 
             Content = CreateControls();
+
+            Loaded += (x, y) =>
+                {
+                    Config.Deserialize();
+                };
+
+            Closed += (x, y) =>
+                {
+                    Config.Serialize();
+                };
+
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            Width = 800;
+            Height = 600;
         }
 
         #endregion
@@ -91,7 +105,7 @@ namespace TTTD_Builder
             var menuItem = sender as MenuItem;
             if (menuItem != null && menuItem == m_menuItem_loadReaderWriter)
             {
-                var window = new Window_OpenFile("Select ReaderWriter DLL", string.Empty, new[] { new Window_OpenFile.Filter("DLL Files (.dll)", "*.dll") });
+                var window = new Window_OpenFile("Select ReaderWriter DLL", Config.ReaderWriterDll, new[] { new Window_OpenFile.Filter("DLL Files (.dll)", "*.dll") });
                 window.ShowDialog();
                 if (window.Accepted)
                 {
@@ -145,9 +159,20 @@ namespace TTTD_Builder
         {
             ////////
             // TabControls
-            TabItem tabItem_audio = new TabItem() { Header = "Audio" };
+            TabControl tabControl_entities = new TabControl();
+            tabControl_entities.Items.Add(new TabItem_EntityInstanceDefinition());
+            TabItem tabItem_entities = new TabItem() { Header = "Entities" };
+            tabItem_entities.Content = tabControl_entities;
 
+            TabControl tabControl_audio = new TabControl();
+            tabControl_audio.Items.Add(new TabItem_AudioType());
+            TabItem tabItem_audio = new TabItem() { Header = "Audio" };
+            tabItem_audio.Content = tabControl_audio;
+
+            TabControl tabControl_behavior = new TabControl();
+            tabControl_behavior.Items.Add(new TabItem_BehaviorInstanceDefinition());
             TabItem tabItem_behavior = new TabItem() { Header = "Behavior" };
+            tabItem_behavior.Content = tabControl_behavior;
 
             TabItem tabItem_graphics = new TabItem() { Header = "Graphics" };
 
@@ -157,8 +182,18 @@ namespace TTTD_Builder
             TabItem tabItem_physics = new TabItem() { Header = "Physics" };
             tabItem_physics.Content = tabControl_physics;
 
+            TabControl tabControl_levels = new TabControl();
+            tabControl_levels.Items.Add(new TabItem_Level());
+            TabItem tabItem_levels = new TabItem() { Header = "Levels" };
+            tabItem_levels.Content = tabControl_levels;
+
             m_tabControl_controls = new TabControl();
+            m_tabControl_controls.Items.Add(tabItem_entities);
+            m_tabControl_controls.Items.Add(tabItem_audio);
+            m_tabControl_controls.Items.Add(tabItem_behavior);
+            m_tabControl_controls.Items.Add(tabItem_graphics);
             m_tabControl_controls.Items.Add(tabItem_physics);
+            m_tabControl_controls.Items.Add(tabItem_levels);
             m_grid_main.SetGridRowColumn(m_tabControl_controls, 1, 0);
         }
 

@@ -9,6 +9,6 @@ namespace TTTD_Builder.Lib
 {
     public interface IReader
     {
-        IEnumerable<T> Read<T>(IDataStoreSelector selector);
+        IEnumerable<T> Read<T>(IDataStoreSelector selector, string defaultPath);
     }
 }

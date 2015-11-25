@@ -193,11 +193,17 @@ namespace TTTD_Builder.Controls
         private void RevertData()
         {
             m_textBox_name.Text = string.Empty;
+            m_comboBox_entityInstanceDefinition.SelectedValue = null;
+            m_textBox_behaviorFile.Text = string.Empty;
+            m_textBlock_behaviorConstructor.Text = string.Empty;
         }
 
         private void RevertExistingData()
         {
             m_textBox_name.Text = m_behaviorInstanceDefinition.Name;
+            m_comboBox_entityInstanceDefinition.SelectedValue = m_behaviorInstanceDefinition.EntityInstanceDefinition;
+            m_textBox_behaviorFile.Text = m_behaviorInstanceDefinition.BehaviorFile;
+            m_textBlock_behaviorConstructor.Text = m_behaviorInstanceDefinition.BehaviorConstructor;
         }
 
         private void SelectBehaviorFile()

@@ -32,12 +32,18 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public bool Select()
+        public void SetDefault(string sDefault)
+        {
+            DataStore = sDefault;
+        }
+
+        public bool Select(string defaultPath)
         {
             System.Windows.Forms.FolderBrowserDialog selectDirectoryDialog =
                 new System.Windows.Forms.FolderBrowserDialog()
                 {
-                    SelectedPath = DataStore
+                    RootFolder = Environment.SpecialFolder.Desktop,
+                    SelectedPath = defaultPath
                 };
             if (selectDirectoryDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {

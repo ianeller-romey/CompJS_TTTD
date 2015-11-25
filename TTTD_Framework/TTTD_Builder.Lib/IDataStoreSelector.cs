@@ -10,6 +10,6 @@ namespace TTTD_Builder.Lib
     public interface IDataStoreSelector
     {
         string DataStore { get; }
-        bool Select();
+        bool Select(string defaultPath);
     }
 }

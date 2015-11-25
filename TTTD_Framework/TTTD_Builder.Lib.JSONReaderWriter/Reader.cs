@@ -27,12 +27,12 @@ namespace TTTD_Builder.Lib.JSONReaderWriter
 
         #region Public Functionality
 
-        public IEnumerable<T> Read<T>(IDataStoreSelector selector)
+        public IEnumerable<T> Read<T>(IDataStoreSelector selector, string defaultPath)
         {
             if (selector == null)
                 return null;
 
-            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select())
+            if (string.IsNullOrEmpty(selector.DataStore) && !selector.Select(defaultPath))
                 return null;
 
             if (!Directory.Exists(selector.DataStore))

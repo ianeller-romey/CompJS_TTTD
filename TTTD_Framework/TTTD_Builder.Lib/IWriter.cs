@@ -9,6 +9,6 @@ namespace TTTD_Builder.Lib
 {
     public interface IWriter
     {
-        void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector);
+        void Write<T>(IEnumerable<T> objectsToWrite, IDataStoreSelector selector, string defaultPath);
     }
 }

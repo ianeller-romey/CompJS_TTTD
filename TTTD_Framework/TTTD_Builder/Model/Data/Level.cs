@@ -13,14 +13,14 @@ namespace TTTD_Builder.Model.Data
     {
         #region MEMBER FIELDS
 
-        private int m_order;
+        private int? m_order;
 
         #endregion
 
 
         #region MEMBER PROPERTIES
 
-        public int Order
+        public int? Order
         {
             get { return m_order; }
             set { if (value != m_order) { m_order = value; NotifyPropertyChanged("Order"); } }

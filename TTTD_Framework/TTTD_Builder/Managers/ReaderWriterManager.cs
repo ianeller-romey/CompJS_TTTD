@@ -43,19 +43,26 @@ namespace TTTD_Builder.Managers
                 {
                     m_reader = Activator.CreateInstance(m_readerType);
                     m_writer = Activator.CreateInstance(m_writerType);
+
+                    Config.ReaderWriterDll = fileName;
                 }
             }
         }
 
         public static IEnumerable<T> Read<T>()
         {
-            return (m_reader != null) ? m_reader.Read<T>(m_dataStoreSelector) : null;
+            var r = (m_reader != null) ? m_reader.Read<T>(m_dataStoreSelector, Config.DataDirectory) : null;
+            Config.DataDirectory = m_dataStoreSelector.DataStore;
+            return r;
         }
 
         public static void Write<T>(IEnumerable<T> objectsToWrite)
         {
             if (m_writer != null)
-                m_writer.Write<T>(objectsToWrite, m_dataStoreSelector);
+            {
+                m_writer.Write<T>(objectsToWrite, m_dataStoreSelector, Config.DataDirectory);
+                Config.DataDirectory = m_dataStoreSelector.DataStore;
+            }
         }
 
         public static void CreateDataStoreSelector()
