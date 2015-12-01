@@ -125,8 +125,7 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_level = new Level();
-            m_level.Id = DataManager.GenerateId<Level>();
+            m_level = DataManager.Generate<Level>();
             m_level.Name = m_textBox_name.Text;
             m_level.Order = m_integerUpDown_order.Value;
 

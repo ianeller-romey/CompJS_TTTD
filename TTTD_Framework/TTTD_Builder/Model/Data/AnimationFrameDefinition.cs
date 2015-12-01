@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TTTD_Builder.Model.Base;
+using TTTD_Builder.Model.Data.Base;
 
 
 namespace TTTD_Builder.Model.Data
@@ -88,6 +88,20 @@ namespace TTTD_Builder.Model.Data
             get { return m_texCoordLeft; }
             set { if (value != m_texCoordLeft) { m_texCoordLeft = value; NotifyPropertyChanged("TexCoordLeft"); } }
         }
+
+        #endregion
+
+
+        #region MEMBER METHODS
+
+        #region Public Functionality
+
+        protected override string NameAnd()
+        {
+            return string.Format("{0}: Frame {1}, {2}", Id, Frame, Name);
+        }
+
+        #endregion
 
         #endregion
 

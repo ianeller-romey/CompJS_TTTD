@@ -28,6 +28,13 @@ namespace TTTD_Builder.Controls.Helpers
         #endregion
 
 
+        #region MEMBER EVENTS
+
+        public event SelectionChangedEventHandler SelectionChanged;
+
+        #endregion
+
+
         #region MEMBER METHODS
 
         #region Public Functionality
@@ -88,7 +95,11 @@ namespace TTTD_Builder.Controls.Helpers
             {
                 T selectedT = cb.SelectedItem as T;
                 if (selectedT != null)
+                {
                     m_selectedFunc(selectedT);
+                    if (SelectionChanged != null)
+                        SelectionChanged(this, e);
+                }
             }
         }
 

@@ -5,22 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+
+using Xceed.Wpf.Toolkit;
 
 using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_AudioType : UserControl
+    public class UserControl_AnimationStateDefinition : UserControl
     {
         #region MEMBER FIELDS
 
-        private AudioType m_audioType;
+        private AnimationStateDefinition m_animationStateDefinition;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
+        private IntegerUpDown m_integerUpDown_state;
         private Grid_Activatable m_groupBox;
 
         #endregion
@@ -34,21 +39,23 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_AudioType(AudioType audioType)
+        public UserControl_AnimationStateDefinition(AnimationStateDefinition animationStateDefinition)
         {
-            m_audioType = audioType;
+            m_animationStateDefinition = animationStateDefinition;
 
             CreateControls();
 
-            if (m_audioType == null)
+            if (m_animationStateDefinition == null)
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
+                m_integerUpDown_state.Value = null;
             }
             else
             {
-                m_textBlock_id.Text = m_audioType.Id.ToString();
-                m_textBox_name.Text = m_audioType.Name;
+                m_textBlock_id.Text = m_animationStateDefinition.Id.ToString();
+                m_textBox_name.Text = m_animationStateDefinition.Name;
+                m_integerUpDown_state.Value = m_animationStateDefinition.State;
             }
         }
 
@@ -86,18 +93,32 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
+            // State
+            m_integerUpDown_state = new IntegerUpDown() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel integerUpDown_validator = new ValidatorPanel(m_integerUpDown_state, IntegerUpDown.ValueProperty, new Validate_NotNull());
+            Label label_state = new Label() { Content = "State: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            Grid grid_state = new Grid();
+            grid_state.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_state.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_state.SetGridRowColumn(integerUpDown_validator, 1, 0);
+            grid_state.SetGridRowColumn(label_state, 0, 0);
+            grid_main.SetGridRowColumn(grid_state, 2, 0);
+
+            ////////
             // GroupBox
-            m_groupBox = new Grid_Activatable("Audio Type", grid_main, false);
+            m_groupBox = new Grid_Activatable("Animation State Definition", grid_main, new [] {
+                integerUpDown_validator
+            }, false);
             m_groupBox.ChangesAccepted += () =>
                 {
-                    if (m_audioType == null)
+                    if (m_animationStateDefinition == null)
                         AddNewData();
                     else
                         UpdateExistingData();
                 };
             m_groupBox.ChangesCancelled += () =>
                 {
-                    if (m_audioType == null)
+                    if (m_animationStateDefinition == null)
                         RevertData();
                     else
                         RevertExistingData();
@@ -108,15 +129,16 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_audioType = DataManager.Generate<AudioType>();
-            m_audioType.Name = m_textBox_name.Text;
+            m_animationStateDefinition = DataManager.Generate<AnimationStateDefinition>();
+            m_animationStateDefinition.Name = m_textBox_name.Text;
+            m_animationStateDefinition.State = m_integerUpDown_state.Value.Value;
 
-            DataManager.AudioTypes.Add(m_audioType);
+            DataManager.AnimationStateDefinitions.Add(m_animationStateDefinition);
         }
 
         private void UpdateExistingData()
         {
-            m_audioType.Name = m_textBox_name.Text;
+            m_animationStateDefinition.Name = m_textBox_name.Text;
         }
 
         private void RevertData()
@@ -126,7 +148,7 @@ namespace TTTD_Builder.Controls
 
         private void RevertExistingData()
         {
-            m_textBox_name.Text = m_audioType.Name;
+            m_textBox_name.Text = m_animationStateDefinition.Name;
         }
 
         #endregion

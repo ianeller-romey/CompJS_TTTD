@@ -108,8 +108,7 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_collisionType = new CollisionType();
-            m_collisionType.Id = DataManager.GenerateId<CollisionType>();
+            m_collisionType = DataManager.Generate<CollisionType>();
             m_collisionType.Name = m_textBox_name.Text;
 
             DataManager.CollisionTypes.Add(m_collisionType);

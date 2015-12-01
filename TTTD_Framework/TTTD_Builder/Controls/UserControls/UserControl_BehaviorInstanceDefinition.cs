@@ -172,8 +172,7 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_behaviorInstanceDefinition = new BehaviorInstanceDefinition();
-            m_behaviorInstanceDefinition.Id = DataManager.GenerateId<BehaviorInstanceDefinition>();
+            m_behaviorInstanceDefinition = DataManager.Generate<BehaviorInstanceDefinition>();
             m_behaviorInstanceDefinition.Name = m_textBox_name.Text;
             m_behaviorInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
             m_behaviorInstanceDefinition.BehaviorFile = m_textBox_behaviorFile.Text;

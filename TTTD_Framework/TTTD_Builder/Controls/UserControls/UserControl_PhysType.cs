@@ -108,8 +108,7 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_physType = new PhysType();
-            m_physType.Id = DataManager.GenerateId<PhysType>();
+            m_physType = DataManager.Generate<PhysType>();
             m_physType.Name = m_textBox_name.Text;
 
             DataManager.PhysTypes.Add(m_physType);

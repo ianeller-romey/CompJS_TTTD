@@ -174,7 +174,10 @@ namespace TTTD_Builder
             TabItem tabItem_behavior = new TabItem() { Header = "Behavior" };
             tabItem_behavior.Content = tabControl_behavior;
 
+            TabControl tabControl_graphics = new TabControl();
+            tabControl_graphics.Items.Add(new TabItem_GraphicsInstanceDefinition());
             TabItem tabItem_graphics = new TabItem() { Header = "Graphics" };
+            tabItem_graphics.Content = tabControl_graphics;
 
             TabControl tabControl_physics = new TabControl();
             tabControl_physics.Items.Add(new TabItem_CollisionType());

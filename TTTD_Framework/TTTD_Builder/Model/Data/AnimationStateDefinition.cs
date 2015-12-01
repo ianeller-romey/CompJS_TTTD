@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TTTD_Builder.Model.Base;
+using TTTD_Builder.Model.Data.Base;
 
 
 namespace TTTD_Builder.Model.Data
@@ -32,6 +32,20 @@ namespace TTTD_Builder.Model.Data
             get { return m_state; }
             set { if (value != m_state) { m_state = value; NotifyPropertyChanged("State"); } }
         }
+
+        #endregion
+
+
+        #region MEMBER METHODS
+
+        #region Public Functionality
+
+        protected override string NameAnd()
+        {
+            return string.Format("{0}: State {1}, {2}", Id, State, Name);
+        }
+
+        #endregion
 
         #endregion
     }

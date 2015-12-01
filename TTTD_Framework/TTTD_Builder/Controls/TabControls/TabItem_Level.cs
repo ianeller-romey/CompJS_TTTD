@@ -31,7 +31,7 @@ namespace TTTD_Builder.Controls.TabControls
 
         public TabItem_Level()
         {
-            Header = "Audio Types";
+            Header = "Levels";
             CreateControls();
         }
 

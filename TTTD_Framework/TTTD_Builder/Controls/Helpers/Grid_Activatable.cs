@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
+using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Lib.Data;
 
 
@@ -48,7 +50,16 @@ namespace TTTD_Builder.Controls.Helpers
         {
             m_mouseButtonEventHandler = new MouseButtonEventHandler(GroupBox_Activatable_LostFocus);
 
-            CreateControls(title, content, enabled);
+            CreateControls(title, content, null, enabled);
+
+            MouseDown += GroupBox_Activatable_MouseDown;
+        }
+
+        public Grid_Activatable(string title, UIElement content, IEnumerable<ValidatorBase> validators, bool enabled)
+        {
+            m_mouseButtonEventHandler = new MouseButtonEventHandler(GroupBox_Activatable_LostFocus);
+
+            CreateControls(title, content, validators, enabled);
 
             MouseDown += GroupBox_Activatable_MouseDown;
         }
@@ -58,7 +69,7 @@ namespace TTTD_Builder.Controls.Helpers
 
         #region Private Functionality
 
-        private void CreateControls(string title, UIElement content, bool enabled)
+        private void CreateControls(string title, UIElement content, IEnumerable<ValidatorBase> validators, bool enabled)
         {
             Background = Brushes.Transparent;
             RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0, GridUnitType.Star) });
@@ -73,6 +84,17 @@ namespace TTTD_Builder.Controls.Helpers
             Button button_accept = new Button() { Content = "Accept" };
             button_accept.Click += (sender, args) => { RaiseChangesAccepted(); Disable(); };
             m_gridButtons.SetGridRowColumn(button_accept, 0, 0);
+
+            if (validators != null)
+            {
+                MultiBinding multiBinding = new MultiBinding() { Converter = new AllValidationsConverter() };
+                foreach (var v in validators)
+                {
+                    Binding binding = new Binding("Valid") { Source = v, Mode = BindingMode.OneWay };
+                    multiBinding.Bindings.Add(binding);
+                }
+                button_accept.SetBinding(UIElement.IsEnabledProperty, multiBinding);
+            }
 
             Button button_cancel = new Button() { Content = "Cancel" };
             button_cancel.Click += (sender, args) => { RaiseChangesCancelled(); Disable(); };

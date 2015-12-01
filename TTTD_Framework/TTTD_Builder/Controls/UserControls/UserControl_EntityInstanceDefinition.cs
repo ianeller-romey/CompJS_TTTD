@@ -108,8 +108,7 @@ namespace TTTD_Builder.Controls
 
         private void AddNewData()
         {
-            m_entityInstanceDefinition = new EntityInstanceDefinition();
-            m_entityInstanceDefinition.Id = DataManager.GenerateId<EntityInstanceDefinition>();
+            m_entityInstanceDefinition = DataManager.Generate<EntityInstanceDefinition>();
             m_entityInstanceDefinition.Name = m_textBox_name.Text;
 
             DataManager.EntityInstanceDefinitions.Add(m_entityInstanceDefinition);

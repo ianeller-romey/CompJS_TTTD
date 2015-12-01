@@ -218,6 +218,13 @@ namespace TTTD_Builder.Managers
             return s_idGenerator[typeof(T)]++;
         }
 
+        public static T Generate<T>() where T : TTTD_Builder.Model.Data.Base.DataBase, new()
+        {
+            T t = new T();
+            t.Id = GenerateId<T>();
+            return t;
+        }
+
         #endregion
 
 

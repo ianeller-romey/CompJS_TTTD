@@ -83,16 +83,32 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="Controls\Validation\AllValidationsConverter.cs" />
+    <Compile Include="Controls\Validation\Validate_False.cs" />
+    <Compile Include="Controls\Validation\Validate_True.cs" />
+    <Compile Include="Controls\Validation\ValidatorBase.cs" />
+    <Compile Include="Controls\Validation\MultiValidatorPanel.cs" />
+    <Compile Include="Controls\Validation\IValidator.cs" />
+    <Compile Include="Controls\Validation\Validate_NotNull.cs" />
+    <Compile Include="Controls\Validation\Validate_Null.cs" />
+    <Compile Include="Controls\Validation\Validate_NotEqualTo.cs" />
+    <Compile Include="Controls\Validation\Validate_Ex.cs" />
+    <Compile Include="Controls\Validation\Validate_EqualTo.cs" />
+    <Compile Include="Controls\Validation\IValidate.cs" />
+    <Compile Include="Controls\Validation\ValidatorPanel.cs" />
     <Compile Include="Controls\Helpers\UserControl_NewAndSelect.cs" />
     <Compile Include="Controls\Helpers\Grid_Activatable.cs" />
     <Compile Include="Controls\Helpers\Window_AcceptCancel.cs" />
     <Compile Include="Controls\Helpers\Window_OpenFile.cs" />
+    <Compile Include="Controls\TabControls\TabItem_GraphicsInstanceDefinition.cs" />
     <Compile Include="Controls\TabControls\TabItem_BehaviorInstanceDefinition.cs" />
     <Compile Include="Controls\TabControls\TabItem_Level.cs" />
     <Compile Include="Controls\TabControls\TabItem_EntityInstanceDefinition.cs" />
     <Compile Include="Controls\TabControls\TabItem_AudioType.cs" />
     <Compile Include="Controls\TabControls\TabItem_PhysType.cs" />
     <Compile Include="Controls\TabControls\TabItem_CollisionType.cs" />
+    <Compile Include="Controls\UserControls\UserControl_AnimationStateDefinition.cs" />
+    <Compile Include="Controls\UserControls\UserControl_GraphicsInstanceDefinition.cs" />
     <Compile Include="Controls\UserControls\UserControl_Level.cs" />
     <Compile Include="Controls\UserControls\UserControl_BehaviorInstanceDefinition.cs" />
     <Compile Include="Controls\UserControls\UserControl_EntityInstanceDefinition.cs" />
@@ -133,6 +149,8 @@
     <Compile Include="Model\Data\PhysicsInstanceDefinition.cs" />
     <Compile Include="Model\Data\PhysType.cs" />
     <Compile Include="Model\Data\Shader.cs" />
+    <Compile Include="Model\Extensions\Base\ExtensionsBase.cs" />
+    <Compile Include="Model\Extensions\GraphicsInstanceDefinition_Ex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
