@@ -17,7 +17,7 @@ using TTTD_Builder.Model.Data;
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_AnimationStateDefinition : UserControl
+    public class UserControl_AnimationStateDefinition : UserControl_EditData
     {
         #region MEMBER FIELDS
 
@@ -26,7 +26,6 @@ namespace TTTD_Builder.Controls
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
         private IntegerUpDown m_integerUpDown_state;
-        private Grid_Activatable m_groupBox;
 
         #endregion
 
@@ -39,13 +38,12 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_AnimationStateDefinition(AnimationStateDefinition animationStateDefinition)
+        public UserControl_AnimationStateDefinition(AnimationStateDefinition animationStateDefinition) :
+            base("Animation State Definition", false)
         {
             m_animationStateDefinition = animationStateDefinition;
 
-            CreateControls();
-
-            if (m_animationStateDefinition == null)
+            if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
@@ -64,9 +62,10 @@ namespace TTTD_Builder.Controls
 
         #region Private Functionality
 
-        private void CreateControls()
+        protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
+            grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
@@ -84,50 +83,41 @@ namespace TTTD_Builder.Controls
             ////////
             // Name
             m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_name = new ValidatorPanel(m_textBox_name, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Label label_name = new Label() { Content = "Name: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(m_textBox_name, 1, 0);
+            grid_name.SetGridRowColumn(validator_name, 1, 0);
             grid_name.SetGridRowColumn(label_name, 0, 0);
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
             // State
             m_integerUpDown_state = new IntegerUpDown() { VerticalAlignment = VerticalAlignment.Center };
-            ValidatorPanel integerUpDown_validator = new ValidatorPanel(m_integerUpDown_state, IntegerUpDown.ValueProperty, new Validate_NotNull());
+            ValidatorPanel validator_state = new ValidatorPanel(m_integerUpDown_state, IntegerUpDown.ValueProperty, new Validate_NotNull());
             Label label_state = new Label() { Content = "State: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_state = new Grid();
             grid_state.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_state.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_state.SetGridRowColumn(integerUpDown_validator, 1, 0);
+            grid_state.SetGridRowColumn(validator_state, 1, 0);
             grid_state.SetGridRowColumn(label_state, 0, 0);
             grid_main.SetGridRowColumn(grid_state, 2, 0);
 
             ////////
-            // GroupBox
-            m_groupBox = new Grid_Activatable("Animation State Definition", grid_main, new [] {
-                integerUpDown_validator
-            }, false);
-            m_groupBox.ChangesAccepted += () =>
-                {
-                    if (m_animationStateDefinition == null)
-                        AddNewData();
-                    else
-                        UpdateExistingData();
-                };
-            m_groupBox.ChangesCancelled += () =>
-                {
-                    if (m_animationStateDefinition == null)
-                        RevertData();
-                    else
-                        RevertExistingData();
-                };
-            Content = m_groupBox;
-            
+            // FIN
+            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
+                validator_name,
+                validator_state
+            }};
         }
 
-        private void AddNewData()
+        protected override bool DataIsNull()
+        {
+            return m_animationStateDefinition == null;
+        }
+
+        protected override void AddNewData()
         {
             m_animationStateDefinition = DataManager.Generate<AnimationStateDefinition>();
             m_animationStateDefinition.Name = m_textBox_name.Text;
@@ -136,19 +126,22 @@ namespace TTTD_Builder.Controls
             DataManager.AnimationStateDefinitions.Add(m_animationStateDefinition);
         }
 
-        private void UpdateExistingData()
+        protected override void UpdateExistingData()
         {
             m_animationStateDefinition.Name = m_textBox_name.Text;
+            m_animationStateDefinition.State = m_integerUpDown_state.Value.Value;
         }
 
-        private void RevertData()
+        protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
+            m_integerUpDown_state.Value = 0;
         }
 
-        private void RevertExistingData()
+        protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_animationStateDefinition.Name;
+            m_integerUpDown_state.Value = m_animationStateDefinition.State;
         }
 
         #endregion

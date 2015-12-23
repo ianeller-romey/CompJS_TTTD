@@ -9,13 +9,14 @@ using System.Windows.Controls;
 using Xceed.Wpf.Toolkit;
 
 using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_Level : UserControl
+    public class UserControl_Level : UserControl_EditData
     {
         #region MEMBER FIELDS
 
@@ -24,7 +25,6 @@ namespace TTTD_Builder.Controls
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
         private IntegerUpDown m_integerUpDown_order;
-        private Grid_Activatable m_groupBox;
 
         #endregion
 
@@ -37,13 +37,12 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_Level(Level level)
+        public UserControl_Level(Level level) :
+            base("Level", false)
         {
             m_level = level;
 
-            CreateControls();
-
-            if (m_level == null)
+            if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
@@ -62,7 +61,7 @@ namespace TTTD_Builder.Controls
 
         #region Private Functionality
 
-        private void CreateControls()
+        protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -83,11 +82,12 @@ namespace TTTD_Builder.Controls
             ////////
             // Name
             m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_name = new ValidatorPanel(m_textBox_name, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Label label_name = new Label() { Content = "Name: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(m_textBox_name, 1, 0);
+            grid_name.SetGridRowColumn(validator_name, 1, 0);
             grid_name.SetGridRowColumn(label_name, 0, 0);
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
@@ -103,27 +103,18 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_order, 2, 0);
 
             ////////
-            // GroupBox
-            m_groupBox = new Grid_Activatable("Level", grid_main, false);
-            m_groupBox.ChangesAccepted += () =>
-                {
-                    if (m_level == null)
-                        AddNewData();
-                    else
-                        UpdateExistingData();
-                };
-            m_groupBox.ChangesCancelled += () =>
-                {
-                    if (m_level == null)
-                        RevertData();
-                    else
-                        RevertExistingData();
-                };
-            Content = m_groupBox;
-            
+            // FIN
+            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
+                validator_name
+            }};
         }
 
-        private void AddNewData()
+        protected override bool DataIsNull()
+        {
+            return m_level == null;
+        }
+
+        protected override void AddNewData()
         {
             m_level = DataManager.Generate<Level>();
             m_level.Name = m_textBox_name.Text;
@@ -132,19 +123,19 @@ namespace TTTD_Builder.Controls
             DataManager.Levels.Add(m_level);
         }
 
-        private void UpdateExistingData()
+        protected override void UpdateExistingData()
         {
             m_level.Name = m_textBox_name.Text;
             m_level.Order = m_integerUpDown_order.Value;
         }
 
-        private void RevertData()
+        protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
             m_integerUpDown_order.Value = null;
         }
 
-        private void RevertExistingData()
+        protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_level.Name;
             m_integerUpDown_order.Value = m_level.Order;

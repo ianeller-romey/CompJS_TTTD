@@ -16,9 +16,6 @@ namespace TTTD_Builder.Controls.Validation
     public abstract class ValidatorBase : ContentControl, IValidator, INotifyPropertyChanged
     {
         #region MEMBER FIELDS
-
-        private bool m_valid = false;
-
         #endregion
 
 

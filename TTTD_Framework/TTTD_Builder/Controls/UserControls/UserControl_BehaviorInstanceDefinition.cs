@@ -10,13 +10,14 @@ using System.Windows.Controls;
 using System.Windows.Data;
 
 using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_BehaviorInstanceDefinition : UserControl
+    public class UserControl_BehaviorInstanceDefinition : UserControl_EditData
     {
         #region MEMBER FIELDS
 
@@ -29,7 +30,6 @@ namespace TTTD_Builder.Controls
         private ComboBox m_comboBox_entityInstanceDefinition;
         private TextBox m_textBox_behaviorFile;
         private TextBlock m_textBlock_behaviorConstructor;
-        private Grid_Activatable m_groupBox;
 
         #endregion
 
@@ -42,13 +42,12 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_BehaviorInstanceDefinition(BehaviorInstanceDefinition behaviorInstanceDefinition)
+        public UserControl_BehaviorInstanceDefinition(BehaviorInstanceDefinition behaviorInstanceDefinition) :
+            base("Behavior Instance Definition", false)
         {
             m_behaviorInstanceDefinition = behaviorInstanceDefinition;
 
-            CreateControls();
-
-            if (m_behaviorInstanceDefinition == null)
+            if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
@@ -71,7 +70,7 @@ namespace TTTD_Builder.Controls
 
         #region Private Functionality
 
-        private void CreateControls()
+        protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -94,11 +93,12 @@ namespace TTTD_Builder.Controls
             ////////
             // Name
             m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_name = new ValidatorPanel(m_textBox_name, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Label label_name = new Label() { Content = "Name: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(m_textBox_name, 1, 0);
+            grid_name.SetGridRowColumn(validator_name, 1, 0);
             grid_name.SetGridRowColumn(label_name, 0, 0);
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
@@ -116,12 +116,13 @@ namespace TTTD_Builder.Controls
                     IsTextSearchEnabled = true
                 };
             m_comboBox_entityInstanceDefinition.SetBinding(ItemsControl.ItemsSourceProperty, new Binding() { Source = collectionViewSource_entityInstanceDefinition });
+            ValidatorPanel validator_entityInstanceDefinition = new ValidatorPanel(m_comboBox_entityInstanceDefinition, ComboBox.SelectedItemProperty, new Validate_NotNull());
 
             Label label_entityInstanceDefinition = new Label() { Content = "Entity Instance: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_entityInstanceDefinition = new Grid();
             grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(m_comboBox_entityInstanceDefinition, 0, 1);
+            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 0, 1);
             grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
             grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
 
@@ -130,11 +131,12 @@ namespace TTTD_Builder.Controls
             Button button_behaviorFile = new Button() { Content = " ... " };
             button_behaviorFile.Click += (x, y) => { SelectBehaviorFile(); };
             m_textBox_behaviorFile = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_behaviorFile = new ValidatorPanel(m_textBox_behaviorFile, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Label label_behaviorFile = new Label() { Content = "Behavior File: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_behaviorFile = new Grid();
             grid_behaviorFile.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorFile.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_behaviorFile.SetGridRowColumn(m_textBox_behaviorFile, 1, 0);
+            grid_behaviorFile.SetGridRowColumn(validator_behaviorFile, 1, 0);
             grid_behaviorFile.SetGridRowColumn(label_behaviorFile, 0, 0);
             grid_main.SetGridRowColumn(grid_behaviorFile, 3, 0);
 
@@ -142,6 +144,7 @@ namespace TTTD_Builder.Controls
             // Behavior Constructor
             m_textBlock_behaviorConstructor = new TextBlock() { VerticalAlignment = VerticalAlignment.Center };
             Label label_behaviorConstructor = new Label() { Content = "Behavior Constructor: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_behaviorConstructor = new ValidatorPanel(m_textBlock_behaviorConstructor, TextBlock.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Grid grid_behaviorConstructor = new Grid();
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -150,27 +153,21 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_behaviorConstructor, 4, 0);
 
             ////////
-            // GroupBox
-            m_groupBox = new Grid_Activatable("Behavior Instance Definition", grid_main, false);
-            m_groupBox.ChangesAccepted += () =>
-                {
-                    if (m_behaviorInstanceDefinition == null)
-                        AddNewData();
-                    else
-                        UpdateExistingData();
-                };
-            m_groupBox.ChangesCancelled += () =>
-                {
-                    if (m_behaviorInstanceDefinition == null)
-                        RevertData();
-                    else
-                        RevertExistingData();
-                };
-            Content = m_groupBox;
-            
+            // FIN
+            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
+                validator_name,
+                validator_entityInstanceDefinition,
+                validator_behaviorFile,
+                validator_behaviorConstructor
+            }};
         }
 
-        private void AddNewData()
+        protected override bool DataIsNull()
+        {
+            return m_behaviorInstanceDefinition == null;
+        }
+
+        protected override void AddNewData()
         {
             m_behaviorInstanceDefinition = DataManager.Generate<BehaviorInstanceDefinition>();
             m_behaviorInstanceDefinition.Name = m_textBox_name.Text;
@@ -181,7 +178,7 @@ namespace TTTD_Builder.Controls
             DataManager.BehaviorInstanceDefinitions.Add(m_behaviorInstanceDefinition);
         }
 
-        private void UpdateExistingData()
+        protected override void UpdateExistingData()
         {
             m_behaviorInstanceDefinition.Name = m_textBox_name.Text;
             m_behaviorInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
@@ -189,7 +186,7 @@ namespace TTTD_Builder.Controls
             m_behaviorInstanceDefinition.BehaviorConstructor = m_textBlock_behaviorConstructor.Text;
         }
 
-        private void RevertData()
+        protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
             m_comboBox_entityInstanceDefinition.SelectedValue = null;
@@ -197,7 +194,7 @@ namespace TTTD_Builder.Controls
             m_textBlock_behaviorConstructor.Text = string.Empty;
         }
 
-        private void RevertExistingData()
+        protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_behaviorInstanceDefinition.Name;
             m_comboBox_entityInstanceDefinition.SelectedValue = m_behaviorInstanceDefinition.EntityInstanceDefinition;

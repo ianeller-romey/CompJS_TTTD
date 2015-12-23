@@ -7,13 +7,14 @@ using System.Windows;
 using System.Windows.Controls;
 
 using TTTD_Builder.Controls.Helpers;
+using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
 namespace TTTD_Builder.Controls
 {
-    public class UserControl_AudioType : UserControl
+    public class UserControl_AudioType : UserControl_EditData
     {
         #region MEMBER FIELDS
 
@@ -21,7 +22,6 @@ namespace TTTD_Builder.Controls
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
-        private Grid_Activatable m_groupBox;
 
         #endregion
 
@@ -34,13 +34,12 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_AudioType(AudioType audioType)
+        public UserControl_AudioType(AudioType audioType) :
+            base("Audio Type", false)
         {
             m_audioType = audioType;
 
-            CreateControls();
-
-            if (m_audioType == null)
+            if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
@@ -57,7 +56,7 @@ namespace TTTD_Builder.Controls
 
         #region Private Functionality
 
-        private void CreateControls()
+        protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -77,36 +76,28 @@ namespace TTTD_Builder.Controls
             ////////
             // Name
             m_textBox_name = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_name = new ValidatorPanel(m_textBox_name, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
             Label label_name = new Label() { Content = "Name: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(m_textBox_name, 1, 0);
+            grid_name.SetGridRowColumn(validator_name, 1, 0);
             grid_name.SetGridRowColumn(label_name, 0, 0);
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
-            // GroupBox
-            m_groupBox = new Grid_Activatable("Audio Type", grid_main, false);
-            m_groupBox.ChangesAccepted += () =>
-                {
-                    if (m_audioType == null)
-                        AddNewData();
-                    else
-                        UpdateExistingData();
-                };
-            m_groupBox.ChangesCancelled += () =>
-                {
-                    if (m_audioType == null)
-                        RevertData();
-                    else
-                        RevertExistingData();
-                };
-            Content = m_groupBox;
-            
+            // FIN
+            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
+                validator_name
+            }};
         }
 
-        private void AddNewData()
+        protected override bool DataIsNull()
+        {
+            return m_audioType == null;
+        }
+
+        protected override void AddNewData()
         {
             m_audioType = DataManager.Generate<AudioType>();
             m_audioType.Name = m_textBox_name.Text;
@@ -114,17 +105,17 @@ namespace TTTD_Builder.Controls
             DataManager.AudioTypes.Add(m_audioType);
         }
 
-        private void UpdateExistingData()
+        protected override void UpdateExistingData()
         {
             m_audioType.Name = m_textBox_name.Text;
         }
 
-        private void RevertData()
+        protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
         }
 
-        private void RevertExistingData()
+        protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_audioType.Name;
         }

@@ -22,12 +22,14 @@ namespace TTTD_Builder.Controls.TabControls
         Grid m_grid_main;
         UserControl_NewAndSelect<GraphicsInstanceDefinition> m_comboBox_graphicsInstanceDefinitions;
         UserControl_GraphicsInstanceDefinition m_userControl_graphicsInstanceDefinition;
-        UserControl_NewAndSelect<AnimationStateDefinition> m_comboBox_animationStateDefinition;
+        UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions> m_comboBox_animationStateDefinition;
         UserControl_AnimationStateDefinition m_userControl_animationStateDefinition;
         UserControl_NewAndSelect<AnimationFrameDefinition> m_comboBox_animationFrameDefinition;
         //UserControl_AnimationFrameDefinition m_userControl_animationFrameDefinition;
         UserControl_NewAndSelect<FontTextureDefinition> m_comboBox_fontTextureDefinition;
         //UserControl_FontTextureDefinition m_userControl_fontTextureDefinition;
+
+        GraphicsInstanceDefinition_Ex m_selectedGraphicsInstanceDefinition;
 
         #endregion
 
@@ -53,18 +55,18 @@ namespace TTTD_Builder.Controls.TabControls
 
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0, GridUnitType.Star) });
 
-            m_grid_main.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            m_grid_main.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
+            m_grid_main.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(25.0, GridUnitType.Star) });
+            m_grid_main.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(75.0, GridUnitType.Star) });
 
             ////////
             // ComboBox
             m_comboBox_graphicsInstanceDefinitions = new UserControl_NewAndSelect<GraphicsInstanceDefinition>(DataManager.GraphicsInstanceDefinitions, NewGraphicsInstanceDefinition, SelectGraphicsInstanceDefinition);
-            Grid.SetColumnSpan(m_comboBox_graphicsInstanceDefinitions, 2);
             m_grid_main.SetGridRowColumn(m_comboBox_graphicsInstanceDefinitions, 0, 0);
-
-
+            
             ////////
             // Fin
             Content = m_grid_main;
@@ -72,17 +74,16 @@ namespace TTTD_Builder.Controls.TabControls
 
         private void SwitchToAnimationControls()
         {
-            if (m_comboBox_fontTextureDefinition != null)
-                m_grid_main.Children.Remove(m_comboBox_fontTextureDefinition);
-            //if (m_userControl_fontTextureDefinition != null)
-            //    m_grid_main.Children.Remove(m_userControl_fontTextureDefinition);
+            RemoveFontTextureControls(true);
 
-            m_comboBox_animationStateDefinition = new UserControl_NewAndSelect<AnimationStateDefinition>(DataManager.AnimationStateDefinitions, NewAnimationStateDefinition, SelectAnimationStateDefinition);
-            m_grid_main.SetGridRowColumn(m_comboBox_animationStateDefinition, 1, 0);
+            var g = m_selectedGraphicsInstanceDefinition as GraphicsInstanceDefinition_WithAnimationStateDefinitions;
+            m_comboBox_animationStateDefinition = new UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions>(g.AnimationStates, NewAnimationStateDefinition, SelectAnimationStateDefinition);
+            m_grid_main.SetGridRowColumn(m_comboBox_animationStateDefinition, 2, 0);
         }
 
         private void SwitchToFontControls()
         {
+            RemoveAnimationStateControls(true);
         }
 
         private void RemoveUserControls()
@@ -90,6 +91,58 @@ namespace TTTD_Builder.Controls.TabControls
             if (m_userControl_graphicsInstanceDefinition != null)
                 m_grid_main.Children.Remove(m_userControl_graphicsInstanceDefinition);
             m_userControl_graphicsInstanceDefinition = null;
+
+            RemoveAnimationStateControls(true);
+
+            RemoveFontTextureControls(true);
+        }
+
+        private void RemoveAnimationStateControls(bool removeComboBox)
+        {
+            if (m_userControl_animationStateDefinition != null)
+            {
+                m_grid_main.Children.Remove(m_userControl_animationStateDefinition);
+                m_userControl_animationStateDefinition.NewDataAddedEvent -= UserControl_AnimationStateDefinition_DataChangedEvent;
+                m_userControl_animationStateDefinition.ExistingDataUpdatedEvent -= UserControl_AnimationStateDefinition_DataChangedEvent;
+            }
+            m_userControl_animationStateDefinition = null;
+
+            if (removeComboBox)
+            {
+                if (m_comboBox_animationStateDefinition != null)
+                    m_grid_main.Children.Remove(m_comboBox_animationStateDefinition);
+                m_comboBox_animationStateDefinition = null;
+            }
+
+            RemoveAnimationFrameControls(true);
+        }
+
+        private void RemoveAnimationFrameControls(bool removeComboBox)
+        {
+            //if (m_userControl_fontTextureDefintion != null)
+            //    m_grid_main.Children.Remove(m_userControl_animationFrameDefinition);
+            //m_userControl_animationFrameDefinition = null;
+
+            if (removeComboBox)
+            {
+                if (m_comboBox_animationFrameDefinition != null)
+                    m_grid_main.Children.Remove(m_comboBox_animationFrameDefinition);
+                m_comboBox_animationFrameDefinition = null;
+            }
+        }
+
+        private void RemoveFontTextureControls(bool removeComboBox)
+        {
+            //if (m_userControl_fontTextureDefintion != null)
+            //    m_grid_main.Children.Remove(m_userControl_fontTextureDefinition);
+            //m_userControl_fontTextureDefinition = null;
+
+            if (removeComboBox)
+            {
+                if (m_comboBox_fontTextureDefinition != null)
+                    m_grid_main.Children.Remove(m_comboBox_fontTextureDefinition);
+                m_comboBox_fontTextureDefinition = null;
+            }
         }
 
         private void NewGraphicsInstanceDefinition()
@@ -103,23 +156,40 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControls();
 
-            var graphicsInstanceDefinition_ex = new GraphicsInstanceDefinition_Ex() { GraphicsInstanceDefinition = graphicsInstanceDefinition };
-            m_userControl_graphicsInstanceDefinition = new UserControl_GraphicsInstanceDefinition(graphicsInstanceDefinition_ex);
+            if(DataManager.AnimationStateDefinitions.Any(x => x.GraphicsInstanceDefinition == graphicsInstanceDefinition))
+            {
+                m_selectedGraphicsInstanceDefinition = new GraphicsInstanceDefinition_WithAnimationStateDefinitions(graphicsInstanceDefinition);
+                SwitchToAnimationControls();
+            }
+            else if (DataManager.FontTextureDefinitions.Any(x => x.GraphicsInstanceDefinition == graphicsInstanceDefinition))
+            {
+                m_selectedGraphicsInstanceDefinition = new GraphicsInstanceDefinition_WithFontTextureDefinitions(graphicsInstanceDefinition);
+                SwitchToFontControls();
+            }
+
+            m_userControl_graphicsInstanceDefinition = new UserControl_GraphicsInstanceDefinition(m_selectedGraphicsInstanceDefinition);
             m_grid_main.SetGridRowColumn(m_userControl_graphicsInstanceDefinition, 1, 0);
         }
 
         private void NewAnimationStateDefinition()
         {
-            //RemoveUserControls();
+            RemoveAnimationStateControls(false);
             m_userControl_animationStateDefinition = new UserControl_AnimationStateDefinition(null);
-            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 1, 0);
+            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 3, 0);
         }
 
-        private void SelectAnimationStateDefinition(AnimationStateDefinition animationStateDefinition)
+        private void SelectAnimationStateDefinition(AnimationStateDefinition_WithAnimationFrameDefinitions animationStateDefinition)
         {
-            //RemoveUserControls();
-            m_userControl_animationStateDefinition = new UserControl_AnimationStateDefinition(animationStateDefinition);
-            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 1, 0);
+            RemoveAnimationStateControls(false);
+            m_userControl_animationStateDefinition = new UserControl_AnimationStateDefinition(animationStateDefinition.AnimationStateDefinition);
+            m_userControl_animationStateDefinition.NewDataAddedEvent += UserControl_AnimationStateDefinition_DataChangedEvent;
+            m_userControl_animationStateDefinition.ExistingDataUpdatedEvent += UserControl_AnimationStateDefinition_DataChangedEvent;
+            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 3, 0);
+        }
+
+        void UserControl_AnimationStateDefinition_DataChangedEvent()
+        {
+            m_selectedGraphicsInstanceDefinition.Refresh();
         }
 
         #endregion
