@@ -83,6 +83,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="Controls\EditData\UserControl_AnimationFrameDefinition.cs" />
     <Compile Include="Controls\Helpers\UserControl_EditData.cs" />
     <Compile Include="Controls\Validation\AllValidationsConverter.cs" />
     <Compile Include="Controls\Validation\Validate_StringIsNotNullOrEmpty.cs" />
@@ -109,14 +110,14 @@
     <Compile Include="Controls\TabControls\TabItem_AudioType.cs" />
     <Compile Include="Controls\TabControls\TabItem_PhysType.cs" />
     <Compile Include="Controls\TabControls\TabItem_CollisionType.cs" />
-    <Compile Include="Controls\UserControls\UserControl_AnimationStateDefinition.cs" />
-    <Compile Include="Controls\UserControls\UserControl_GraphicsInstanceDefinition.cs" />
-    <Compile Include="Controls\UserControls\UserControl_Level.cs" />
-    <Compile Include="Controls\UserControls\UserControl_BehaviorInstanceDefinition.cs" />
-    <Compile Include="Controls\UserControls\UserControl_EntityInstanceDefinition.cs" />
-    <Compile Include="Controls\UserControls\UserControl_AudioType.cs" />
-    <Compile Include="Controls\UserControls\UserControl_PhysType.cs" />
-    <Compile Include="Controls\UserControls\UserControl_CollisionType.cs" />
+    <Compile Include="Controls\EditData\UserControl_AnimationStateDefinition.cs" />
+    <Compile Include="Controls\EditData\UserControl_GraphicsInstanceDefinition.cs" />
+    <Compile Include="Controls\EditData\UserControl_Level.cs" />
+    <Compile Include="Controls\EditData\UserControl_BehaviorInstanceDefinition.cs" />
+    <Compile Include="Controls\EditData\UserControl_EntityInstanceDefinition.cs" />
+    <Compile Include="Controls\EditData\UserControl_AudioType.cs" />
+    <Compile Include="Controls\EditData\UserControl_PhysType.cs" />
+    <Compile Include="Controls\EditData\UserControl_CollisionType.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Managers\DataManager.cs" />
     <Compile Include="Managers\ReaderWriterManager.cs" />

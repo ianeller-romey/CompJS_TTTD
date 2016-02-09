@@ -21,10 +21,18 @@ namespace TTTD_Builder.Controls.Helpers
         private Action m_newFunc;
         private Action<T> m_selectedFunc;
 
+        private ComboBox m_comboBox;
+
         #endregion
 
 
         #region MEMBER PROPERTIES
+
+        public T SelectedItem
+        {
+            get { return m_comboBox.SelectedItem as T; }
+        }
+
         #endregion
 
 
@@ -57,25 +65,25 @@ namespace TTTD_Builder.Controls.Helpers
 
             ////////
             // combobox
-            ComboBox comboBox =
+            m_comboBox =
                 new ComboBox()
                 {
                     DisplayMemberPath = "Name",
                     IsTextSearchEnabled = true
                 };
-            comboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = m_collectionViewSource });
-            comboBox.SelectionChanged += ComboBox_SelectionChanged;
+            m_comboBox.SetBinding(ItemsControl.ItemsSourceProperty, new Binding { Source = m_collectionViewSource });
+            m_comboBox.SelectionChanged += ComboBox_SelectionChanged;
             collection.CollectionChanged += (x, y) =>
                 {
                     if (y.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                        comboBox.SelectedItem = y.NewItems.OfType<T>().FirstOrDefault();
+                        m_comboBox.SelectedItem = y.NewItems.OfType<T>().FirstOrDefault();
                 };
-            grid_main.SetGridRowColumn(comboBox, 0, 1);
+            grid_main.SetGridRowColumn(m_comboBox, 0, 1);
 
             ////////
             // new button
             Button button_new = new Button() { Padding = new Thickness(2.5), Margin = new Thickness(0.0, 0.0, 2.5, 0.0), FontWeight = FontWeights.Bold, Content = "+", };
-            button_new.Click += (x, y) => { comboBox.SelectedItem = null; m_newFunc(); };
+            button_new.Click += (x, y) => { m_comboBox.SelectedItem = null; m_newFunc(); };
             grid_main.SetGridRowColumn(button_new, 0, 0);
 
             ////////

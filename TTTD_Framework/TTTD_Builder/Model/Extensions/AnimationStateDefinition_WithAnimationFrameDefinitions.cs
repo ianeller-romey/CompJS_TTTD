@@ -68,6 +68,13 @@ namespace TTTD_Builder.Model.Extensions
             DataManager.AnimationFrameDefinitions.CollectionChanged -= AnimationFrameDefinitions_CollectionChanged;
         }
 
+        public void Refresh()
+        {
+            m_animationFrames.Clear();
+            AnimationFrames.AddRange(DataManager.AnimationFrameDefinitions
+                .Where(x => x.AnimationStateDefinition == m_animationStateDefinition));
+        }
+
         #endregion
 
 

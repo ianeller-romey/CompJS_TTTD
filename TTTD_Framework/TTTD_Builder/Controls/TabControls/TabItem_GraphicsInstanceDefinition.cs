@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
+using TTTD_Builder.EditData;
 using TTTD_Builder.Controls.Helpers;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
@@ -25,11 +26,12 @@ namespace TTTD_Builder.Controls.TabControls
         UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions> m_comboBox_animationStateDefinition;
         UserControl_AnimationStateDefinition m_userControl_animationStateDefinition;
         UserControl_NewAndSelect<AnimationFrameDefinition> m_comboBox_animationFrameDefinition;
-        //UserControl_AnimationFrameDefinition m_userControl_animationFrameDefinition;
+        UserControl_AnimationFrameDefinition m_userControl_animationFrameDefinition;
         UserControl_NewAndSelect<FontTextureDefinition> m_comboBox_fontTextureDefinition;
         //UserControl_FontTextureDefinition m_userControl_fontTextureDefinition;
 
         GraphicsInstanceDefinition_Ex m_selectedGraphicsInstanceDefinition;
+        AnimationStateDefinition_WithAnimationFrameDefinitions m_selectedAnimationStateDefinition;
 
         #endregion
 
@@ -72,18 +74,35 @@ namespace TTTD_Builder.Controls.TabControls
             Content = m_grid_main;
         }
 
-        private void SwitchToAnimationControls()
+        private void AddAnimationStateControls()
         {
             RemoveFontTextureControls(true);
 
+            RemoveAnimationStateControls(true);
+
             var g = m_selectedGraphicsInstanceDefinition as GraphicsInstanceDefinition_WithAnimationStateDefinitions;
             m_comboBox_animationStateDefinition = new UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions>(g.AnimationStates, NewAnimationStateDefinition, SelectAnimationStateDefinition);
+            m_comboBox_animationStateDefinition.SelectionChanged += ComboBox_AnimationStateDefinition_SelectionChanged;
             m_grid_main.SetGridRowColumn(m_comboBox_animationStateDefinition, 2, 0);
         }
 
-        private void SwitchToFontControls()
+        private void AddAnimationFrameControls()
+        {
+            RemoveFontTextureControls(true);
+
+            RemoveAnimationFrameControls(true);
+
+            m_comboBox_animationFrameDefinition = new UserControl_NewAndSelect<AnimationFrameDefinition>(m_selectedAnimationStateDefinition.AnimationFrames, NewAnimationFrameDefinition, SelectAnimationFrameDefinition);
+            m_grid_main.SetGridRowColumn(m_comboBox_animationFrameDefinition, 0, 1);
+        }
+
+        private void AddFontControls()
         {
             RemoveAnimationStateControls(true);
+
+            RemoveFontTextureControls(true);
+
+            // TODO
         }
 
         private void RemoveUserControls()
@@ -119,9 +138,13 @@ namespace TTTD_Builder.Controls.TabControls
 
         private void RemoveAnimationFrameControls(bool removeComboBox)
         {
-            //if (m_userControl_fontTextureDefintion != null)
-            //    m_grid_main.Children.Remove(m_userControl_animationFrameDefinition);
-            //m_userControl_animationFrameDefinition = null;
+            if (m_userControl_animationFrameDefinition != null)
+            {
+                m_grid_main.Children.Remove(m_userControl_animationFrameDefinition);
+                m_userControl_animationFrameDefinition.NewDataAddedEvent -= UserControl_AnimationFrameDefinition_DataChangedEvent;
+                m_userControl_animationFrameDefinition.ExistingDataUpdatedEvent -= UserControl_AnimationFrameDefinition_DataChangedEvent;
+            }
+            m_userControl_animationFrameDefinition = null;
 
             if (removeComboBox)
             {
@@ -159,12 +182,12 @@ namespace TTTD_Builder.Controls.TabControls
             if(DataManager.AnimationStateDefinitions.Any(x => x.GraphicsInstanceDefinition == graphicsInstanceDefinition))
             {
                 m_selectedGraphicsInstanceDefinition = new GraphicsInstanceDefinition_WithAnimationStateDefinitions(graphicsInstanceDefinition);
-                SwitchToAnimationControls();
+                AddAnimationStateControls();
             }
             else if (DataManager.FontTextureDefinitions.Any(x => x.GraphicsInstanceDefinition == graphicsInstanceDefinition))
             {
                 m_selectedGraphicsInstanceDefinition = new GraphicsInstanceDefinition_WithFontTextureDefinitions(graphicsInstanceDefinition);
-                SwitchToFontControls();
+                AddFontControls();
             }
 
             m_userControl_graphicsInstanceDefinition = new UserControl_GraphicsInstanceDefinition(m_selectedGraphicsInstanceDefinition);
@@ -187,9 +210,43 @@ namespace TTTD_Builder.Controls.TabControls
             m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 3, 0);
         }
 
-        void UserControl_AnimationStateDefinition_DataChangedEvent()
+        private void NewAnimationFrameDefinition()
+        {
+            RemoveAnimationFrameControls(false);
+            m_userControl_animationFrameDefinition = new UserControl_AnimationFrameDefinition(null);
+            Grid.SetRowSpan(m_userControl_animationFrameDefinition, 4);
+            m_grid_main.SetGridRowColumn(m_userControl_animationFrameDefinition, 1, 1);
+        }
+
+        private void SelectAnimationFrameDefinition(AnimationFrameDefinition animationFrameDefinition)
+        {
+            RemoveAnimationFrameControls(false);
+            m_userControl_animationFrameDefinition = new UserControl_AnimationFrameDefinition(animationFrameDefinition);
+            Grid.SetRowSpan(m_userControl_animationFrameDefinition, 4);
+            m_userControl_animationFrameDefinition.NewDataAddedEvent += UserControl_AnimationFrameDefinition_DataChangedEvent;
+            m_userControl_animationFrameDefinition.ExistingDataUpdatedEvent += UserControl_AnimationFrameDefinition_DataChangedEvent;
+            m_grid_main.SetGridRowColumn(m_userControl_animationFrameDefinition, 1, 1);
+        }
+
+        private void UserControl_AnimationStateDefinition_DataChangedEvent()
         {
             m_selectedGraphicsInstanceDefinition.Refresh();
+        }
+
+        private void UserControl_AnimationFrameDefinition_DataChangedEvent()
+        {
+            m_selectedAnimationStateDefinition.Refresh();
+        }
+
+        private void ComboBox_AnimationStateDefinition_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = sender as UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions>;
+            if (comboBox != null && comboBox == m_comboBox_animationStateDefinition)
+            {
+                m_selectedAnimationStateDefinition = m_comboBox_animationStateDefinition.SelectedItem;
+                if(m_selectedAnimationStateDefinition != null)
+                    AddAnimationFrameControls();
+            }
         }
 
         #endregion

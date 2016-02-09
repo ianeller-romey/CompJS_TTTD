@@ -12,13 +12,13 @@ using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
-    public class UserControl_PhysType : UserControl_EditData
+    public class UserControl_EntityInstanceDefinition : UserControl_EditData
     {
         #region MEMBER FIELDS
 
-        private PhysType m_physType;
+        private EntityInstanceDefinition m_entityInstanceDefinition;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
@@ -34,10 +34,10 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_PhysType(PhysType physType) :
-            base("Phys Type", false)
+        public UserControl_EntityInstanceDefinition(EntityInstanceDefinition entityInstanceDefinition) :
+            base("Entity Instance Definition", false)
         {
-            m_physType = physType;
+            m_entityInstanceDefinition = entityInstanceDefinition;
 
             if (DataIsNull())
             {
@@ -46,8 +46,8 @@ namespace TTTD_Builder.Controls
             }
             else
             {
-                m_textBlock_id.Text = m_physType.Id.ToString();
-                m_textBox_name.Text = m_physType.Name;
+                m_textBlock_id.Text = m_entityInstanceDefinition.Id.ToString();
+                m_textBox_name.Text = m_entityInstanceDefinition.Name;
             }
         }
 
@@ -86,28 +86,28 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
-            // Fin
+            // FIN
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
                 validator_name
-            }};       
+            }};            
         }
 
         protected override bool DataIsNull()
         {
-            return m_physType == null;
+            return m_entityInstanceDefinition == null;
         }
 
         protected override void AddNewData()
         {
-            m_physType = DataManager.Generate<PhysType>();
-            m_physType.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition = DataManager.Generate<EntityInstanceDefinition>();
+            m_entityInstanceDefinition.Name = m_textBox_name.Text;
 
-            DataManager.PhysTypes.Add(m_physType);
+            DataManager.EntityInstanceDefinitions.Add(m_entityInstanceDefinition);
         }
 
         protected override void UpdateExistingData()
         {
-            m_physType.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition.Name = m_textBox_name.Text;
         }
 
         protected override void RevertNewData()
@@ -117,7 +117,7 @@ namespace TTTD_Builder.Controls
 
         protected override void RevertExistingData()
         {
-            m_textBox_name.Text = m_physType.Name;
+            m_textBox_name.Text = m_entityInstanceDefinition.Name;
         }
 
         #endregion

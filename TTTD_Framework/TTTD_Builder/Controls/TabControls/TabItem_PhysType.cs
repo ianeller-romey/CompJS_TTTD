@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
+using TTTD_Builder.EditData;
 using TTTD_Builder.Controls.Helpers;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;

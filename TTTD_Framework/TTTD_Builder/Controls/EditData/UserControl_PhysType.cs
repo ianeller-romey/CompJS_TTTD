@@ -12,13 +12,13 @@ using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
-    public class UserControl_AudioType : UserControl_EditData
+    public class UserControl_PhysType : UserControl_EditData
     {
         #region MEMBER FIELDS
 
-        private AudioType m_audioType;
+        private PhysType m_physType;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
@@ -34,10 +34,10 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_AudioType(AudioType audioType) :
-            base("Audio Type", false)
+        public UserControl_PhysType(PhysType physType) :
+            base("Phys Type", false)
         {
-            m_audioType = audioType;
+            m_physType = physType;
 
             if (DataIsNull())
             {
@@ -46,8 +46,8 @@ namespace TTTD_Builder.Controls
             }
             else
             {
-                m_textBlock_id.Text = m_audioType.Id.ToString();
-                m_textBox_name.Text = m_audioType.Name;
+                m_textBlock_id.Text = m_physType.Id.ToString();
+                m_textBox_name.Text = m_physType.Name;
             }
         }
 
@@ -86,28 +86,28 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
-            // FIN
+            // Fin
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
                 validator_name
-            }};
+            }};       
         }
 
         protected override bool DataIsNull()
         {
-            return m_audioType == null;
+            return m_physType == null;
         }
 
         protected override void AddNewData()
         {
-            m_audioType = DataManager.Generate<AudioType>();
-            m_audioType.Name = m_textBox_name.Text;
+            m_physType = DataManager.Generate<PhysType>();
+            m_physType.Name = m_textBox_name.Text;
 
-            DataManager.AudioTypes.Add(m_audioType);
+            DataManager.PhysTypes.Add(m_physType);
         }
 
         protected override void UpdateExistingData()
         {
-            m_audioType.Name = m_textBox_name.Text;
+            m_physType.Name = m_textBox_name.Text;
         }
 
         protected override void RevertNewData()
@@ -117,7 +117,7 @@ namespace TTTD_Builder.Controls
 
         protected override void RevertExistingData()
         {
-            m_textBox_name.Text = m_audioType.Name;
+            m_textBox_name.Text = m_physType.Name;
         }
 
         #endregion

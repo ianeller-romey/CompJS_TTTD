@@ -6,25 +6,22 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-using Xceed.Wpf.Toolkit;
-
 using TTTD_Builder.Controls.Helpers;
 using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
-    public class UserControl_Level : UserControl_EditData
+    public class UserControl_CollisionType : UserControl_EditData
     {
         #region MEMBER FIELDS
 
-        private Level m_level;
+        private CollisionType m_collisionType;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
-        private IntegerUpDown m_integerUpDown_order;
 
         #endregion
 
@@ -37,22 +34,20 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_Level(Level level) :
-            base("Level", false)
+        public UserControl_CollisionType(CollisionType collisionType) :
+            base("Collision Type", false)
         {
-            m_level = level;
+            m_collisionType = collisionType;
 
             if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
-                m_integerUpDown_order.Value = null;
             }
             else
             {
-                m_textBlock_id.Text = m_level.Id.ToString();
-                m_textBox_name.Text = m_level.Name;
-                m_integerUpDown_order.Value = m_level.Order;
+                m_textBlock_id.Text = m_collisionType.Id.ToString();
+                m_textBox_name.Text = m_collisionType.Name;
             }
         }
 
@@ -64,7 +59,6 @@ namespace TTTD_Builder.Controls
         protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
-            grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
@@ -92,17 +86,6 @@ namespace TTTD_Builder.Controls
             grid_main.SetGridRowColumn(grid_name, 1, 0);
 
             ////////
-            // Order
-            m_integerUpDown_order = new IntegerUpDown() { VerticalAlignment = VerticalAlignment.Center };
-            Label label_order = new Label() { Content = "Order: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            Grid grid_order = new Grid();
-            grid_order.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_order.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_order.SetGridRowColumn(m_integerUpDown_order, 1, 0);
-            grid_order.SetGridRowColumn(label_order, 0, 0);
-            grid_main.SetGridRowColumn(grid_order, 2, 0);
-
-            ////////
             // FIN
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
                 validator_name
@@ -111,34 +94,30 @@ namespace TTTD_Builder.Controls
 
         protected override bool DataIsNull()
         {
-            return m_level == null;
+            return m_collisionType == null;
         }
 
         protected override void AddNewData()
         {
-            m_level = DataManager.Generate<Level>();
-            m_level.Name = m_textBox_name.Text;
-            m_level.Order = m_integerUpDown_order.Value;
+            m_collisionType = DataManager.Generate<CollisionType>();
+            m_collisionType.Name = m_textBox_name.Text;
 
-            DataManager.Levels.Add(m_level);
+            DataManager.CollisionTypes.Add(m_collisionType);
         }
 
         protected override void UpdateExistingData()
         {
-            m_level.Name = m_textBox_name.Text;
-            m_level.Order = m_integerUpDown_order.Value;
+            m_collisionType.Name = m_textBox_name.Text;
         }
 
         protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
-            m_integerUpDown_order.Value = null;
         }
 
         protected override void RevertExistingData()
         {
-            m_textBox_name.Text = m_level.Name;
-            m_integerUpDown_order.Value = m_level.Order;
+            m_textBox_name.Text = m_collisionType.Name;
         }
 
         #endregion

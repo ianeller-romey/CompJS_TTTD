@@ -15,7 +15,7 @@ using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
     public class UserControl_BehaviorInstanceDefinition : UserControl_EditData
     {

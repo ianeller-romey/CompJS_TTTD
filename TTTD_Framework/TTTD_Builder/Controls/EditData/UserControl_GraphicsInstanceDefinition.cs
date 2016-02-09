@@ -14,7 +14,7 @@ using TTTD_Builder.Model.Data;
 using TTTD_Builder.Model.Extensions;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
     public class UserControl_GraphicsInstanceDefinition : UserControl_EditData
     {

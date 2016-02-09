@@ -12,13 +12,13 @@ using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
 
-namespace TTTD_Builder.Controls
+namespace TTTD_Builder.EditData
 {
-    public class UserControl_CollisionType : UserControl_EditData
+    public class UserControl_AudioType : UserControl_EditData
     {
         #region MEMBER FIELDS
 
-        private CollisionType m_collisionType;
+        private AudioType m_audioType;
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
@@ -34,10 +34,10 @@ namespace TTTD_Builder.Controls
 
         #region Public Functionality
 
-        public UserControl_CollisionType(CollisionType collisionType) :
-            base("Collision Type", false)
+        public UserControl_AudioType(AudioType audioType) :
+            base("Audio Type", false)
         {
-            m_collisionType = collisionType;
+            m_audioType = audioType;
 
             if (DataIsNull())
             {
@@ -46,8 +46,8 @@ namespace TTTD_Builder.Controls
             }
             else
             {
-                m_textBlock_id.Text = m_collisionType.Id.ToString();
-                m_textBox_name.Text = m_collisionType.Name;
+                m_textBlock_id.Text = m_audioType.Id.ToString();
+                m_textBox_name.Text = m_audioType.Name;
             }
         }
 
@@ -94,20 +94,20 @@ namespace TTTD_Builder.Controls
 
         protected override bool DataIsNull()
         {
-            return m_collisionType == null;
+            return m_audioType == null;
         }
 
         protected override void AddNewData()
         {
-            m_collisionType = DataManager.Generate<CollisionType>();
-            m_collisionType.Name = m_textBox_name.Text;
+            m_audioType = DataManager.Generate<AudioType>();
+            m_audioType.Name = m_textBox_name.Text;
 
-            DataManager.CollisionTypes.Add(m_collisionType);
+            DataManager.AudioTypes.Add(m_audioType);
         }
 
         protected override void UpdateExistingData()
         {
-            m_collisionType.Name = m_textBox_name.Text;
+            m_audioType.Name = m_textBox_name.Text;
         }
 
         protected override void RevertNewData()
@@ -117,7 +117,7 @@ namespace TTTD_Builder.Controls
 
         protected override void RevertExistingData()
         {
-            m_textBox_name.Text = m_collisionType.Name;
+            m_textBox_name.Text = m_audioType.Name;
         }
 
         #endregion
