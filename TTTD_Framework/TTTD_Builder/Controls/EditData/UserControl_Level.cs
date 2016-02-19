@@ -114,19 +114,23 @@ namespace TTTD_Builder.EditData
             return m_level == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_level = DataManager.Generate<Level>();
             m_level.Name = m_textBox_name.Text;
             m_level.Order = m_integerUpDown_order.Value;
 
             DataManager.Levels.Add(m_level);
+
+            return m_level.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_level.Name = m_textBox_name.Text;
             m_level.Order = m_integerUpDown_order.Value;
+
+            return m_level.Id;
         }
 
         protected override void RevertNewData()

@@ -139,9 +139,9 @@ namespace TTTD_Builder.EditData
 
             Label label_entityInstanceDefinition = new Label() { Content = "Entity Instance: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_entityInstanceDefinition = new Grid();
-            grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 0, 1);
+            grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 1, 0);
             grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
             grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
 
@@ -201,10 +201,11 @@ namespace TTTD_Builder.EditData
             return m_graphicsInstanceDefinition == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_graphicsInstanceDefinition = DataManager.Generate<GraphicsInstanceDefinition>();
             m_graphicsInstanceDefinition.Name = m_textBox_name.Text;
+            m_graphicsInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
 
             // we need to add the AnimationStateDefinition or FontTextureDefinition first, or we won't
             // be able to select the appropriate GraphicsInstanceDefinition in the ComboBox
@@ -212,7 +213,13 @@ namespace TTTD_Builder.EditData
             {
                 var animationStateDefinition = DataManager.Generate<AnimationStateDefinition>();
                 animationStateDefinition.GraphicsInstanceDefinition = m_graphicsInstanceDefinition;
+                animationStateDefinition.Name = string.Format("{0} State 0", m_graphicsInstanceDefinition.Name);
                 DataManager.AnimationStateDefinitions.Add(animationStateDefinition);
+
+                var animationFrameDefinition = DataManager.Generate<AnimationFrameDefinition>();
+                animationFrameDefinition.AnimationStateDefinition = animationStateDefinition;
+                animationFrameDefinition.Name = string.Format("{0} Frame 0", animationStateDefinition.Name);
+                DataManager.AnimationFrameDefinitions.Add(animationFrameDefinition);
             }
             else if (m_radioButton_font.IsChecked.HasValue && m_radioButton_font.IsChecked.Value)
             {
@@ -222,11 +229,15 @@ namespace TTTD_Builder.EditData
             }
 
             DataManager.GraphicsInstanceDefinitions.Add(m_graphicsInstanceDefinition);
+
+            return m_graphicsInstanceDefinition.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_graphicsInstanceDefinition.Name = m_textBox_name.Text;
+
+            return m_graphicsInstanceDefinition.Id;
         }
 
         protected override void RevertNewData()

@@ -27,10 +27,10 @@ namespace TTTD_Builder.Controls.Helpers
 
         #region MEMBER EVENTS
 
-        public delegate void NewDataAddedHandler();
+        public delegate void NewDataAddedHandler(int id);
         public event NewDataAddedHandler NewDataAddedEvent;
 
-        public delegate void ExistingDataUpdatedHandler();
+        public delegate void ExistingDataUpdatedHandler(int id);
         public event ExistingDataUpdatedHandler ExistingDataUpdatedEvent;
 
         public delegate void NewDataRevertedHandler();
@@ -53,13 +53,13 @@ namespace TTTD_Builder.Controls.Helpers
                 {
                     if (DataIsNull())
                     {
-                        AddNewData();
-                        RaiseNewDataAddedEvent();
+                        var id = AddNewData();
+                        RaiseNewDataAddedEvent(id);
                     }
                     else
                     {
-                        UpdateExistingData();
-                        RaiseExistingDataUpdatedEvent();
+                        var id = UpdateExistingData();
+                        RaiseExistingDataUpdatedEvent(id);
                     }
                 };
             ChangesCancelledEvent += () =>
@@ -84,24 +84,24 @@ namespace TTTD_Builder.Controls.Helpers
 
         protected abstract bool DataIsNull();
 
-        protected abstract void AddNewData();
+        protected abstract int AddNewData();
 
-        protected abstract void UpdateExistingData();
+        protected abstract int UpdateExistingData();
 
         protected abstract void RevertNewData();
 
         protected abstract void RevertExistingData();
 
-        private void RaiseNewDataAddedEvent()
+        private void RaiseNewDataAddedEvent(int id)
         {
             if (NewDataAddedEvent != null)
-                NewDataAddedEvent();
+                NewDataAddedEvent(id);
         }
 
-        private void RaiseExistingDataUpdatedEvent()
+        private void RaiseExistingDataUpdatedEvent(int id)
         {
             if (ExistingDataUpdatedEvent != null)
-                ExistingDataUpdatedEvent();
+                ExistingDataUpdatedEvent(id);
         }
 
         private void RaiseNewDataRevertedEvent()

@@ -97,17 +97,21 @@ namespace TTTD_Builder.EditData
             return m_audioType == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_audioType = DataManager.Generate<AudioType>();
             m_audioType.Name = m_textBox_name.Text;
 
             DataManager.AudioTypes.Add(m_audioType);
+
+            return m_audioType.Id;  
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_audioType.Name = m_textBox_name.Text;
+
+            return m_audioType.Id;  
         }
 
         protected override void RevertNewData()

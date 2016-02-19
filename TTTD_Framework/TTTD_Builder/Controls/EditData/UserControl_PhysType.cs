@@ -97,17 +97,21 @@ namespace TTTD_Builder.EditData
             return m_physType == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_physType = DataManager.Generate<PhysType>();
             m_physType.Name = m_textBox_name.Text;
 
             DataManager.PhysTypes.Add(m_physType);
+
+            return m_physType.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_physType.Name = m_textBox_name.Text;
+
+            return m_physType.Id;
         }
 
         protected override void RevertNewData()

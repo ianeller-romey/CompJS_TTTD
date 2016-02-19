@@ -120,9 +120,9 @@ namespace TTTD_Builder.EditData
 
             Label label_entityInstanceDefinition = new Label() { Content = "Entity Instance: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_entityInstanceDefinition = new Grid();
-            grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_entityInstanceDefinition.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 0, 1);
+            grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 1, 0);
             grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
             grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
 
@@ -136,7 +136,11 @@ namespace TTTD_Builder.EditData
             Grid grid_behaviorFile = new Grid();
             grid_behaviorFile.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorFile.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_behaviorFile.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
+            grid_behaviorFile.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+            grid_behaviorFile.SetGridRowColumn(button_behaviorFile, 1, 1);
             grid_behaviorFile.SetGridRowColumn(validator_behaviorFile, 1, 0);
+            Grid.SetColumnSpan(label_behaviorFile, 2);
             grid_behaviorFile.SetGridRowColumn(label_behaviorFile, 0, 0);
             grid_main.SetGridRowColumn(grid_behaviorFile, 3, 0);
 
@@ -148,7 +152,7 @@ namespace TTTD_Builder.EditData
             Grid grid_behaviorConstructor = new Grid();
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_behaviorConstructor.SetGridRowColumn(m_textBlock_behaviorConstructor, 1, 0);
+            grid_behaviorConstructor.SetGridRowColumn(validator_behaviorConstructor, 1, 0);
             grid_behaviorConstructor.SetGridRowColumn(label_behaviorConstructor, 0, 0);
             grid_main.SetGridRowColumn(grid_behaviorConstructor, 4, 0);
 
@@ -167,7 +171,7 @@ namespace TTTD_Builder.EditData
             return m_behaviorInstanceDefinition == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_behaviorInstanceDefinition = DataManager.Generate<BehaviorInstanceDefinition>();
             m_behaviorInstanceDefinition.Name = m_textBox_name.Text;
@@ -176,14 +180,18 @@ namespace TTTD_Builder.EditData
             m_behaviorInstanceDefinition.BehaviorConstructor = m_textBlock_behaviorConstructor.Text;
 
             DataManager.BehaviorInstanceDefinitions.Add(m_behaviorInstanceDefinition);
+
+            return m_behaviorInstanceDefinition.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_behaviorInstanceDefinition.Name = m_textBox_name.Text;
             m_behaviorInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
             m_behaviorInstanceDefinition.BehaviorFile = m_textBox_behaviorFile.Text;
             m_behaviorInstanceDefinition.BehaviorConstructor = m_textBlock_behaviorConstructor.Text;
+
+            return m_behaviorInstanceDefinition.Id;
         }
 
         protected override void RevertNewData()

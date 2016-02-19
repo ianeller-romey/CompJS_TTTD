@@ -10,6 +10,7 @@ namespace TTTD_Builder.Lib.Data
     public class AnimationFrameDefinition
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public int AnimationStateDefinitionId { get; set; }
         public int Frame { get; set; }
         public double? Duration { get; set; }

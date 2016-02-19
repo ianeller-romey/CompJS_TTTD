@@ -50,10 +50,12 @@ namespace TTTD_Builder.Model.Extensions
 
         public override void Refresh()
         {
-            m_animationStates.Clear();
-            m_animationStates.AddRange(DataManager.AnimationStateDefinitions
+            var queried = DataManager.AnimationStateDefinitions
                 .Where(x => x.GraphicsInstanceDefinition == m_graphicsInstanceDefinition)
-                .Select(x => new AnimationStateDefinition_WithAnimationFrameDefinitions(x)));
+                .Select(x => new AnimationStateDefinition_WithAnimationFrameDefinitions(x)).ToList();
+            m_animationStates.RemoveRange(m_animationStates.ToList().Where(x => !queried.Contains(x)));
+            m_animationStates.AddRange(queried.Where(x => !m_animationStates.Contains(x)));
+            NotifyPropertyChanged("AnimationStates");
         }
 
         #endregion

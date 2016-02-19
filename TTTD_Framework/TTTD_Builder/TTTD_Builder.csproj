@@ -38,6 +38,10 @@
       <HintPath>..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
@@ -83,8 +87,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="Controls\EditData\UserControl_PhysicsInstanceDefinition.cs" />
     <Compile Include="Controls\EditData\UserControl_AnimationFrameDefinition.cs" />
+    <Compile Include="Controls\Helpers\UserControl_CanvasWithRectangle.cs" />
     <Compile Include="Controls\Helpers\UserControl_EditData.cs" />
+    <Compile Include="Controls\TabControls\TabItem_PhysicsInstanceDefinition.cs" />
     <Compile Include="Controls\Validation\AllValidationsConverter.cs" />
     <Compile Include="Controls\Validation\Validate_StringIsNotNullOrEmpty.cs" />
     <Compile Include="Controls\Validation\Validate_False.cs" />
@@ -154,9 +161,12 @@
     <Compile Include="Model\Data\Shader.cs" />
     <Compile Include="Model\Extensions\Base\ExtensionsBase.cs" />
     <Compile Include="Model\Extensions\AnimationStateDefinition_WithAnimationFrameDefinitions.cs" />
+    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithCircle.cs" />
+    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_Ex.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_Ex.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_WithFontTextureDefinition.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_WithAnimationStateDefinitions.cs" />
+    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithAABB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

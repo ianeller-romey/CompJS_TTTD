@@ -117,19 +117,27 @@ namespace TTTD_Builder.EditData
             return m_animationStateDefinition == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_animationStateDefinition = DataManager.Generate<AnimationStateDefinition>();
             m_animationStateDefinition.Name = m_textBox_name.Text;
             m_animationStateDefinition.State = m_integerUpDown_state.Value.Value;
 
+            var animationFrameDefinition = DataManager.Generate<AnimationFrameDefinition>();
+            animationFrameDefinition.AnimationStateDefinition = m_animationStateDefinition;
+            DataManager.AnimationFrameDefinitions.Add(animationFrameDefinition);
+
             DataManager.AnimationStateDefinitions.Add(m_animationStateDefinition);
+
+            return m_animationStateDefinition.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_animationStateDefinition.Name = m_textBox_name.Text;
             m_animationStateDefinition.State = m_integerUpDown_state.Value.Value;
+
+            return m_animationStateDefinition.Id;
         }
 
         protected override void RevertNewData()

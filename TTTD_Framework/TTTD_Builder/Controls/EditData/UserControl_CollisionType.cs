@@ -97,17 +97,21 @@ namespace TTTD_Builder.EditData
             return m_collisionType == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_collisionType = DataManager.Generate<CollisionType>();
             m_collisionType.Name = m_textBox_name.Text;
 
             DataManager.CollisionTypes.Add(m_collisionType);
+
+            return m_collisionType.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_collisionType.Name = m_textBox_name.Text;
+
+            return m_collisionType.Id;
         }
 
         protected override void RevertNewData()

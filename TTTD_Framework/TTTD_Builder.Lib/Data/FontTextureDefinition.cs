@@ -10,6 +10,7 @@ namespace TTTD_Builder.Lib.Data
     public class FontTextureDefinition
     {
         public int Id { get; set; }
+        public string Name { get; set; }
         public int GraphicsInstanceDefinitionId { get; set; }
         public string Texture { get; set; }
         public double TextureWidth { get; set; }

@@ -70,9 +70,11 @@ namespace TTTD_Builder.Model.Extensions
 
         public void Refresh()
         {
-            m_animationFrames.Clear();
-            AnimationFrames.AddRange(DataManager.AnimationFrameDefinitions
-                .Where(x => x.AnimationStateDefinition == m_animationStateDefinition));
+            var queried = DataManager.AnimationFrameDefinitions
+                .Where(x => x.AnimationStateDefinition == m_animationStateDefinition).ToList();
+            m_animationFrames.RemoveRange(m_animationFrames.ToList().Where(x => !queried.Contains(x)));
+            m_animationFrames.AddRange(queried.Where(x => !m_animationFrames.Contains(x)));
+            NotifyPropertyChanged("AnimationFrames");
         }
 
         #endregion

@@ -180,6 +180,7 @@ namespace TTTD_Builder
             tabItem_graphics.Content = tabControl_graphics;
 
             TabControl tabControl_physics = new TabControl();
+            tabControl_physics.Items.Add(new TabItem_PhysicsInstanceDefinition());
             tabControl_physics.Items.Add(new TabItem_CollisionType());
             tabControl_physics.Items.Add(new TabItem_PhysType());
             TabItem tabItem_physics = new TabItem() { Header = "Physics" };

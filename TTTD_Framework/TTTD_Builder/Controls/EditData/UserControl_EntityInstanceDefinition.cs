@@ -97,17 +97,21 @@ namespace TTTD_Builder.EditData
             return m_entityInstanceDefinition == null;
         }
 
-        protected override void AddNewData()
+        protected override int AddNewData()
         {
             m_entityInstanceDefinition = DataManager.Generate<EntityInstanceDefinition>();
             m_entityInstanceDefinition.Name = m_textBox_name.Text;
 
             DataManager.EntityInstanceDefinitions.Add(m_entityInstanceDefinition);
+
+            return m_entityInstanceDefinition.Id;
         }
 
-        protected override void UpdateExistingData()
+        protected override int UpdateExistingData()
         {
             m_entityInstanceDefinition.Name = m_textBox_name.Text;
+
+            return m_entityInstanceDefinition.Id;
         }
 
         protected override void RevertNewData()

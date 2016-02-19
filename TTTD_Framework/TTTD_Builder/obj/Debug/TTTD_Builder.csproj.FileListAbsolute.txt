@@ -31,3 +31,5 @@ C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\D
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\ru\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\sv\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\zh-Hans\Xceed.Wpf.AvalonDock.resources.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\Newtonsoft.Json.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Builder\bin\Debug\Newtonsoft.Json.xml
