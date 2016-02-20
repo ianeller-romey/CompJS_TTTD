@@ -37,7 +37,16 @@ namespace TTTD_Builder.Model.Extensions
         public PhysicsInstanceDefinition PhysicsInstanceDefinition
         {
             get { return m_physicsInstanceDefinition; }
-            set { if (value != m_physicsInstanceDefinition) { m_physicsInstanceDefinition = value; SetBoundingData(CalculateBoundingObject()); NotifyPropertyChanged("PhysicsInstanceDefinition"); } }
+            set 
+            { 
+                if (value != m_physicsInstanceDefinition) 
+                { 
+                    m_physicsInstanceDefinition = value; 
+                    if(m_physicsInstanceDefinition != null)
+                        SetBoundingData(CalculateBoundingObject()); 
+                    NotifyPropertyChanged("PhysicsInstanceDefinition"); 
+                } 
+            }
         }
 
         public PhysicsInstanceDefinitionType TypeOfInstance

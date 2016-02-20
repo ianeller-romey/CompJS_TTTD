@@ -61,8 +61,8 @@ namespace TTTD_Builder
                 };
 
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-            Width = 800;
-            Height = 600;
+            Width = 1000;
+            Height = 800;
         }
 
         #endregion

@@ -1,1 +1,1 @@
-[{"id":0,"name":"asdf","entityInstanceDefinitionId":0,"physTypeId":1,"collisionTypeId":0,"boundingData":"{\"origin\":{\"x\":33.5,\"y\":34.0},\"halfValues\":{\"width\":24.5,\"height\":24.5}}"}]
+[{"id":0,"name":"asdf","entityInstanceDefinitionId":0,"physTypeId":1,"collisionTypeId":0,"boundingData":"{\"origin\":{\"x\":34.5,\"y\":34.5},\"halfValues\":{\"width\":25.5,\"height\":25.5}}"},{"id":1,"name":"asdf2","entityInstanceDefinitionId":1,"physTypeId":0,"collisionTypeId":1,"boundingData":"{\"origin\":{\"x\":31.0,\"y\":35.0},\"radius\":19.0}"}]

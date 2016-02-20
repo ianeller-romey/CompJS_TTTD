@@ -113,10 +113,19 @@ namespace TTTD_Builder.EditData
         public UserControl_PhysicsInstanceDefinition() :
             base("Physics Instance Type Definition", false)
         {
-            m_physicsInstanceDefinition = null;
-
             PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Undetermined;
 
+            m_textBlock_id.Text = "N/A";
+            m_textBox_name.Text = string.Empty;
+        }
+
+        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_WithAABB physicsInstanceDefinition_ex) :
+            base("Physics Instance Type Definition", false)
+        {
+            PhysicsInstanceDefinitionType = physicsInstanceDefinition_ex.TypeOfInstance;
+
+            m_physicsInstanceDefinition = physicsInstanceDefinition_ex.PhysicsInstanceDefinition;
+            
             if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
@@ -126,23 +135,21 @@ namespace TTTD_Builder.EditData
             {
                 m_textBlock_id.Text = m_physicsInstanceDefinition.Id.ToString();
                 m_textBox_name.Text = m_physicsInstanceDefinition.Name;
+                m_comboBox_entityInstanceDefinition.SelectedItem = m_physicsInstanceDefinition.EntityInstanceDefinition;
+                m_comboBox_collisionType.SelectedItem = m_physicsInstanceDefinition.CollisionType;
+                m_comboBox_physType.SelectedItem = m_physicsInstanceDefinition.PhysType;
+
+                var aabb = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithAABB;
+                SetAABBControls(aabb);
             }
         }
 
-        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_Ex physicsInstanceDefinition_ex) :
+        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_WithCircle physicsInstanceDefinition_ex) :
             base("Physics Instance Type Definition", false)
         {
-            if (physicsInstanceDefinition_ex != null)
-            {
-                m_physicsInstanceDefinition = physicsInstanceDefinition_ex.PhysicsInstanceDefinition;
-                m_physicsInstanceDefinitionEx = physicsInstanceDefinition_ex;
+            PhysicsInstanceDefinitionType = physicsInstanceDefinition_ex.TypeOfInstance;
 
-                PhysicsInstanceDefinitionType = physicsInstanceDefinition_ex.TypeOfInstance;
-            }
-            else
-            {
-                PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Undetermined;
-            }
+            m_physicsInstanceDefinition = physicsInstanceDefinition_ex.PhysicsInstanceDefinition;
 
             if (DataIsNull())
             {
@@ -157,22 +164,8 @@ namespace TTTD_Builder.EditData
                 m_comboBox_collisionType.SelectedItem = m_physicsInstanceDefinition.CollisionType;
                 m_comboBox_physType.SelectedItem = m_physicsInstanceDefinition.PhysType;
 
-                switch (PhysicsInstanceDefinitionType)
-                {
-                    case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.AABB:
-                        var aabb = m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithAABB;
-                        Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, aabb.OriginX - aabb.HalfValueX);
-                        Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, aabb.OriginY - aabb.HalfValueY);
-                        m_canvasWithRectangle.SizableRectangle.Width = aabb.HalfValueX * 2.0;
-                        m_canvasWithRectangle.SizableRectangle.Height = aabb.HalfValueY * 2.0;
-                        break;
-                    case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle:
-                        var circle = m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithCircle;
-                        Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, circle.OriginX - circle.Radius);
-                        Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, circle.OriginY - circle.Radius);
-                        m_canvasWithRectangle.SizableRectangle.Width = circle.Radius * 2.0;
-                        break;
-                }
+                var circle = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithCircle;
+                SetCircleControls(circle);
             }
         }
 
@@ -328,6 +321,7 @@ namespace TTTD_Builder.EditData
             m_physicsInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
             m_physicsInstanceDefinition.CollisionType = m_comboBox_collisionType.SelectedItem as CollisionType;
             m_physicsInstanceDefinition.PhysType = m_comboBox_physType.SelectedItem as PhysType;
+
             m_physicsInstanceDefinitionEx.PhysicsInstanceDefinition = m_physicsInstanceDefinition;
 
             DataManager.PhysicsInstanceDefinitions.Add(m_physicsInstanceDefinition);
@@ -342,7 +336,7 @@ namespace TTTD_Builder.EditData
             m_physicsInstanceDefinition.CollisionType = m_comboBox_collisionType.SelectedItem as CollisionType;
             m_physicsInstanceDefinition.PhysType = m_comboBox_physType.SelectedItem as PhysType;
 
-            //SetBoundingData();
+            m_physicsInstanceDefinitionEx.PhysicsInstanceDefinition = m_physicsInstanceDefinition;
 
             return m_physicsInstanceDefinition.Id;
         }
@@ -361,6 +355,17 @@ namespace TTTD_Builder.EditData
             m_comboBox_entityInstanceDefinition.SelectedItem = m_physicsInstanceDefinition.EntityInstanceDefinition;
             m_comboBox_collisionType.SelectedItem = m_physicsInstanceDefinition.CollisionType;
             m_comboBox_physType.SelectedItem = m_physicsInstanceDefinition.PhysType;
+
+            SetPhysicsInstanceDefinitionType(m_physicsInstanceDefinition.PhysType.Name);
+            switch (PhysicsInstanceDefinitionType)
+            {
+                case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.AABB:
+                    SetAABBControls(new PhysicsInstanceDefinition_WithAABB(m_physicsInstanceDefinition));
+                    break;
+                case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle:
+                    SetCircleControls(new PhysicsInstanceDefinition_WithCircle(m_physicsInstanceDefinition));
+                    break;
+            }
         }
 
         private void DisplayAnimationFrame(AnimationFrameDefinition animationFrameDefinition)
@@ -396,7 +401,7 @@ namespace TTTD_Builder.EditData
             if(comboBox != null && comboBox == m_comboBox_entityInstanceDefinition)
             {
                 var ent = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
-                if(ent != null)
+                if (ent != null)
                 {
                     var gfx = DataManager.GraphicsInstanceDefinitions.FirstOrDefault(x => x.EntityInstanceDefinition == ent);
                     if (gfx != null)
@@ -433,11 +438,13 @@ namespace TTTD_Builder.EditData
             switch (physTypeName)
             {
                 case "AABB":
-                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithAABB(m_physicsInstanceDefinition);
+                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithAABB(null);
+                    PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.AABB;
                     CreateAABBControls();
                     break;
                 case "Circle":
-                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithCircle(m_physicsInstanceDefinition);
+                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithCircle(null);
+                    PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle;
                     CreateCircleControls();
                     break;
             }
@@ -547,6 +554,14 @@ namespace TTTD_Builder.EditData
             textBox_halfValueY.SetBinding(TextBox.TextProperty, binding_rectangle_halfHeight);
         }
 
+        private void SetAABBControls(PhysicsInstanceDefinition_WithAABB aabb)
+        {
+            Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, aabb.OriginX - aabb.HalfValueX);
+            Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, aabb.OriginY - aabb.HalfValueY);
+            m_canvasWithRectangle.SizableRectangle.Width = aabb.HalfValueX * 2.0;
+            m_canvasWithRectangle.SizableRectangle.Height = aabb.HalfValueY * 2.0;
+        }
+
         private void CreateCircleControls()
         {
             m_grid_subSub.Children.Clear();
@@ -633,6 +648,13 @@ namespace TTTD_Builder.EditData
             m_grid_subSub.SetGridRowColumn(label_radius, 2, 0);
 
             textBox_radius.SetBinding(TextBox.TextProperty, binding_rectangle_halfWidth);
+        }
+
+        private void SetCircleControls(PhysicsInstanceDefinition_WithCircle circle)
+        {
+            Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, circle.OriginX - circle.Radius);
+            Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, circle.OriginY - circle.Radius);
+            m_canvasWithRectangle.SizableRectangle.Width = circle.Radius * 2.0;
         }
 
         #endregion

@@ -68,7 +68,7 @@ namespace TTTD_Builder.Controls.TabControls
         private void New()
         {
             RemoveUserControl();
-            m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(null);
+            m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition();
             m_grid_main.SetGridRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
         }
 

@@ -110,10 +110,10 @@ namespace TTTD_Builder.Model.Extensions
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
                     Converters = new List<JsonConverter> { new CamelCaseToPascalCaseExpandoObjectConverter() }
                 });
-            OriginX = boundingObject.Origin.X;
-            OriginY = boundingObject.Origin.Y;
-            HalfValueX = boundingObject.HalfValues.Width;
-            HalfValueY = boundingObject.HalfValues.Height;
+            try { OriginX = boundingObject.Origin.X; } catch (Exception) { }
+            try { OriginY = boundingObject.Origin.Y; } catch (Exception) { }
+            try { HalfValueX = boundingObject.HalfValues.Width; } catch (Exception) { }
+            try { HalfValueY = boundingObject.HalfValues.Height; } catch (Exception) { }
         }
 
         protected override object CalculateBoundingObject()

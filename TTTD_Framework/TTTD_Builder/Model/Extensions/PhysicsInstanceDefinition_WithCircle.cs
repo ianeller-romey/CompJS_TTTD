@@ -95,9 +95,9 @@ namespace TTTD_Builder.Model.Extensions
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
                     Converters = new List<JsonConverter> { new CamelCaseToPascalCaseExpandoObjectConverter() }
                 });
-            OriginX = boundingObject.Origin.X;
-            OriginY = boundingObject.Origin.Y;
-            Radius = boundingObject.Radius;
+            try { OriginX = boundingObject.Origin.X; } catch (Exception) { }
+            try { OriginY = boundingObject.Origin.Y; } catch (Exception) { }
+            try { Radius = boundingObject.Radius; } catch (Exception) { }
         }
 
         protected override object CalculateBoundingObject()
