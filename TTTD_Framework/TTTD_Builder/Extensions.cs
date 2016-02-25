@@ -8,8 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 using Newtonsoft.Json;
+
+using TTTD_Builder.Managers;
+using TTTD_Builder.Model.Data;
 
 
 namespace TTTD_Builder
@@ -46,6 +51,46 @@ namespace TTTD_Builder
                 str = str + s.Substring(1);
 
             return str;
+        }
+
+        public static AnimationFrameDefinition GetFirstAnimationFrameDefinition(this EntityInstanceDefinition entityInstanceDefinition)
+        {
+            AnimationFrameDefinition aniFrame = null;
+            if (entityInstanceDefinition != null)
+            {
+                var gfx = DataManager.GraphicsInstanceDefinitions.FirstOrDefault(x => x.EntityInstanceDefinition == entityInstanceDefinition);
+                if (gfx != null)
+                {
+                    var aniState = DataManager.AnimationStateDefinitions.FirstOrDefault(x => x.GraphicsInstanceDefinition == gfx);
+                    if (aniState != null)
+                    {
+                        aniFrame = DataManager.AnimationFrameDefinitions.FirstOrDefault(x => x.AnimationStateDefinition == aniState);
+                    }
+                }
+            }
+            return aniFrame;
+        }
+
+        public static BitmapSource BitmapSourceFromTextureCoords(string textureFile, double texCoordTop, double texCoordRight, double texCoordBottom, double texCoordLeft, double scaleWidth, double scaleHeight)
+        {
+            BitmapImage bitmapImage = new BitmapImage(new Uri(textureFile));
+
+            var texCoordToPixel = new Func<double, double, double>((tc, pw) => { return ((tc * (2 * pw)) - 1) / 2; });
+            var top = texCoordToPixel(texCoordTop, bitmapImage.PixelWidth);
+            var right = texCoordToPixel(texCoordRight, bitmapImage.PixelWidth);
+            var bottom = texCoordToPixel(texCoordBottom, bitmapImage.PixelWidth);
+            var left = texCoordToPixel(texCoordLeft, bitmapImage.PixelWidth);
+            var width = right - left;
+            var height = bottom - top;
+
+            BitmapSource b = new CroppedBitmap(bitmapImage, new Int32Rect((int)left, (int)top, (int)width, (int)height));
+
+            if (width != scaleWidth || height != scaleHeight)
+            {
+                b = new TransformedBitmap(b, new ScaleTransform(scaleWidth / width, scaleHeight / height));
+            }
+
+            return b;
         }
     }
 

@@ -87,8 +87,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="Controls\EditData\UserControl_LevelLayout.cs" />
     <Compile Include="Controls\EditData\UserControl_PhysicsInstanceDefinition.cs" />
     <Compile Include="Controls\EditData\UserControl_AnimationFrameDefinition.cs" />
+    <Compile Include="Controls\Helpers\UserControl_CanvasWithMovableElements.cs" />
     <Compile Include="Controls\Helpers\UserControl_CanvasWithRectangle.cs" />
     <Compile Include="Controls\Helpers\UserControl_EditData.cs" />
     <Compile Include="Controls\TabControls\TabItem_PhysicsInstanceDefinition.cs" />

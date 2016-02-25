@@ -372,22 +372,17 @@ namespace TTTD_Builder.EditData
         {
             if (!string.IsNullOrWhiteSpace(animationFrameDefinition.Texture))
             {
-                BitmapImage bitmapImage = new BitmapImage(new Uri(animationFrameDefinition.Texture));
-
-                var texCoordToPixel = new Func<double, double, double>((texCoord, pixelWidth) => { return ((texCoord * (2 * pixelWidth)) - 1) / 2; });
-                var top = texCoordToPixel(animationFrameDefinition.TexCoordTop, bitmapImage.PixelWidth);
-                var right = texCoordToPixel(animationFrameDefinition.TexCoordRight, bitmapImage.PixelWidth);
-                var bottom = texCoordToPixel(animationFrameDefinition.TexCoordBottom, bitmapImage.PixelWidth);
-                var left = texCoordToPixel(animationFrameDefinition.TexCoordLeft, bitmapImage.PixelWidth);
-                var width = right - left;
-                var height = bottom - top;
-
-                m_bitmapSource = new CroppedBitmap(bitmapImage, new Int32Rect((int)left, (int)top, (int)width, (int)height));
-
-                if (width != animationFrameDefinition.Width || height != animationFrameDefinition.Height)
-                {
-                    m_bitmapSource = new TransformedBitmap(m_bitmapSource, new ScaleTransform(animationFrameDefinition.Width / width, animationFrameDefinition.Height / height));
-                }
+                m_bitmapSource = Extensions
+                    .BitmapSourceFromTextureCoords
+                    (
+                        animationFrameDefinition.Texture,
+                        animationFrameDefinition.TexCoordTop,
+                        animationFrameDefinition.TexCoordRight,
+                        animationFrameDefinition.TexCoordBottom,
+                        animationFrameDefinition.TexCoordLeft,
+                        animationFrameDefinition.Width,
+                        animationFrameDefinition.Height
+                    );
             }
             else
                 m_bitmapSource = null;
@@ -403,18 +398,10 @@ namespace TTTD_Builder.EditData
                 var ent = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
                 if (ent != null)
                 {
-                    var gfx = DataManager.GraphicsInstanceDefinitions.FirstOrDefault(x => x.EntityInstanceDefinition == ent);
-                    if (gfx != null)
+                    var aniFrame = ent.GetFirstAnimationFrameDefinition();
+                    if (aniFrame != null)
                     {
-                        var aniState = DataManager.AnimationStateDefinitions.FirstOrDefault(x => x.GraphicsInstanceDefinition == gfx);
-                        if (aniState != null)
-                        {
-                            var aniFrame = DataManager.AnimationFrameDefinitions.FirstOrDefault(x => x.AnimationStateDefinition == aniState);
-                            if (aniFrame != null)
-                            {
-                                DisplayAnimationFrame(aniFrame);
-                            }
-                        }
+                        DisplayAnimationFrame(aniFrame);
                     }
                 }
             }

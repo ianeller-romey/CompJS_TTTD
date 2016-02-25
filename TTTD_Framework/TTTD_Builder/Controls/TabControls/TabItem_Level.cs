@@ -22,6 +22,7 @@ namespace TTTD_Builder.Controls.TabControls
         Grid m_grid_main;
         UserControl_NewAndSelect<Level> m_comboBox_levels;
         UserControl_Level m_userControl_level;
+        UserControl_LevelLayout m_userControl_levelLayout;
 
         #endregion
 
@@ -45,10 +46,11 @@ namespace TTTD_Builder.Controls.TabControls
         {
             m_grid_main = new Grid();
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0, GridUnitType.Star) });
 
             ////////
-            // ComboBox
+            // ComboBox (Level)
             m_comboBox_levels = new UserControl_NewAndSelect<Level>(DataManager.Levels, New, Select);
             m_grid_main.SetGridRowColumn(m_comboBox_levels, 0, 0);
 
@@ -62,6 +64,10 @@ namespace TTTD_Builder.Controls.TabControls
             if (m_userControl_level != null)
                 m_grid_main.Children.Remove(m_userControl_level);
             m_userControl_level = null;
+
+            if (m_userControl_levelLayout != null)
+                m_grid_main.Children.Remove(m_userControl_levelLayout);
+            m_userControl_levelLayout = null;
         }
 
         private void New()
@@ -76,6 +82,12 @@ namespace TTTD_Builder.Controls.TabControls
             RemoveUserControl();
             m_userControl_level = new UserControl_Level(level);
             m_grid_main.SetGridRowColumn(m_userControl_level, 1, 0);
+
+            if (level != null)
+            {
+                m_userControl_levelLayout = new UserControl_LevelLayout(level);
+                m_grid_main.SetGridRowColumn(m_userControl_levelLayout, 2, 0);
+            }
         }
 
         #endregion

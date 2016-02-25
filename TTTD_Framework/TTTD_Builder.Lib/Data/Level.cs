@@ -12,5 +12,7 @@ namespace TTTD_Builder.Lib.Data
         public int Id { get; set; }
         public string Name { get; set; }
         public int? Order { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
 }
