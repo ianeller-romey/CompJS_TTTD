@@ -14,7 +14,7 @@ namespace TTTD_Builder.Lib.Data
         public int LevelId { get; set; }
         public int EntityInstanceDefinitionId { get; set; }
         public KeyValuePair<string, object>[] Data { get; set; }
-        public double? X { get; set; }
-        public double? Y { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
     }
 }

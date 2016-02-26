@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace TTTD_Builder.EditData
         #region MEMBER FIELDS
 
         private Level m_level;
-        private List<LevelLayout> m_levelLayouts;
+        private ObservableCollection<LevelLayout> m_levelLayouts = new ObservableCollection<LevelLayout>();
 
         private ScrollViewer m_viewer;
         private UserControl_CanvasWithMovableElements m_canvas;
@@ -57,6 +58,21 @@ namespace TTTD_Builder.EditData
             }
             else
             {
+                Binding binding_canvas_width =
+                    new Binding("Width")
+                    {
+                        Source = m_level,
+                        Mode = BindingMode.OneWay
+                    };
+                m_canvas.BackgroundCanvas.SetBinding(Canvas.WidthProperty, binding_canvas_width);
+                Binding binding_canvas_height =
+                    new Binding("Height")
+                    {
+                        Source = m_level,
+                        Mode = BindingMode.OneWay
+                    };
+                m_canvas.BackgroundCanvas.SetBinding(Canvas.HeightProperty, binding_canvas_height);
+
                 ResetLevelLayoutList();
                 foreach (var l in m_levelLayouts)
                     CreateLevelLayoutControl(l);
@@ -99,20 +115,6 @@ namespace TTTD_Builder.EditData
             ////////
             // Canvas
             m_canvas = new UserControl_CanvasWithMovableElements();
-            Binding binding_canvas_width =
-                new Binding("Width")
-                {
-                    Source = m_level,
-                    Mode = BindingMode.OneWay
-                };
-            m_canvas.BackgroundCanvas.SetBinding(Canvas.WidthProperty, binding_canvas_width);
-            Binding binding_canvas_height =
-                new Binding("Height")
-                {
-                    Source = m_level,
-                    Mode = BindingMode.OneWay
-                };
-            m_canvas.BackgroundCanvas.SetBinding(Canvas.HeightProperty, binding_canvas_height);
             m_viewer =
                 new ScrollViewer()
                 {
@@ -162,20 +164,23 @@ namespace TTTD_Builder.EditData
 
         private void ResetLevelLayoutList()
         {
-            m_levelLayouts =
-                DataManager
-                .LevelLayouts
-                .Where(x => x.Level == m_level)
-                .Select(x => new LevelLayout()
-                {
-                    Id = x.Id,
-                    Name = (x.Name != null) ? new string(x.Name.ToCharArray()) : null,
-                    Level = x.Level,
-                    EntityInstanceDefinition = x.EntityInstanceDefinition,
-                    Data = x.Data,
-                    X = (x.X.HasValue) ? new Nullable<double>(x.X.Value) : null,
-                    Y = (x.Y.HasValue) ? new Nullable<double>(x.Y.Value) : null
-                }).ToList();
+            m_levelLayouts.Clear();
+            foreach(var x in DataManager.LevelLayouts.Where(x => x.Level == m_level))
+            {
+                m_levelLayouts.Add
+                (
+                    new LevelLayout()
+                    {
+                        Id = x.Id,
+                        Name = (x.Name != null) ? new string(x.Name.ToCharArray()) : null,
+                        Level = x.Level,
+                        EntityInstanceDefinition = x.EntityInstanceDefinition,
+                        Data = x.Data,
+                        X = x.X,
+                        Y = x.Y
+                    }
+                );
+            }
         }
 
         private void SaveData()
@@ -230,26 +235,27 @@ namespace TTTD_Builder.EditData
                 ? CreateLevelLayoutControlWithAnimationFrame(animationFrame) 
                 : CreateLevelLayoutControlWithoutAnimationFrame();
 
-            var y = levelLayout.Y.Value;
-            var x = levelLayout.X.Value;
+            var y = levelLayout.Y;
+            var x = levelLayout.X;
+
+            var movableLevelLayoutControl = m_canvas.AddMovableElement(levelLayoutControl, y, x);
 
             Binding binding_y =
-                new Binding("Y.Value")
+                new Binding("Y")
                 {
                     Source = levelLayout,
-                    Mode = BindingMode.OneWayToSource
+                    Mode = BindingMode.TwoWay
                 };
-            levelLayoutControl.SetBinding(Canvas.TopProperty, binding_y);
+            movableLevelLayoutControl.SetBinding(Canvas.TopProperty, binding_y);
 
             Binding binding_x =
-                new Binding("X.Value")
+                new Binding("X")
                 {
                     Source = levelLayout,
-                    Mode = BindingMode.OneWayToSource
+                    Mode = BindingMode.TwoWay
                 };
-            levelLayoutControl.SetBinding(Canvas.LeftProperty, binding_x);
+            movableLevelLayoutControl.SetBinding(Canvas.LeftProperty, binding_x);
 
-            m_canvas.AddMovableElement(levelLayoutControl, y, x);
         }
 
         private FrameworkElement CreateLevelLayoutControlWithAnimationFrame(AnimationFrameDefinition animationFrame)

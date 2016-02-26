@@ -20,6 +20,7 @@ namespace TTTD_Builder.Controls.TabControls
         #region MEMBER FIELDS
 
         Grid m_grid_main;
+        Expander m_expander_level;
         UserControl_NewAndSelect<Level> m_comboBox_levels;
         UserControl_Level m_userControl_level;
         UserControl_LevelLayout m_userControl_levelLayout;
@@ -61,8 +62,9 @@ namespace TTTD_Builder.Controls.TabControls
 
         private void RemoveUserControl()
         {
-            if (m_userControl_level != null)
-                m_grid_main.Children.Remove(m_userControl_level);
+            if (m_expander_level != null)
+                m_grid_main.Children.Remove(m_expander_level);
+            m_expander_level = null;
             m_userControl_level = null;
 
             if (m_userControl_levelLayout != null)
@@ -81,7 +83,8 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_level = new UserControl_Level(level);
-            m_grid_main.SetGridRowColumn(m_userControl_level, 1, 0);
+            m_expander_level = new Expander() { Content = m_userControl_level, ExpandDirection = System.Windows.Controls.ExpandDirection.Down, IsExpanded = true };
+            m_grid_main.SetGridRowColumn(m_expander_level, 1, 0);
 
             if (level != null)
             {

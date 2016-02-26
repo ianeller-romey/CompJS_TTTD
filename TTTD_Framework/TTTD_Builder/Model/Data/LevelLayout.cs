@@ -17,8 +17,8 @@ namespace TTTD_Builder.Model.Data
         private Level m_level;
         private EntityInstanceDefinition m_entityInstanceDefinition;
         private ObservableCollection<KeyValuePair<string, object>> m_data;
-        private double? m_x;
-        private double? m_y;
+        private double m_x;
+        private double m_y;
 
         #endregion
 
@@ -43,13 +43,13 @@ namespace TTTD_Builder.Model.Data
             set { if (value != m_data) { m_data = value; NotifyPropertyChanged("Data"); } }
         }
 
-        public double? X
+        public double X
         {
             get { return m_x; }
             set { if (value != m_x) { m_x = value; NotifyPropertyChanged("X"); } }
         }
 
-        public double? Y
+        public double Y
         {
             get { return m_y; }
             set { if (value != m_y) { m_y = value; NotifyPropertyChanged("Y"); } }
