@@ -33,7 +33,7 @@
                     y = position.y;
                 }
             }
-            that.position = new Vector2D(x, y);
+            that.position = new namespace.Math.Vector2D(x, y);
         };
 
         this.rotation = null;
@@ -57,7 +57,7 @@
                     y = scale.y;
                 }
             }
-            that.scale = new Vector2D(x, y);
+            that.scale = new namespace.Math.Vector2D(x, y);
         };
 
         this.velocity = null;
@@ -72,7 +72,7 @@
                     y = velocity.y;
                 }
             }
-            that.velocity = new Vector2D(x, y);
+            that.velocity = new namespace.Math.Vector2D(x, y);
         };
 
         initPosition();
@@ -82,7 +82,7 @@
     };
 
     namespace.Comp.Inst.Transformation.prototype.setPosition = function (x, y) {
-        this.position = this.position.setAndNotify(new Math.Vector2D(x, y));
+        this.position = this.position.setAndNotify(new namespace.Math.Vector2D(x, y));
     };
 
     namespace.Comp.Inst.Transformation.prototype.setRotation = function (rot) {
@@ -90,21 +90,21 @@
     };
 
     namespace.Comp.Inst.Transformation.prototype.setScale = function (x, y) {
-        this.scale = this.scale.setAndNotify(new Math.Vector2D(x, y));
+        this.scale = this.scale.setAndNotify(new namespace.Math.Vector2D(x, y));
     };
 
     namespace.Comp.Inst.Transformation.prototype.setVelocity = function (x, y) {
-        this.velocity = this.velocity.setAndNotify(new Math.Vector2D(x, y));
+        this.velocity = this.velocity.setAndNotify(new namespace.Math.Vector2D(x, y));
     };
 
     ////////
     // EntityInst
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Inst = namespace.Comp.Inst || {};
-    namespace.Comp.Inst.Entity = function (instanceId, entityTypeId, entityTypeName, position, rotation, scale, velocity) {
+    namespace.Comp.Inst.Entity = function (instanceId, entityInstanceDefinitionId, entityInstanceDefinitionName, position, rotation, scale, velocity) {
         this.instanceId = instanceId;
-        this.typeId = entityTypeId;
-        this.typeName = entityTypeName;
+        this.instanceDefinitionId = entityInstanceDefinitionId;
+        this.instanceDefinitionName = entityInstanceDefinitionName;
 
         this.transformation = new namespace.Comp.Inst.Transformation(position, rotation, scale, velocity);
     };
@@ -138,25 +138,29 @@
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
     namespace.Comp.Def.Entity = function (def) {
-        this.name = x.name;
-        this.behavior = x.behavior;
-        this.graphics = x.graphics;
-        this.physics = x.physics;
-        this.audible = x.audible;
+        this.name = def.name;
+        this.behavior = def.behavior;
+        this.graphics = def.graphics;
+        this.physics = def.physics;
+        this.audible = def.audible;
     };
 
     ////////
     // EntityEngine
     namespace.Engines = namespace.Engines || {};
-    namespace.Engines.EntityManager = function () {
+    namespace.Engines.EntityManager = function (audEng, bhvEng, gfxEng, physEng) {
         var Inst = namespace.Comp.Inst;
         var Def = namespace.Comp.Def;
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
-        var servicesEngine = namespace.Globals.globalServicesEngine;
+        var dataEngine = namespace.Globals.globalDataEngine;
+        var audioEngine = audEng;
+        var behaviorEngine = bhvEng;
+        var graphicsEngine = gfxEng;
+        var physicsEngine = physEng;
 
-        var entityTypeDefinitions = [];
-        var entityTypeNamedIds = [];
+        var entityInstanceDefinitions = [];
+        var entityInstanceDefinitionNamedIds = [];
         var entityInstances = [];
 
         var entityHasBehavior = namespace.Comp.Inst.Entity.hasBehavior;
@@ -166,18 +170,18 @@
 
         var entityIdGenerator = 0;
 
-        var buildEntityTypeDefinitions = function (data) {
+        var buildEntityInstanceDefinitions = function (data) {
             data.forEach(function (x) {
-                entityTypeDefinitions[x.id] = new namespace.Comp.Def.Entity(x);
+                entityInstanceDefinitions[x.id] = new namespace.Comp.Def.Entity(x);
 
-                entityTypeNamedIds[x.name] = x.id;
+                entityInstanceDefinitionNamedIds[x.name] = x.id;
             });
         };
 
         this.init = function () {
             return new Promise(function (resolve, reject) {
-                servicesEngine.retrieveAllEntityTypeDefinitionsForGame().then(function (data) {
-                    buildEntityTypeDefinitions(data);
+                dataEngine.loadAllEntityInstanceDefinitions().then(function (data) {
+                    buildEntityInstanceDefinitions(data);
                     resolve();
                 }, function (reason) {
                     var reasonPlus = "Failed to load entity definitions";
@@ -192,8 +196,8 @@
         this.shutdown = function () {
             var that = this;
             return new Promise(function (resolve, reject) {
-                entityTypeDefinitions = [];
-                entityTypeNamedIds = [];
+                entityInstanceDefinitions = [];
+                entityInstanceDefinitionNamedIds = [];
                 entityInstances = [];
                 messengerEngine.unregisterAll(that);
                 resolve();
@@ -201,24 +205,24 @@
         };
 
         var createEntityInstance = function (xEntityType, data, callback) {
-            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityTypeId, xEntityType.entityTypeName, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
+            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
             entityInstances.push(entity);
 
-            var entityDefinition = entityTypeDefinitions[entity.typeId];
+            var entityDefinition = entityInstanceDefinitions[entity.instanceDefinitionId];
             if (entityHasBehavior(entityDefinition)) {
-                messengerEngine.postImmediate("createBehavior", entity, entityDefinition.behavior);
+                behaviorEngine.createBehaviorComponentInstance(entity, entityDefinition.behavior);
                 if (data !== undefined && data !== null) {
-                    messengerEngine.postImmediate("setBehaviorInstanceData", entity.instanceId, data);
+                    behaviorEngine.setBehaviorComponentInstanceData(entity.instanceId, data);
                 }
             }
             if (entityHasGraphics(entityDefinition)) {
-                messengerEngine.postImmediate("createGraphics", entity, entityDefinition.graphics);
+                graphicsEngine.createGraphicsComponentInstance(entity, entityDefinition.graphics);
             }
             if (entityHasPhysics(entityDefinition)) {
-                messengerEngine.postImmediate("createPhysics", entity, entityDefinition.physics);
+                physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics);
             }
-            if(entityHasAudible(entityDefinition)) {
-                messengerEngine.postImmediate("createAudible", entity, entityDefinition.audible);
+            if (entityHasAudible(entityDefinition)) {
+                throw "Not yet implemented";
             }
 
             if (callback) { // intentional truthiness
@@ -226,12 +230,20 @@
             }
         };
 
-        var createEntityInstanceFromMessage = function (name, additional, callback) {
-            var entityTypeNamedId = entityTypeNamedIds[name];
-            if (entityTypeNameId !== undefined && entityTypeNamedId !== null) {
+        var createEntityInstanceFromMessage = function (identifier, additional, callback) {
+            var entityInstanceDefinitionId;
+            var entityInstanceDefinitionName;
+            if (typeof (identifier) === "number") {
+                entityInstanceDefinitionId = identifier;
+                entityInstanceDefinitionName = entityInstanceDefinitions[identifier].name;
+            } else if (typeof (identifier) === "string") {
+                entityInstanceDefinitionId = entityInstanceDefinitionNamedIds[identifier];
+                entityInstanceDefinitionName = identifier;
+            }
+            if (entityInstanceDefinitionId !== undefined && entityInstanceDefinitionId !== null) {
                 var xEntityType = {
-                    entityTypeId: entityTypeNamedId,
-                    entityTypeName: name
+                    entityInstanceDefinitionId: entityInstanceDefinitionId,
+                    entityInstanceDefinitionName: entityInstanceDefinitionName
                 };
                 if (additional != undefined) {
                     if (additional.position !== undefined) {
@@ -326,17 +338,17 @@
         };
 
         this.loadLevel = function (levelId) {
-            servicesEngine.loadLevel(levelId).then(function (data) {
+            dataEngine.loadLevel(levelId).then(function (data) {
                 entityInstances = [];
 
                 data.levelPositions.forEach(function (x) {
                     createEntityInstance(x);
                 });
 
-                data.entityTypesOnAllLevels.forEach(function (x) {
+                data.entityInstanceDefinitionsOnAllLevels.forEach(function (x) {
                     createEntityInstance({
-                        entityTypeId: x.id,
-                        entityTypeName: x.name,
+                        entityInstanceDefinitionId: x.id,
+                        entityInstanceDefinitionName: x.name,
                         behavior: x.behavior,
                         graphics: x.graphics,
                         physics: x.physics,

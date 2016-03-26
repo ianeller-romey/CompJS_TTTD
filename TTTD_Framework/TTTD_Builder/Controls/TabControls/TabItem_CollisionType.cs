@@ -50,7 +50,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_collisionTypes = new UserControl_NewAndSelect<CollisionType>(DataManager.CollisionTypes, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_collisionTypes, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_collisionTypes, 0, 0);
 
             ////////
             // Fin
@@ -68,14 +68,14 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_collisionType = new UserControl_CollisionType(null);
-            m_grid_main.SetGridRowColumn(m_userControl_collisionType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_collisionType, 1, 0);
         }
 
         private void Select(CollisionType collisionType)
         {
             RemoveUserControl();
             m_userControl_collisionType = new UserControl_CollisionType(collisionType);
-            m_grid_main.SetGridRowColumn(m_userControl_collisionType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_collisionType, 1, 0);
         }
 
         #endregion

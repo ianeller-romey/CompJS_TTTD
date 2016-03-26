@@ -87,7 +87,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
-    <Compile Include="Controls\EditData\UserControl_LevelLayout.cs" />
+    <Compile Include="Controls\EditData\UserControl_LevelLayoutDataEditor.cs" />
+    <Compile Include="Controls\EditData\UserControl_LevelEditor.cs" />
     <Compile Include="Controls\EditData\UserControl_PhysicsInstanceDefinition.cs" />
     <Compile Include="Controls\EditData\UserControl_AnimationFrameDefinition.cs" />
     <Compile Include="Controls\Helpers\UserControl_CanvasWithMovableElements.cs" />
@@ -129,7 +130,6 @@
     <Compile Include="Controls\EditData\UserControl_CollisionType.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Managers\DataManager.cs" />
-    <Compile Include="Managers\ReaderWriterManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -144,6 +144,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Managers\ReaderWriterManager.cs" />
     <Compile Include="Model\Data\AnimationFrameDefinition.cs" />
     <Compile Include="Model\Data\AnimationStateDefinition.cs" />
     <Compile Include="Model\Data\Audio.cs" />
@@ -200,6 +201,10 @@
     <ProjectReference Include="..\TTTD_Builder.Lib\TTTD_Builder.Lib.csproj">
       <Project>{ae4ce606-1087-43c8-843e-0f20396879db}</Project>
       <Name>TTTD_Builder.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TTTD_DataReaderWriter\TTTD_DataReaderWriter.csproj">
+      <Project>{1658744b-47ec-45e7-b5e1-4e9a2cb250e4}</Project>
+      <Name>TTTD_DataReaderWriter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -7,6 +7,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
+using Xceed.Wpf.Toolkit;
+
 using TTTD_Builder.Controls.Helpers;
 using TTTD_Builder.Controls.Validation;
 using TTTD_Builder.Managers;
@@ -25,9 +27,10 @@ namespace TTTD_Builder.EditData
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
         private ComboBox m_comboBox_entityInstanceDefinition;
+        private IntegerUpDown m_integerUpDown_renderPass;
         private GroupBox m_groupBox_type;
         private RadioButton m_radioButton_animation,
-                    m_radioButton_font;
+                            m_radioButton_font;
 
         #endregion
 
@@ -58,11 +61,13 @@ namespace TTTD_Builder.EditData
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
+                m_integerUpDown_renderPass.Value = null;
             }
             else
             {
                 m_textBlock_id.Text = m_graphicsInstanceDefinition.Id.ToString();
                 m_textBox_name.Text = m_graphicsInstanceDefinition.Name;
+                m_integerUpDown_renderPass.Value = m_graphicsInstanceDefinition.RenderPass;
             }
         }
 
@@ -77,11 +82,13 @@ namespace TTTD_Builder.EditData
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
+                m_integerUpDown_renderPass.Value = null;
             }
             else
             {
                 m_textBlock_id.Text = m_graphicsInstanceDefinition.Id.ToString();
                 m_textBox_name.Text = m_graphicsInstanceDefinition.Name;
+                m_integerUpDown_renderPass.Value = m_graphicsInstanceDefinition.RenderPass;
             }
         }
 
@@ -97,6 +104,7 @@ namespace TTTD_Builder.EditData
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
             ////////
             // Id
@@ -105,9 +113,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -117,9 +125,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // EntityInstanceDefinition
@@ -141,9 +149,21 @@ namespace TTTD_Builder.EditData
             Grid grid_entityInstanceDefinition = new Grid();
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 1, 0);
-            grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
-            grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
+            grid_entityInstanceDefinition.SetRowColumn(validator_entityInstanceDefinition, 1, 0);
+            grid_entityInstanceDefinition.SetRowColumn(label_entityInstanceDefinition, 0, 0);
+            grid_main.SetRowColumn(grid_entityInstanceDefinition, 2, 0);
+
+            ////////
+            // State
+            m_integerUpDown_renderPass = new IntegerUpDown() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_renderPass = new ValidatorPanel(m_integerUpDown_renderPass, IntegerUpDown.ValueProperty, new Validate_NotNull());
+            Label label_renderPass = new Label() { Content = "Render Pass: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            Grid grid_renderPass = new Grid();
+            grid_renderPass.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_renderPass.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_renderPass.SetRowColumn(validator_renderPass, 1, 0);
+            grid_renderPass.SetRowColumn(label_renderPass, 0, 0);
+            grid_main.SetRowColumn(grid_renderPass, 3, 0);
 
             ////////
             // GroupBox and RadioButtons
@@ -157,10 +177,10 @@ namespace TTTD_Builder.EditData
             grid_radioButtons.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_radioButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_radioButtons.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
-            grid_radioButtons.SetGridRowColumn(m_radioButton_animation, 0, 0);
-            grid_radioButtons.SetGridRowColumn(label_radioButton_animation, 0, 1);
-            grid_radioButtons.SetGridRowColumn(m_radioButton_font, 1, 0);
-            grid_radioButtons.SetGridRowColumn(label_radioButton_font, 1, 1);
+            grid_radioButtons.SetRowColumn(m_radioButton_animation, 0, 0);
+            grid_radioButtons.SetRowColumn(label_radioButton_animation, 0, 1);
+            grid_radioButtons.SetRowColumn(m_radioButton_font, 1, 0);
+            grid_radioButtons.SetRowColumn(label_radioButton_font, 1, 1);
             MultiValidatorPanel validator_radioButtons = new MultiValidatorPanel(grid_radioButtons, new[] {
                     m_radioButton_animation,
                     m_radioButton_font
@@ -171,7 +191,7 @@ namespace TTTD_Builder.EditData
 
             m_groupBox_type = new GroupBox() { Header = "Type", Content = validator_radioButtons };
 
-            grid_main.SetGridRowColumn(m_groupBox_type, 3, 0);
+            grid_main.SetRowColumn(m_groupBox_type, 4, 0);
 
             if (GraphicsInstanceDefinitionType != GraphicsInstanceDefinition_WithAnimationStateDefinitions.GraphicsInstanceDefinitionType.Undetermined)
             {
@@ -192,6 +212,7 @@ namespace TTTD_Builder.EditData
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
                 validator_name,
                 validator_entityInstanceDefinition,
+                validator_renderPass,
                 validator_radioButtons
             }};
         }
@@ -206,6 +227,7 @@ namespace TTTD_Builder.EditData
             m_graphicsInstanceDefinition = DataManager.Generate<GraphicsInstanceDefinition>();
             m_graphicsInstanceDefinition.Name = m_textBox_name.Text;
             m_graphicsInstanceDefinition.EntityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
+            m_graphicsInstanceDefinition.RenderPass = m_integerUpDown_renderPass.Value.Value;
 
             // we need to add the AnimationStateDefinition or FontTextureDefinition first, or we won't
             // be able to select the appropriate GraphicsInstanceDefinition in the ComboBox
@@ -236,6 +258,7 @@ namespace TTTD_Builder.EditData
         protected override int UpdateExistingData()
         {
             m_graphicsInstanceDefinition.Name = m_textBox_name.Text;
+            m_graphicsInstanceDefinition.RenderPass = m_integerUpDown_renderPass.Value.Value;
 
             return m_graphicsInstanceDefinition.Id;
         }
@@ -245,11 +268,13 @@ namespace TTTD_Builder.EditData
             m_textBox_name.Text = string.Empty;
             m_radioButton_animation.IsChecked = false;
             m_radioButton_font.IsChecked = false;
+            m_integerUpDown_renderPass.Value = null;
         }
 
         protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_graphicsInstanceDefinition.Name;
+            m_integerUpDown_renderPass.Value = m_graphicsInstanceDefinition.RenderPass;
         }
 
         #endregion

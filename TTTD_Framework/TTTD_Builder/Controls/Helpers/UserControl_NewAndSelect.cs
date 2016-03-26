@@ -78,13 +78,13 @@ namespace TTTD_Builder.Controls.Helpers
                     if (y.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                         m_comboBox.SelectedItem = y.NewItems.OfType<T>().FirstOrDefault();
                 };
-            grid_main.SetGridRowColumn(m_comboBox, 0, 1);
+            grid_main.SetRowColumn(m_comboBox, 0, 1);
 
             ////////
             // new button
             Button button_new = new Button() { Padding = new Thickness(2.5), Margin = new Thickness(0.0, 0.0, 2.5, 0.0), FontWeight = FontWeights.Bold, Content = "+", };
             button_new.Click += (x, y) => { m_comboBox.SelectedItem = null; m_newFunc(); };
-            grid_main.SetGridRowColumn(button_new, 0, 0);
+            grid_main.SetRowColumn(button_new, 0, 0);
 
             ////////
             // fin

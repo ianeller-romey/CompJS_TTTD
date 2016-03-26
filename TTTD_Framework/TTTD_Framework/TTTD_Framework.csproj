@@ -82,7 +82,6 @@
     <Content Include="lib\engines\input-engine.js" />
     <Content Include="lib\engines\messenger-engine.js" />
     <Content Include="lib\engines\phys-engine.js" />
-    <Content Include="lib\engines\services-engine.js" />
     <Content Include="lib\math\vector-2d.js" />
     <Content Include="lib\shaders\shader-texture.js" />
     <Content Include="lib\utilities.js" />
@@ -92,6 +91,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="index.html" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -106,7 +112,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>38577</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:36262/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
@@ -118,6 +124,15 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>echo D|xcopy "$(ProjectDir)*.html" C:\inetpub\ironandrose\compjs\tttd /R /Y
+echo D|xcopy "$(ProjectDir)lib\*" C:\inetpub\ironandrose\compjs\tttd\lib /R /S /I /Y
+echo D|xcopy "$(ProjectDir)assets\*" C:\inetpub\ironandrose\compjs\tttd\assets /R /S /I /Y</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>$(SolutionDir)TTTD_Sanitizer\$(OutDir)$(ConfigurationName)\TTTD_Sanitizer.exe "$(SolutionDir)TTTD_Assets\temp\json" "$(ProjectDir)assets\json" "$(SolutionDir)TTTD_DataReaderWriter.JSON\$(OutDir)$(ConfigurationName)\TTTD_DataReaderWriter.JSON.dll"
+echo "Prebuild Asset Sanitization Successful"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

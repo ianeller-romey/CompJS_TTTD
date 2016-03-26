@@ -71,7 +71,7 @@
         var Def = namespace.Comp.Def;
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
-        var servicesEngine = namespace.Globals.globalServicesEngine;
+        var dataEngine = namespace.Globals.globalDataEngine;
 
         var audTypeDefinitions = [];
         var audCompDefinitions = {};
@@ -84,7 +84,7 @@
             });
         };
 
-        var buildAudioDefinitions = function (data) {
+        var buildAudioComponentInstanceDefinitions = function (data) {
             data.forEach(function (x) {
                 // so we can create audio from name or id
                 audCompDefinitions[x.id] = new Def.Aud(x);
@@ -94,7 +94,7 @@
 
         this.init = function () {
             var audioTypePromise = new Promise(function (resolve, reject) {
-                servicesEngine.retrieveAudioTypes().then(function (data) {
+                dataEngine.loadAudioTypes().then(function (data) {
                     buildAudioTypeDefinitions(data);
                     resolve();
                 }, function (reason) {
@@ -105,17 +105,10 @@
                     reject(reasonPlus);
                 });
             });
-            var audCompDefinitionsPromise = new Promise(function (resolve, reject) {
-                servicesEngine.retrieveAllAudioForGame().then(function (data) {
-                    buildAudioDefinitions(data).then(function () {
-                        resolve();
-                    }, function (reason) {
-                        var reasonPlus = "Failed to build audio definitions";
-                        if (reason != null) {
-                            reasonPlus = reasonPlus + "\r\n" + reason;
-                        }
-                        reject(reasonPlus);
-                    });
+            var audioInstanceDefinitionsPromise = new Promise(function (resolve, reject) {
+                dataEngine.loadAllAudio().then(function (data) {
+                    buildAudioComponentInstanceDefinitions(data);
+                    resolve();
                 }, function (reason) {
                     var reasonPlus = "Failed to load audio definitions";
                     if (reason != null) {
@@ -124,7 +117,7 @@
                     reject(reasonPlus);
                 });
             });
-            return Promise.all([audioTypePromise, audCompDefinitionsPromise]);
+            return Promise.all([audioTypePromise, audioInstanceDefinitionsPromise]);
         };
 
         this.update = function (delta) {

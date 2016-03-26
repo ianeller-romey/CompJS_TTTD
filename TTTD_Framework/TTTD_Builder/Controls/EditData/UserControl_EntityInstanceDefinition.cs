@@ -69,9 +69,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -81,9 +81,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // FIN

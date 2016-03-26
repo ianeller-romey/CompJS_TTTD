@@ -189,14 +189,14 @@ namespace TTTD_Builder.EditData
             Grid grid_sub = new Grid();
             grid_sub.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(30.0, GridUnitType.Star) });
             grid_sub.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(70.0, GridUnitType.Star) });
-            grid_main.SetGridRowColumn(grid_sub, 5, 0);
+            grid_main.SetRowColumn(grid_sub, 5, 0);
 
             m_grid_subSub = new Grid();
-            grid_sub.SetGridRowColumn(m_grid_subSub, 0, 0);
+            grid_sub.SetRowColumn(m_grid_subSub, 0, 0);
 
             m_image = new Image() { Stretch = System.Windows.Media.Stretch.None };
             m_canvasWithRectangle = new UserControl_CanvasWithRectangle(new[] { m_image }) { Width = 500, Height = 500 };
-            grid_sub.SetGridRowColumn(m_canvasWithRectangle, 0, 1);
+            grid_sub.SetRowColumn(m_canvasWithRectangle, 0, 1);
 
             m_canvasWithRectangle.SizableRectangle.Width =
                 m_canvasWithRectangle.SizableRectangle.Height =
@@ -209,9 +209,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -221,9 +221,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // EntityInstanceDefinition
@@ -246,9 +246,9 @@ namespace TTTD_Builder.EditData
             Grid grid_entityInstanceDefinition = new Grid();
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 1, 0);
-            grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
-            grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
+            grid_entityInstanceDefinition.SetRowColumn(validator_entityInstanceDefinition, 1, 0);
+            grid_entityInstanceDefinition.SetRowColumn(label_entityInstanceDefinition, 0, 0);
+            grid_main.SetRowColumn(grid_entityInstanceDefinition, 2, 0);
 
             ////////
             // CollisionType
@@ -270,9 +270,9 @@ namespace TTTD_Builder.EditData
             Grid grid_collisionType = new Grid();
             grid_collisionType.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_collisionType.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_collisionType.SetGridRowColumn(validator_collisionType, 1, 0);
-            grid_collisionType.SetGridRowColumn(label_collisionType, 0, 0);
-            grid_main.SetGridRowColumn(grid_collisionType, 3, 0);
+            grid_collisionType.SetRowColumn(validator_collisionType, 1, 0);
+            grid_collisionType.SetRowColumn(label_collisionType, 0, 0);
+            grid_main.SetRowColumn(grid_collisionType, 3, 0);
 
             ////////
             // PhysType
@@ -295,9 +295,9 @@ namespace TTTD_Builder.EditData
             Grid grid_physType = new Grid();
             grid_physType.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_physType.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_physType.SetGridRowColumn(validator_physType, 1, 0);
-            grid_physType.SetGridRowColumn(label_physType, 0, 0);
-            grid_main.SetGridRowColumn(grid_physType, 4, 0);
+            grid_physType.SetRowColumn(validator_physType, 1, 0);
+            grid_physType.SetRowColumn(label_physType, 0, 0);
+            grid_main.SetRowColumn(grid_physType, 4, 0);
 
             ////////
             // FIN
@@ -484,8 +484,8 @@ namespace TTTD_Builder.EditData
                     p.OriginX = double.Parse(textBox_originX.Text);
             };
             Label label_originX = new Label() { Content = "Origin X: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_originX, 0, 1);
-            m_grid_subSub.SetGridRowColumn(label_originX, 0, 0);
+            m_grid_subSub.SetRowColumn(textBox_originX, 0, 1);
+            m_grid_subSub.SetRowColumn(label_originX, 0, 0);
 
             MultiBinding textBox_originX_binding = new MultiBinding() { Converter = new OriginConverter() };
             textBox_originX_binding.Bindings.Add(binding_rectangle_canvasLeft);
@@ -502,8 +502,8 @@ namespace TTTD_Builder.EditData
                     p.OriginY = double.Parse(textBox_originY.Text);
             };
             Label label_originY = new Label() { Content = "Origin Y: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_originY, 1, 1);
-            m_grid_subSub.SetGridRowColumn(label_originY, 1, 0);
+            m_grid_subSub.SetRowColumn(textBox_originY, 1, 1);
+            m_grid_subSub.SetRowColumn(label_originY, 1, 0);
 
             MultiBinding textBox_originY_binding = new MultiBinding() { Converter = new OriginConverter() };
             textBox_originY_binding.Bindings.Add(binding_rectangle_canvasTop);
@@ -520,8 +520,8 @@ namespace TTTD_Builder.EditData
                     p.HalfValueX = double.Parse(textBox_halfValueX.Text);
             };
             Label label_halfValueX = new Label() { Content = "HalfValue X: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_halfValueX, 2, 1);
-            m_grid_subSub.SetGridRowColumn(label_halfValueX, 2, 0);
+            m_grid_subSub.SetRowColumn(textBox_halfValueX, 2, 1);
+            m_grid_subSub.SetRowColumn(label_halfValueX, 2, 0);
 
             textBox_halfValueX.SetBinding(TextBox.TextProperty, binding_rectangle_halfWidth);
 
@@ -535,8 +535,8 @@ namespace TTTD_Builder.EditData
                     p.HalfValueY = double.Parse(textBox_halfValueX.Text);
             };
             Label label_halfValueY = new Label() { Content = "HalfValue Y: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_halfValueY, 3, 1);
-            m_grid_subSub.SetGridRowColumn(label_halfValueY, 3, 0);
+            m_grid_subSub.SetRowColumn(textBox_halfValueY, 3, 1);
+            m_grid_subSub.SetRowColumn(label_halfValueY, 3, 0);
 
             textBox_halfValueY.SetBinding(TextBox.TextProperty, binding_rectangle_halfHeight);
         }
@@ -595,8 +595,8 @@ namespace TTTD_Builder.EditData
                     p.OriginX = double.Parse(textBox_originX.Text);
             };
             Label label_originX = new Label() { Content = "Origin X: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_originX, 0, 1);
-            m_grid_subSub.SetGridRowColumn(label_originX, 0, 0);
+            m_grid_subSub.SetRowColumn(textBox_originX, 0, 1);
+            m_grid_subSub.SetRowColumn(label_originX, 0, 0);
 
             MultiBinding textBox_originX_binding = new MultiBinding() { Converter = new OriginConverter() };
             textBox_originX_binding.Bindings.Add(binding_rectangle_canvasLeft);
@@ -613,8 +613,8 @@ namespace TTTD_Builder.EditData
                     p.OriginY = double.Parse(textBox_originY.Text);
             };
             Label label_originY = new Label() { Content = "Origin Y: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_originY, 1, 1);
-            m_grid_subSub.SetGridRowColumn(label_originY, 1, 0);
+            m_grid_subSub.SetRowColumn(textBox_originY, 1, 1);
+            m_grid_subSub.SetRowColumn(label_originY, 1, 0);
 
             MultiBinding textBox_originY_binding = new MultiBinding() { Converter = new OriginConverter() };
             textBox_originY_binding.Bindings.Add(binding_rectangle_canvasTop);
@@ -631,8 +631,8 @@ namespace TTTD_Builder.EditData
                     p.Radius = double.Parse(textBox_radius.Text);
             };
             Label label_radius = new Label() { Content = "Radius: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
-            m_grid_subSub.SetGridRowColumn(textBox_radius, 2, 1);
-            m_grid_subSub.SetGridRowColumn(label_radius, 2, 0);
+            m_grid_subSub.SetRowColumn(textBox_radius, 2, 1);
+            m_grid_subSub.SetRowColumn(label_radius, 2, 0);
 
             textBox_radius.SetBinding(TextBox.TextProperty, binding_rectangle_halfWidth);
         }

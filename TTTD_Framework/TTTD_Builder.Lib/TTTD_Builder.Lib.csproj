@@ -53,9 +53,6 @@
     <Compile Include="Data\Level.cs" />
     <Compile Include="Data\PhysicsInstanceDefinition.cs" />
     <Compile Include="Data\LevelLayout.cs" />
-    <Compile Include="IReader.cs" />
-    <Compile Include="IDataStoreSelector.cs" />
-    <Compile Include="IWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

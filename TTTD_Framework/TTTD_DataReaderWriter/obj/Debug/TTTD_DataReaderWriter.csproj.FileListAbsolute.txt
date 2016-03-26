@@ -1,0 +1,4 @@
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter\bin\Debug\TTTD_DataReaderWriter.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter\bin\Debug\TTTD_DataReaderWriter.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter\obj\Debug\TTTD_DataReaderWriter.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter\obj\Debug\TTTD_DataReaderWriter.pdb

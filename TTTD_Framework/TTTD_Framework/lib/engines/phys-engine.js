@@ -5,16 +5,16 @@
     // PhysCompInst
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Inst = namespace.Comp.Inst || {};
-    namespace.Comp.Inst.Phys = function (entity, physCompDefinition) {
+    namespace.Comp.Inst.Physics = function (entity, physCompDefinition) {
         this.instanceId = entity.instanceId;
         this.entityTypeName = entity.typeName;
         this.transformation = entity.transformation;
-        this.physics = new namespace.Comp.Inst.Phys.Physics(physCompDefinition);
+        this.physics = new namespace.Comp.Inst.Physics.Physical(physCompDefinition, this.transformation);
     };
 
-    namespace.Comp.Inst.Phys.prototype = new namespace.Comp.Inst.Component();
+    namespace.Comp.Inst.Physics.prototype = new namespace.Comp.Inst.Component();
 
-    namespace.Comp.Inst.Phys.prototype.destroy = function (messengerEngine) {
+    namespace.Comp.Inst.Physics.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
             messengerEngine.unregisterAll(this);
             if (this.physics !== null) {
@@ -23,20 +23,20 @@
         }
     };
 
-    namespace.Comp.Inst.Phys.Physics = function (physCompDefinition, transformation) {
+    namespace.Comp.Inst.Physics.Physical = function (physCompDefinition, transformation) {
         this.physTypeId = physCompDefinition.physTypeId;
         this.collisionTypeId = physCompDefinition.collisionTypeId;
         this.boundingData = physCompDefinition.boundingData.clone();
         this.colliders = [];
         
-        this.boundingData.translateSelf(transformation.position.x, transformation.position.y);
+        this.boundingData.translate(transformation.position.x, transformation.position.y);
     };
 
     ////////
     // PhysCompDef
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Phys = function (def, boundingData) {
+    namespace.Comp.Def.Physics = function (def, boundingData) {
         this.physTypeId = def.physTypeId;
         this.collisionTypeId = def.collisionTypeId;
         this.boundingData = boundingData;
@@ -50,7 +50,7 @@
         var Def = namespace.Comp.Def;
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
-        var servicesEngine = namespace.Globals.globalServicesEngine;
+        var dataEngine = namespace.Globals.globalDataEngine;
 
         var physTypeDefinitions = [];
         var collisionTypeDefinitions = [];
@@ -69,22 +69,23 @@
             });
         };
 
-        var buildPhysCompDefinitions = function (data) {
+        var buildPhysicsComponentInstanceDefinitions = function (data) {
             data.forEach(function (x) {
                 var physType = physTypeDefinitions[x.physTypeId];
                 var boundingData;
-                if (physType == "Circle") {
-                    boundingData = new BoundingCircle(JSON.parse(x.boundingData));
-                } else if (physType == "AABB") {
-                    boundingData = new BoundingAABB(JSON.parse(x.boundingData));
+                var parsed = JSON.parse(x.boundingData);
+                if (physType.name == "Circle") {
+                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingCircle(parsed.origin, parsed.radius);
+                } else if (physType.name == "AABB") {
+                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingAABB(parsed.origin, parsed.halfValues);
                 }
-                physCompDefinitions[x.id] = new Def.Phys(x, boundingData);
+                physCompDefinitions[x.id] = new Def.Physics(x, boundingData);
             });
         };
 
         this.init = function () {
             var physTypesPromise = new Promise(function (resolve, reject) {
-                servicesEngine.retrievePhysTypes().then(function (data) {
+                dataEngine.loadPhysTypes().then(function (data) {
                     buildPhysTypeDefinitions(data);
                     resolve();
                 }, function (reason) {
@@ -96,7 +97,7 @@
                 });
             });
             var collisionTypesPromise = new Promise(function (resolve, reject) {
-                servicesEngine.retrieveCollisionTypes().then(function (data) {
+                dataEngine.loadCollisionTypes().then(function (data) {
                     buildCollisionTypeDefinitions(data);
                     resolve();
                 }, function (reason) {
@@ -110,8 +111,8 @@
 
             return new Promise(function (resolve, reject) {
                 Promise.all([physTypesPromise, collisionTypesPromise]).then(function () {
-                    servicesEngine.retrieveAllPhysCompDefinitionsForGame().then(function (data) {
-                        buildPhysCompDefinitions(data);
+                    dataEngine.loadAllPhysicsInstanceDefinitions().then(function (data) {
+                        buildPhysicsComponentInstanceDefinitions(data);
                         resolve();
                     }, function (reason) {
                         var reasonPlus = "Failed to load physics definitions";
@@ -149,7 +150,7 @@
                     var bounding = instance.physics.boundingData;
 
                     var hasNonGhostCollider = false;
-                    var totalDisplacementVector = new Math.Vector2D(0, 0);
+                    var totalDisplacementVector = new namespace.Math.Vector2D(0, 0);
                     for (var j = 0; j < physCompInstances.length; ++j) {
                         if (j === i) {
                             continue;
@@ -200,23 +201,22 @@
             });
         };
 
-        var createPhysCompInstance = function (entity, physCompId) {
+        this.createPhysicsComponentInstance = function (entity, physCompId) {
             var physCompDefinition = physCompDefinitions[physCompId];
-            var instance = new PhysicsComponentInstance(entity, physCompDefinition);
+            var instance = new Inst.Physics(entity, physCompDefinition);
             physCompInstances.push(instance);
-            messengerEngine.queueForPosting("createdPhysicsInstance", instance.physics, instance.instanceId);
         };
 
-        var getPhysCompInstanceForEntityInstance = function (instanceId) {
+        var getPhysicsComponentInstanceForEntityInstance = function (instanceId) {
             var instance = physCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                messengerEngine.postImmediate("getPhysCompInstanceForEntityInstanceResponse", instanceId, instance);
+                messengerEngine.postImmediate("getPhysicsComponentInstanceForEntityInstanceResponse", instanceId, instance);
             }
         };
 
-        var removePhysCompInstanceFromMessage = function (instanceId) {
+        var removePhysicsComponentInstanceFromMessage = function (instanceId) {
             for (var i = 0; i < physCompInstances.length; ++i) {
                 var instance = physCompInstances[i];
                 if (instance.instanceId === instanceId) {
@@ -227,9 +227,8 @@
             }
         };
 
-        messengerEngine.register("createPhysics", this, createPhysCompInstance);
-        messengerEngine.register("getPhysCompInstanceForEntityInstanceRequest", this, getPhysCompInstanceForEntityInstance);
-        messengerEngine.register("removeEntityInstance", this, removePhysCompInstanceFromMessage);
+        messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
+        messengerEngine.register("removeEntityInstance", this, removePhysicsComponentInstanceFromMessage);
     };
         
     var Phys = namespace.Engines.PhysEngine;
@@ -237,8 +236,8 @@
 
     if(!Phys.Collision.Axes) { // intentional truthiness
         Phys.Collision.Axes = {};
-        Phys.Collision.Axes.X = new Math.Vector2D(1, 0);
-        Phys.Collision.Axes.Y = new Math.Vector2D(0, 1);
+        Phys.Collision.Axes.X = new namespace.Math.Vector2D(1, 0);
+        Phys.Collision.Axes.Y = new namespace.Math.Vector2D(0, 1);
         Phys.Collision.Axes.ProjectionData = function (min, max) {
             this.min = min;
             this.max = max;
@@ -253,7 +252,7 @@
             this.intersecting = true;
             this.willIntersect = true;
             this.minIntervalDistance = Number.MAX_VALUE;
-            this.displacementAxis = new Math.Vector2D(0, 0);
+            this.displacementAxis = new namespace.Math.Vector2D(0, 0);
         };
 
         Phys.Collision.Calculation.prototype.getDisplacementVector = function() {
@@ -299,7 +298,7 @@
                     y: -second.origin.y
                 });
                 if (d.dot(displacementAxis) < 0) {
-                    displacementAxis = new Math.Vector2D(-displacementAxis.x, -displacementAxis.y);
+                    displacementAxis = new namespace.Math.Vector2D(-displacementAxis.x, -displacementAxis.y);
                 }
 
                 calculation.displacementAxis = displacementAxis;
@@ -311,8 +310,12 @@
 
     if (!Phys.Collision.BoundingCircle) { // intentional truthiness
         Phys.Collision.BoundingCircle = function (origin, radius) {
-            this.origin = new Math.Vector2D(origin.x, origin.y);
+            this.origin = new namespace.Math.Vector2D(origin.x, origin.y);
             this.radius = radius;
+        };
+
+        Phys.Collision.BoundingCircle.prototype.clone = function () {
+            return new Phys.Collision.BoundingCircle(this.origin, this.radius);
         };
 
         Phys.Collision.BoundingCircle.prototype.translate = function(vector) {
@@ -345,9 +348,9 @@
             // don't check for equals; unnecessary
             var voronoiVertex;
             if (rect.origin.x > this.origin.x) {
-                voronoiVertex = (rect.origin.y > this.origin.y) ? rect.maxVals.clone() : new Math.Vector2D(rect.maxVals.x, rect.minVals.y);
+                voronoiVertex = (rect.origin.y > this.origin.y) ? rect.maxVals.clone() : new namespace.Math.Vector2D(rect.maxVals.x, rect.minVals.y);
             } else {
-                voronoiVertex = (rect.origin.y < this.origin.y) ? rect.minVals.clone() : new Math.Vector2D(rect.minVals.x, rect.maxVals.y);
+                voronoiVertex = (rect.origin.y < this.origin.y) ? rect.minVals.clone() : new namespace.Math.Vector2D(rect.minVals.x, rect.maxVals.y);
             }
             var finalAxis = circle.origin.translate(-voronoiVertex.x, -voronoiVertex.y).normalize();
             yesOnThisAxis = Phys.Collision.SAT(this, rect, finalAxis, relativeVelocity, calculation);
@@ -355,7 +358,7 @@
                 return false;
             }
 
-            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new Math.Vector2D(0, 0);
+            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
         };
 
@@ -390,7 +393,7 @@
                 return false;
             }
 
-            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new Math.Vector2D(0, 0);
+            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
         };
         
@@ -407,18 +410,22 @@
     }
 
     if (!Phys.Collision.BoundingAABB) { // intentional truthiness
-        Phys.Collision.BoundingAABB = function (minVals, maxVals) {
-            this.minVals = new Math.Vector2D(minVals.x, minVals.y);
-            this.maxVals = new Math.Vector2D(maxVals.x, maxVals.y);
+        Phys.Collision.BoundingAABB = function (origin, halfVals) {
+            this.minVals = new namespace.Math.Vector2D(origin.x - halfVals.width, origin.y - halfVals.height);
+            this.maxVals = new namespace.Math.Vector2D(origin.x + halfVals.width, origin.y + halfVals.height);
             this.halfVals = {
-                x: (this.maxVals.x - this.minVals.x) / 2,
-                y: (this.maxVals.y - this.minVals.y) / 2,
+                x: halfVals.x,
+                y: halfVals.y,
                 diag: this.maxVals.distance(this.minVals)
             };
-            this.origin = new Math.Vector2D(this.minVals.x + this.halfVals.x, this.minVals.y + this.halfVals.y);
+            this.origin = new namespace.Math.Vector2D(origin.x, origin.y);
         };
 
-        Phys.Collision.BoundingCircle.prototype.translate = function(vector) {
+        Phys.Collision.BoundingAABB.prototype.clone = function () {
+            return new Phys.Collision.BoundingAABB(this.origin, this.halfVals);
+        };
+
+        Phys.Collision.BoundingAABB.prototype.translate = function (vector) {
             this.minVals.translateSelf(vector.x, vector.y);
             this.maxVals.translateSelf(vector.x, vector.y);
             this.origin.translateSelf(vector.x, vector.y);
@@ -448,7 +455,7 @@
                 return false;
             }
 
-            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new Math.Vector2D(0, 0);
+            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
         };
 
@@ -479,9 +486,9 @@
             // don't check for equals; unnecessary
             var voronoiVertex;
             if (this.origin.x > circle.origin.x) {
-                voronoiVertex = (this.origin.y > circle.origin.y) ? this.maxVals.clone() : new Math.Vector2D(this.maxVals.x, this.minVals.y);
+                voronoiVertex = (this.origin.y > circle.origin.y) ? this.maxVals.clone() : new namespace.Math.Vector2D(this.maxVals.x, this.minVals.y);
             } else {
-                voronoiVertex = (this.origin.y < circle.origin.y) ? this.minVals.clone() : new Math.Vector2D(this.minVals.x, this.maxVals.y);
+                voronoiVertex = (this.origin.y < circle.origin.y) ? this.minVals.clone() : new namespace.Math.Vector2D(this.minVals.x, this.maxVals.y);
             }
             var finalAxis = circle.origin.translate(-voronoiVertex.x, -voronoiVertex.y).normalize();
             yesOnThisAxis = Phys.Collision.SAT(this, circle, finalAxis, relativeVelocity, calculation);
@@ -489,7 +496,7 @@
                 return false;
             }
 
-            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new Math.Vector2D(0, 0);
+            var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
         };
 

@@ -45,7 +45,7 @@ namespace TTTD_Builder.Controls.Helpers
             {
                 if (m_selectedElement != value)
                 {
-                    NotifySelectedElementChanged(m_selectedElement, value);
+                    RaiseElementSelectedEvent(m_selectedElement, value);
                     m_selectedElement = value;
                     NotifyPropertyChanged("SelectedElement");
                 }
@@ -58,7 +58,14 @@ namespace TTTD_Builder.Controls.Helpers
         #region MEMBER EVENTS
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public event SelectionChangedEventHandler SelectedElementChanged;
+
+        public static readonly RoutedEvent ElementSelectedEvent =
+            EventManager.RegisterRoutedEvent("ElementSelected", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(UserControl_CanvasWithMovableElements));
+        public event SelectionChangedEventHandler ElementSelected
+        {
+            add { AddHandler(UserControl_CanvasWithMovableElements.ElementSelectedEvent, value); }
+            remove { RemoveHandler(UserControl_CanvasWithMovableElements.ElementSelectedEvent, value); }
+        }
 
         #endregion
 
@@ -76,7 +83,7 @@ namespace TTTD_Builder.Controls.Helpers
             private FrameworkElement m_element;
 
             private bool m_isSelected;
-            private bool m_isLastSelected;
+            private bool m_isCurrentSelected;
 
             #endregion
 
@@ -96,15 +103,15 @@ namespace TTTD_Builder.Controls.Helpers
                 }
             }
 
-            public bool IsLastSelected
+            public bool IsCurrentSelected
             {
-                get { return m_isLastSelected; }
+                get { return m_isCurrentSelected; }
                 set
                 {
-                    if (m_isLastSelected != value)
+                    if (m_isCurrentSelected != value)
                     {
-                        m_isLastSelected = value;
-                        NotifyPropertyChanged("IsLastSelected");
+                        m_isCurrentSelected = value;
+                        NotifyPropertyChanged("IsCurrentSelected");
                     }
                 }
             }
@@ -115,7 +122,14 @@ namespace TTTD_Builder.Controls.Helpers
             #region MEMBER EVENTS
 
             public event PropertyChangedEventHandler PropertyChanged;
-            public event SelectionChangedEventHandler ElementSelectedChanged;
+
+            public static readonly RoutedEvent ElementSelectedEvent =
+                EventManager.RegisterRoutedEvent("ElementSelected", RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(UserControl_MovableElement));
+            public event SelectionChangedEventHandler ElementSelected
+            {
+                add { AddHandler(UserControl_MovableElement.ElementSelectedEvent, value); }
+                remove { RemoveHandler(UserControl_MovableElement.ElementSelectedEvent, value); }
+            }
 
             #endregion
 
@@ -132,18 +146,18 @@ namespace TTTD_Builder.Controls.Helpers
                 {
                     bool mouseOver = false;
                     bool isSelected = false;
-                    bool isLastSelected = false;
+                    bool isCurrentSelected = false;
                     try
                     {
                         mouseOver = (bool)values[0];
                         isSelected = (bool)values[1];
-                        isLastSelected = (bool)values[2];
+                        isCurrentSelected = (bool)values[2];
                     }
                     catch (Exception)
                     {
                     }
 
-                    if (isLastSelected)
+                    if (isCurrentSelected)
                         return new SolidColorBrush(Color.FromArgb(100, 0, 166, 16));
                     else if (isSelected)
                         return new RadialGradientBrush(Color.FromArgb(100, 0, 166, 16), Color.FromArgb(100, 191, 191, 191));
@@ -220,8 +234,8 @@ namespace TTTD_Builder.Controls.Helpers
                         Source = this,
                         Mode = BindingMode.OneWay
                     };
-                Binding binding_isLastSelected =
-                    new Binding("IsLastSelected")
+                Binding binding_isCurrentSelected =
+                    new Binding("IsCurrentSelected")
                     {
                         Source = this,
                         Mode = BindingMode.OneWay
@@ -229,7 +243,7 @@ namespace TTTD_Builder.Controls.Helpers
                 MultiBinding binding_rectangleFill = new MultiBinding() { Converter = new RectangleFillConverter() };
                 binding_rectangleFill.Bindings.Add(binding_mouseOver);
                 binding_rectangleFill.Bindings.Add(binding_isSelected);
-                binding_rectangleFill.Bindings.Add(binding_isLastSelected);
+                binding_rectangleFill.Bindings.Add(binding_isCurrentSelected);
                 rectangle.SetBinding(Rectangle.FillProperty, binding_rectangleFill);
                 rectangle.SetBinding(Rectangle.WidthProperty, binding_width);
                 rectangle.SetBinding(Rectangle.HeightProperty, binding_height);
@@ -255,11 +269,12 @@ namespace TTTD_Builder.Controls.Helpers
                         {
                             s_selectedElements.Add(this);
                             IsSelected = true;
-                            NotifyElementSelectedChanged();
                         }
                             
                         foreach (var y in s_selectedElements)
-                            y.IsLastSelected = y == this;
+                            y.IsCurrentSelected = y == this;
+
+                        RaiseElementSelectedEvent();
 
                         s_lastPoint = Mouse.GetPosition(x.Parent as Canvas);
                         s_dragInProgress = true;
@@ -271,9 +286,11 @@ namespace TTTD_Builder.Controls.Helpers
                         {
                             s_selectedElements.Remove(this);
                             IsSelected = false;
-                            NotifyElementSelectedChanged();
 
-                            IsLastSelected = false;
+                            if (IsCurrentSelected)
+                                IsCurrentSelected = false;
+
+                            RaiseElementSelectedEvent();
                         }
                     }
                 }
@@ -323,15 +340,10 @@ namespace TTTD_Builder.Controls.Helpers
                     PropertyChanged(this, new PropertyChangedEventArgs(name));
             }
 
-            private void NotifyElementSelectedChanged()
+            private void RaiseElementSelectedEvent()
             {
-                if (ElementSelectedChanged != null)
-                {
-                    if (IsSelected) ;
-                    //ElementSelectedChanged(this, new SelectionChangedEventArgs(null, null, new Collection<UserControl>(new[] { this })));
-                    else ;
-                       // ElementSelectedChanged(this, new SelectionChangedEventArgs(null, new Collection<UserControl>(new[] { this }), null));
-                }
+                var args = new SelectionChangedEventArgs(UserControl_MovableElement.ElementSelectedEvent, new Collection<UserControl_MovableElement>(), new Collection<UserControl_MovableElement>(new [] { this }));
+                RaiseEvent(args);
             }
 
             #endregion
@@ -361,7 +373,7 @@ namespace TTTD_Builder.Controls.Helpers
         public UserControl_MovableElement AddMovableElement(FrameworkElement element)
         {
             var movableElement = new UserControl_MovableElement(element);
-            movableElement.ElementSelectedChanged += MovableElement_ElementSelectedChanged;
+            movableElement.ElementSelected += MovableElement_ElementSelected;
             m_canvas.Children.Add(movableElement);
 
             Canvas.SetTop(movableElement, 0);
@@ -375,7 +387,7 @@ namespace TTTD_Builder.Controls.Helpers
         public UserControl_MovableElement AddMovableElement(FrameworkElement element, double top, double left)
         {
             var movableElement = new UserControl_MovableElement(element);
-            movableElement.ElementSelectedChanged += MovableElement_ElementSelectedChanged;
+            movableElement.ElementSelected += MovableElement_ElementSelected;
             m_canvas.Children.Add(movableElement);
 
             Canvas.SetTop(movableElement, top);
@@ -398,9 +410,10 @@ namespace TTTD_Builder.Controls.Helpers
 
         #region Private Functionality
 
-        private void MovableElement_ElementSelectedChanged(object sender, SelectionChangedEventArgs e)
+        private void MovableElement_ElementSelected(object sender, SelectionChangedEventArgs e)
         {
-            SelectedElement = sender as UserControl_MovableElement;
+            var c = sender as UserControl_MovableElement;
+            SelectedElement = (c != null && c.IsSelected) ? c : null;
         }
 
         private void NotifyPropertyChanged(string name)
@@ -409,12 +422,18 @@ namespace TTTD_Builder.Controls.Helpers
                 PropertyChanged(this, new PropertyChangedEventArgs(name));
         }
 
-        private void NotifySelectedElementChanged(UserControl_MovableElement oldElement, UserControl_MovableElement newElement)
+        private void RaiseElementSelectedEvent(UserControl_MovableElement oldElement, UserControl_MovableElement newElement)
         {
-            if (SelectedElementChanged != null)
-            {
-                SelectedElementChanged(this, new SelectionChangedEventArgs(null, new Collection<UserControl>(new[] { oldElement }), new Collection<UserControl>(new[] { newElement })));
-            }
+            var args = 
+                new SelectionChangedEventArgs
+                (
+                    UserControl_CanvasWithMovableElements.ElementSelectedEvent,
+                    (oldElement != null)
+                    ? new Collection<UserControl_MovableElement>(new[] { oldElement })
+                    : new Collection<UserControl_MovableElement>(), 
+                    new Collection<UserControl_MovableElement>(new[] { newElement })
+                );
+            RaiseEvent(args);
         }
 
         #endregion

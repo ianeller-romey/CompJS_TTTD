@@ -86,7 +86,7 @@ namespace TTTD_Builder.Controls.Helpers
             m_textBox_fileName = new TextBox();
             m_textBox_fileName.TextChanged += (sender, args) => { FileName = m_textBox_fileName.Text; };
             m_textBox_fileName.Text = fileName;
-            grid_main.SetGridRowColumn(m_textBox_fileName, 0, 0);
+            grid_main.SetRowColumn(m_textBox_fileName, 0, 0);
 
             Button button_openFile = new Button() { Content = "Open file ..." };
             button_openFile.Click += (x, y) =>
@@ -101,7 +101,7 @@ namespace TTTD_Builder.Controls.Helpers
                 if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     m_textBox_fileName.Text = openFileDialog.FileName;
             };
-            grid_main.SetGridRowColumn(button_openFile, 0, 1);
+            grid_main.SetRowColumn(button_openFile, 0, 1);
 
             return grid_main;
         }

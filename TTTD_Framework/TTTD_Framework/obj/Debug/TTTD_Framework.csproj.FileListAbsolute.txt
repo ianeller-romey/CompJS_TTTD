@@ -1,5 +1,4 @@
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Framework\bin\TTTD_Framework.dll
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Framework\bin\TTTD_Framework.pdb
-C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Framework\obj\Debug\TTTD_Framework.csprojResolveAssemblyReference.cache
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Framework\obj\Debug\TTTD_Framework.dll
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Framework\obj\Debug\TTTD_Framework.pdb

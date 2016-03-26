@@ -86,9 +86,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -98,9 +98,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // EntityInstanceDefinition
@@ -122,9 +122,9 @@ namespace TTTD_Builder.EditData
             Grid grid_entityInstanceDefinition = new Grid();
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_entityInstanceDefinition.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_entityInstanceDefinition.SetGridRowColumn(validator_entityInstanceDefinition, 1, 0);
-            grid_entityInstanceDefinition.SetGridRowColumn(label_entityInstanceDefinition, 0, 0);
-            grid_main.SetGridRowColumn(grid_entityInstanceDefinition, 2, 0);
+            grid_entityInstanceDefinition.SetRowColumn(validator_entityInstanceDefinition, 1, 0);
+            grid_entityInstanceDefinition.SetRowColumn(label_entityInstanceDefinition, 0, 0);
+            grid_main.SetRowColumn(grid_entityInstanceDefinition, 2, 0);
 
             ////////
             // Behavior File
@@ -138,11 +138,11 @@ namespace TTTD_Builder.EditData
             grid_behaviorFile.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorFile.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
             grid_behaviorFile.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_behaviorFile.SetGridRowColumn(button_behaviorFile, 1, 1);
-            grid_behaviorFile.SetGridRowColumn(validator_behaviorFile, 1, 0);
+            grid_behaviorFile.SetRowColumn(button_behaviorFile, 1, 1);
+            grid_behaviorFile.SetRowColumn(validator_behaviorFile, 1, 0);
             Grid.SetColumnSpan(label_behaviorFile, 2);
-            grid_behaviorFile.SetGridRowColumn(label_behaviorFile, 0, 0);
-            grid_main.SetGridRowColumn(grid_behaviorFile, 3, 0);
+            grid_behaviorFile.SetRowColumn(label_behaviorFile, 0, 0);
+            grid_main.SetRowColumn(grid_behaviorFile, 3, 0);
 
             ////////
             // Behavior Constructor
@@ -152,9 +152,9 @@ namespace TTTD_Builder.EditData
             Grid grid_behaviorConstructor = new Grid();
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_behaviorConstructor.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_behaviorConstructor.SetGridRowColumn(validator_behaviorConstructor, 1, 0);
-            grid_behaviorConstructor.SetGridRowColumn(label_behaviorConstructor, 0, 0);
-            grid_main.SetGridRowColumn(grid_behaviorConstructor, 4, 0);
+            grid_behaviorConstructor.SetRowColumn(validator_behaviorConstructor, 1, 0);
+            grid_behaviorConstructor.SetRowColumn(label_behaviorConstructor, 0, 0);
+            grid_main.SetRowColumn(grid_behaviorConstructor, 4, 0);
 
             ////////
             // FIN

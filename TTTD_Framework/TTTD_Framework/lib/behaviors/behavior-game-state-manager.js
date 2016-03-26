@@ -70,7 +70,7 @@
 
             var messengerEngine = globalMessengerEngine;
             var servicesEngine = globalServicesEngine;
-            var inputManager = globalInputManager;
+            var inputManager = globalInputEngine;
 
             var addToActiveEntities = function (id) {
                 activeEntities.push(id);

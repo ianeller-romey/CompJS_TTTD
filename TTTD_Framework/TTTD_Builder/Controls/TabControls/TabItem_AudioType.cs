@@ -50,7 +50,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_audioTypes = new UserControl_NewAndSelect<AudioType>(DataManager.AudioTypes, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_audioTypes, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_audioTypes, 0, 0);
 
             ////////
             // Fin
@@ -68,14 +68,14 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_audioType = new UserControl_AudioType(null);
-            m_grid_main.SetGridRowColumn(m_userControl_audioType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_audioType, 1, 0);
         }
 
         private void Select(AudioType audioType)
         {
             RemoveUserControl();
             m_userControl_audioType = new UserControl_AudioType(audioType);
-            m_grid_main.SetGridRowColumn(m_userControl_audioType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_audioType, 1, 0);
         }
 
         #endregion

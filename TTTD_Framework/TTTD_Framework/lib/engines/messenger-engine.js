@@ -106,7 +106,7 @@
         };
 
         var post = function (messageType, messageData) {
-            var messageTypeRegistration = messageRegistration[message.messageType];
+            var messageTypeRegistration = messageRegistration[messageType];
             messageTypeRegistration.forEach(function (x) {
                 x.toCall.apply(x.caller, messageData);
             });
@@ -119,31 +119,35 @@
             messages = [];
         };
 
-        createMessageType("createBehavior");
-        createMessageType("createdBehaviorInstance");
+        // audio messages/requests
+        createMessageType("playAudio");
+        createMessageType("stopAudio");
+
+
+        // behavior messages/requests
+        createMessageType("setInstanceData");
         createMessageType("setBehaviorConstructor");
         createMessageType("setBehaviorInstanceData");
 
-        createRequestType("getBhvCompInstanceForEntityInstance");
+        createRequestType("getBehaviorComponentInstanceForEntityInstance");
 
 
-        createMessageType("createGraphics");
+        // graphics messages/requests
         createMessageType("setShaderProgram");
-        createMessageType("createdGraphicsInstance");
         createMessageType("setInstanceAnimationState");
         createMessageType("setInstanceAnimationFrame");
         createMessageType("setInstanceText");
         createMessageType("clearInstanceText");
 
-        createRequestType("getGfxCompInstanceForEntityInstance");
+        createRequestType("getGraphicsComponentInstanceForEntityInstance");
 
 
-        createMessageType("createPhysics");
-        createMessageType("createdPhysicsInstance");
+        // physics messages/requests
 
-        createRequestType("getPhysCompInstanceForEntityInstance");
+        createRequestType("getPhysicsComponentInstanceForEntityInstance");
 
 
+        // entity messages/requests
         createMessageType("createEntityInstance");
         createMessageType("removeEntityInstance");
         createMessageType("removeAllEntityInstancesButOne");
@@ -151,8 +155,13 @@
         createMessageType("setInstanceScale");
 
         createRequestType("getTransformationForEntityInstance");
+
+
+        // data messages/requests
+        createMessageType("loadLevel");
     };
 
-    globalMessengerEngine = new namespace.Engines.MessengerEngine();
+    namespace.Globals = namespace.Globals || {};
+    namespace.Globals.globalMessengerEngine = new namespace.Engines.MessengerEngine();
 
 }(window.TTTD = window.TTTD || {}));

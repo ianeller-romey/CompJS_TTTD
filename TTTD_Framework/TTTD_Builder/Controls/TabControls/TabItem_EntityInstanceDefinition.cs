@@ -50,7 +50,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_entityInstanceDefinitions = new UserControl_NewAndSelect<EntityInstanceDefinition>(DataManager.EntityInstanceDefinitions, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_entityInstanceDefinitions, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_entityInstanceDefinitions, 0, 0);
 
             ////////
             // Fin
@@ -68,14 +68,14 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_entityInstanceDefinition = new UserControl_EntityInstanceDefinition(null);
-            m_grid_main.SetGridRowColumn(m_userControl_entityInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_entityInstanceDefinition, 1, 0);
         }
 
         private void Select(EntityInstanceDefinition entityInstanceDefinition)
         {
             RemoveUserControl();
             m_userControl_entityInstanceDefinition = new UserControl_EntityInstanceDefinition(entityInstanceDefinition);
-            m_grid_main.SetGridRowColumn(m_userControl_entityInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_entityInstanceDefinition, 1, 0);
         }
 
         #endregion

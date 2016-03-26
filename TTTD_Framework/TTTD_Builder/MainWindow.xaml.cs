@@ -95,7 +95,7 @@ namespace TTTD_Builder
             m_grid_main = new Grid();
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             m_grid_main.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(100.0, GridUnitType.Star) });
-            m_grid_main.SetGridRowColumn(dockPanel_main, 0, 0);
+            m_grid_main.SetRowColumn(dockPanel_main, 0, 0);
 
             return m_grid_main;
         }
@@ -198,7 +198,7 @@ namespace TTTD_Builder
             m_tabControl_controls.Items.Add(tabItem_graphics);
             m_tabControl_controls.Items.Add(tabItem_physics);
             m_tabControl_controls.Items.Add(tabItem_levels);
-            m_grid_main.SetGridRowColumn(m_tabControl_controls, 1, 0);
+            m_grid_main.SetRowColumn(m_tabControl_controls, 1, 0);
         }
 
         #endregion

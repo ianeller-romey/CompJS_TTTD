@@ -33,7 +33,7 @@ namespace TTTD_Builder
                 observableCollection.Remove(obj);
         }
 
-        public static void SetGridRowColumn(this Grid grid, UIElement element, int row, int column)
+        public static void SetRowColumn(this Grid grid, UIElement element, int row, int column)
         {
             Grid.SetRow(element, row);
             Grid.SetColumn(element, column);
@@ -69,6 +69,11 @@ namespace TTTD_Builder
                 }
             }
             return aniFrame;
+        }
+
+        public static bool HasLayout(this Level level)
+        {
+            return DataManager.LevelLayouts.Any(x => x.Level == level);
         }
 
         public static BitmapSource BitmapSourceFromTextureCoords(string textureFile, double texCoordTop, double texCoordRight, double texCoordBottom, double texCoordLeft, double scaleWidth, double scaleHeight)

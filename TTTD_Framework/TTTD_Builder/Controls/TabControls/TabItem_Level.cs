@@ -23,7 +23,7 @@ namespace TTTD_Builder.Controls.TabControls
         Expander m_expander_level;
         UserControl_NewAndSelect<Level> m_comboBox_levels;
         UserControl_Level m_userControl_level;
-        UserControl_LevelLayout m_userControl_levelLayout;
+        UserControl_LevelEditor m_userControl_levelLayout;
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox (Level)
             m_comboBox_levels = new UserControl_NewAndSelect<Level>(DataManager.Levels, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_levels, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_levels, 0, 0);
 
             ////////
             // Fin
@@ -76,20 +76,20 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_level = new UserControl_Level(null);
-            m_grid_main.SetGridRowColumn(m_userControl_level, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_level, 1, 0);
         }
 
         private void Select(Level level)
         {
             RemoveUserControl();
             m_userControl_level = new UserControl_Level(level);
-            m_expander_level = new Expander() { Content = m_userControl_level, ExpandDirection = System.Windows.Controls.ExpandDirection.Down, IsExpanded = true };
-            m_grid_main.SetGridRowColumn(m_expander_level, 1, 0);
+            m_expander_level = new Expander() { Header = level.Name, Content = m_userControl_level, ExpandDirection = System.Windows.Controls.ExpandDirection.Down, IsExpanded = !level.HasLayout() };
+            m_grid_main.SetRowColumn(m_expander_level, 1, 0);
 
             if (level != null)
             {
-                m_userControl_levelLayout = new UserControl_LevelLayout(level);
-                m_grid_main.SetGridRowColumn(m_userControl_levelLayout, 2, 0);
+                m_userControl_levelLayout = new UserControl_LevelEditor(level);
+                m_grid_main.SetRowColumn(m_userControl_levelLayout, 2, 0);
             }
         }
 

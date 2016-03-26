@@ -421,7 +421,7 @@
         this.instanceId = entity.instanceId;
         this.entityTypeName = entity.typeName;
         this.transformation = entity.transformation;
-        this.graphics = new namespace.Comp.Inst.Gfx2DAnim.Anim(gfxCompDefId, width, height, this.transformation);
+        this.graphics = new namespace.Comp.Inst.Gfx2DAnim.Graphics(gfxCompDefId, width, height, this.transformation);
     };
 
     namespace.Comp.Inst.Gfx2DAnim.prototype = new namespace.Comp.Inst.Component();
@@ -443,8 +443,8 @@
             var translatedVertices = [];
 
             verts.forEach(function (vert, i) {
-                scaledVertices.push(new Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y));
-                translatedVertices.push(new Vector2D(scaledVertices[i].x + transformation.position.x, scaledVertices[i].y + transformation.position.y));
+                scaledVertices.push(new namespace.Math.Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y));
+                translatedVertices.push(new namespace.Math.Vector2D(scaledVertices[i].x + transformation.position.x, scaledVertices[i].y + transformation.position.y));
             });
 
             that.vertices = translatedVertices;
@@ -514,7 +514,7 @@
         this.graphics = new namespace.Comp.Inst.GfxFont.Graphics(gfxCompDefId, fontTextureDefinition.startT, fontTextureDefinition.startL, fontTextureDefinition.characterWidth, fontTextureDefinition.characterHeight, fontTextureDefinition.textureWidth, text, this.transformation);
     };
 
-    GraphicsComponentInstanceFont.prototype = new ComponentInstance();
+    namespace.Comp.Inst.GfxFont.prototype = new namespace.Comp.Inst.Component();
 
     namespace.Comp.Inst.GfxFont.Graphics = function (gfxCompDefId, startT, startL, characterWidth, characterHeight, textureWidth, text, transformation) {
         this.id = gfxCompDefId;
@@ -537,7 +537,7 @@
             var translatedVertices = [];
 
             verts.forEach(function (vert, i) {
-                scaledVertices.push(new Vector2D(vert.x * that.characterWidth * transformationScale.x, vert.y * that.characterHeight * transformationScale.y));
+                scaledVertices.push(new namespace.Math.Vector2D(vert.x * that.characterWidth * transformationScale.x, vert.y * that.characterHeight * transformationScale.y));
             });
 
             that.vertices = translatedVertices;
@@ -617,8 +617,8 @@
                     var j = that.textureCoords.push(new Array(6));
                     --j;
                     verts.forEach(function (vert, k) {
-                        translatedVertices[i][k] = new Vector2D(vert.x, vert.y);
-                        that.textureCoords[j][k] = new Vector2D(vert.x, vert.y);
+                        translatedVertices[i][k] = new namespace.Math.Vector2D(vert.x, vert.y);
+                        that.textureCoords[j][k] = new namespace.Math.Vector2D(vert.x, vert.y);
                     });
                 }
                 while (translatedVertices.length > text.length) {
@@ -655,21 +655,21 @@
     // Gfx2DAnimDef
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Gfx2DAnimFrame = function (def) {
+    namespace.Comp.Def.GraphicsAnimationFrame = function (def) {
         this.id = def.id;
         this.duration = def.duration;
         this.texture = def.texture;
         this.width = def.width;
         this.height = def.height;
-        this.texCoordTL = def.texCoordTL;
-        this.texCoordTR = def.texCoordTR;
-        this.texCoordBR = def.texCoordBR;
-        this.texCoordBL = def.texCoordBL;
+        this.texCoordTop = def.texCoordTop;
+        this.texCoordRight = def.texCoordRight;
+        this.texCoordBottom = def.texCoordBottom;
+        this.texCoordLeft = def.texCoordLeft;
     };
 
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Gfx2DAnimState = function (def) {
+    namespace.Comp.Def.GraphicsAnimationState = function (def) {
         var Def = namespace.Comp.Def;
 
         this.id = def.id;
@@ -677,13 +677,13 @@
 
         for (var j = 0; j < def.animationFrameDefinitions.length; ++j) {
             var animationFrame = def.animationFrameDefinitions[j];
-            this.animationFrameDefinitions[animationFrame.frame] = new Def.Gfx2DAnimFrame(animationFrame);
+            this.animationFrameDefinitions[animationFrame.frame] = new Def.GraphicsAnimationFrame(animationFrame);
         }
     };
 
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Gfx2dAnim = function (def) {
+    namespace.Comp.Def.GraphicsAnimation = function (def) {
         var Def = namespace.Comp.Def;
 
         this.renderPass = def.renderPass;
@@ -691,7 +691,7 @@
 
         for (var i = 0; i < def.animationStateDefinitions.length; ++i) {
             var animationState = def.animationStateDefinitions[i];
-            this.animationStateDefinitions[animationState.id] = new Def.Gfx2DAnimState(animationState);
+            this.animationStateDefinitions[animationState.state] = new Def.GraphicsAnimationState(animationState);
         }
     };
 
@@ -699,7 +699,7 @@
     // FontDef
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.FontTexture = function (def) {
+    namespace.Comp.Def.GraphicsFontTexture = function (def) {
         this.id = def.id;
         this.texture = def.texture;
         this.textureWidth = def.textureWidth;
@@ -711,11 +711,11 @@
 
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Font = function (def) {
+    namespace.Comp.Def.GraphicsFont = function (def) {
         var Def = namespace.Comp.Def;
 
         this.renderPass = def.renderPass;
-        this.fontTextureDefinition = new Def.FontTexture(def.fontTextureDefinition);
+        this.fontTextureDefinition = new Def.GraphicsFontTexture(def.fontTextureDefinition);
     };
 
     ////////
@@ -726,7 +726,7 @@
         var Def = namespace.Comp.Def;
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
-        var servicesEngine = namespace.Globals.globalServicesEngine;
+        var dataEngine = namespace.Globals.globalDataEngine;
 
         var textureDefinitions = {};
         var gfx2DAnimationDefinitions = [];
@@ -792,20 +792,20 @@
             }
         };
 
-        var buildGfx2DAnimationDefinitions = function (data) {
+        var buildGraphicsAnimationInstanceDefinitions = function (data) {
             data.forEach(function (x) {
                 addRenderPass(x.renderPass);
                 
-                gfx2DAnimationDefinitions[x.id] = new Def.Gfx2dAnim(x);
+                gfx2DAnimationDefinitions[x.id] = new Def.GraphicsAnimation(x);
                 gfxCompTypeDefinitions[x.id] = gfxCompType2DAnimation;
             });
         };
 
-        var buildGfxFontDefinitions = function (data) {
+        var buildGraphicsFontInstanceDefinitions = function (data) {
             data.forEach(function (x) {
                 addRenderPass(x.renderPass);
 
-                gfxFontDefinitions[x.id] = new Def.Font(x);
+                gfxFontDefinitions[x.id] = new Def.GraphicsFont(x);
                 gfxCompTypeDefinitions[x.id] = gfxCompTypeFont;
             });
         };
@@ -870,10 +870,10 @@
                     reject("Failed to initialize WebGL");
                 }
             });
-            var gfxCompsPromise = new Promise(function (resolve, reject) {
-                servicesEngine.retrieveAllGfxCompDefinitionsForGame().then(function (data) {
+            var graphicsInstanceDefinitionsPromise = new Promise(function (resolve, reject) {
+                dataEngine.loadAllGraphicsInstanceDefinitions().then(function (data) {
                     // Initialize animations first ...
-                    var textures2DAnimation = data.gfx2DAnimations.select(function (x) {
+                    var textures2DAnimation = data.animations.select(function (x) {
                         return x.animationStateDefinitions.select(function (y) {
                             return y.animationFrameDefinitions.select(function (z) {
                                 return z.texture;
@@ -884,12 +884,12 @@
                     }).aggregate(function (a, b) {
                         return a.addRange(b);
                     }).distinct();
-                    Promise.all([buildGfx2DAnimationDefinitions(data.gfx2DAnimations), buildTextureDefinitions(textures2DAnimation)]).then(function () {
+                    Promise.all([buildGraphicsAnimationInstanceDefinitions(data.animations), buildTextureDefinitions(textures2DAnimation)]).then(function () {
                         // ... then fonts
-                        var texturesFonts = data.gfxFonts.select(function (x) {
+                        var texturesFonts = data.fonts.select(function (x) {
                             return x.fontTextureDefinition.texture;
                         }).distinct();
-                        Promise.all([buildGfxFontDefinitions(data.gfxFonts), buildTextureDefinitions(texturesFonts)]).then(function () {
+                        Promise.all([buildGraphicsFontInstanceDefinitions(data.fonts), buildTextureDefinitions(texturesFonts)]).then(function () {
 
                             for (var i = 0; i < renderPasses.length; ++i) {
                                 setShaderProgram("Texture", i);
@@ -917,14 +917,14 @@
                     reject(reasonPlus);
                 });
             });
-            return Promise.all([webGLPromise, gfxCompsPromise]);
+            return Promise.all([webGLPromise, graphicsInstanceDefinitionsPromise]);
         };
 
         var getAnimationStateDefinition = function (gfxCompDefId, animationState) {
             return gfx2DAnimationDefinitions[gfxCompDefId].animationStateDefinitions[animationState];
         };
 
-        var getAnimationStateDefinitionOfGfxComp = function (gfxComp) {
+        var getAnimationStateDefinitionOfGraphicsComponentInstance = function (gfxComp) {
             return getAnimationStateDefinition(gfxComp.id, gfxComp.animationState);
         };
 
@@ -932,7 +932,7 @@
             return gfx2DAnimationDefinitions[gfxCompDefId].animationStateDefinitions[animationState].animationFrameDefinitions[animationFrame];
         };
 
-        var getAnimationFrameDefinitionOfGfxComp = function (gfxComp) {
+        var getAnimationFrameDefinitionOfGraphicsComponentInstance = function (gfxComp) {
             return getAnimationFrameDefinition(gfxComp.id, gfxComp.animationState, gfxComp.animationFrame);
         };
 
@@ -1004,15 +1004,15 @@
             for (var i = 0; i < gfx2DAnimationInstances[renderPass].length; ++i) {
                 var g = gfx2DAnimationInstances[renderPass][i];
                 var gfxComp = g.graphics;
-                var animationFrameDefinition = getAnimationFrameDefinitionOfGfxComp(gfxComp);
+                var animationFrameDefinition = getAnimationFrameDefinitionOfGraphicsComponentInstance(gfxComp);
 
                 // animate
                 gfxComp.currentDuration += delta;
                 if (animationFrameDefinition.duration !== null && gfxComp.currentDuration > animationFrameDefinition.duration) {
-                    var animationStateDefinition = getAnimationStateDefinitionOfGfxComp(gfxComp);
+                    var animationStateDefinition = getAnimationStateDefinitionOfGraphicsComponentInstance(gfxComp);
                     gfxComp.animationFrame = (gfxComp.animationFrame + 1) % animationStateDefinition.animationFrameDefinitions.length;
                     animationFrameDefinition = animationStateDefinition.animationFrameDefinitions[gfxComp.animationFrame];
-                    gfxComp.setTextureCoords(animationFrameDefinition.texCoordTL, animationFrameDefinition.texCoordTR, animationFrameDefinition.texCoordBR, animationFrameDefinition.texCoordBL);
+                    gfxComp.setTextureCoords(animationFrameDefinition.texCoordTop, animationFrameDefinition.texCoordRight, animationFrameDefinition.texCoordBottom, animationFrameDefinition.texCoordLeft);
                     gfxComp.currentDuration = 0;
                 }
 
@@ -1026,7 +1026,7 @@
 
                 // same texture? don't draw yet
                 var nextGfxComp = (i !== gfx2DAnimationInstances[renderPass].length - 1) ? gfx2DAnimationInstances[renderPass][i + 1].graphics : null;
-                var nextAnimationFrame = (nextGfxComp !== null) ? getAnimationFrameDefinitionOfGfxComp(nextGfxComp) : null;
+                var nextAnimationFrame = (nextGfxComp !== null) ? getAnimationFrameDefinitionOfGraphicsComponentInstance(nextGfxComp) : null;
                 if (nextAnimationFrame == null || animationFrameDefinition.texture !== nextAnimationFrame.texture) {
                     draw(vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, animationFrameDefinition.texture);
 
@@ -1125,35 +1125,31 @@
             });
         };
 
-        var createGfx2DAnimationInstance = function (entity, gfxCompDefId) {
+        var createGraphicsAnimationInstance = function (entity, gfxCompDefId) {
             var afd = getAnimationFrameDefinition(gfxCompDefId, 0, 0);
             var instance = new Inst.Gfx2DAnim(entity, gfxCompDefId, afd.width, afd.height);
-            instance.graphics.setTextureCoords(afd.texCoordTL, afd.texCoordTR, afd.texCoordBR, afd.texCoordBL);
+            instance.graphics.setTextureCoords(afd.texCoordTop, afd.texCoordRight, afd.texCoordBottom, afd.texCoordLeft);
 
             var renderPass = gfx2DAnimationDefinitions[gfxCompDefId].renderPass;
             gfx2DAnimationInstances[renderPass].push(instance);
-
-            messengerEngine.queueForPosting("createdGraphicsInstance", instance.graphics, instance.instanceId);
         };
 
-        var createGfxFontInstance = function (entity, gfxCompDefId) {
+        var createGraphicsFontInstance = function (entity, gfxCompDefId) {
             var fontDefinition = gfxFontDefinitions[gfxCompDefId];
             var instance = new Inst.GfxFont(entity, gfxCompDefId, fontDefinition.fontTextureDefinition, "");
 
             var renderPass = fontDefinition.renderPass;
             gfxFontInstances[renderPass].push(instance);
-
-            messengerEngine.queueForPosting("createdGraphicsInstance", instance.graphics, instance.instanceId);
         };
 
-        var createGfxCompInstance = function (entity, gfxCompDefId) {
+        this.createGraphicsComponentInstance = function (entity, gfxCompDefId) {
             switch (gfxCompTypeDefinitions[gfxCompDefId]) {
                 case gfxCompType2DAnimation:
-                    createGfx2DAnimationInstance(entity, gfxCompDefId);
+                    createGraphicsAnimationInstance(entity, gfxCompDefId);
                     break;
 
                 case gfxCompTypeFont:
-                    createGfxFontInstance(entity, gfxCompDefId);
+                    createGraphicsFontInstance(entity, gfxCompDefId);
                     break;
             }
         };
@@ -1169,7 +1165,7 @@
             }
         };
 
-        var getGfxInstance = function (instanceId, array) {
+        var getGraphicsComponentInstance = function (instanceId, array) {
             var instance = null;
             for (var i = 0, j = renderPasses.length; i < j; ++i) {
                 var renderPass = renderPasses[i];
@@ -1186,16 +1182,16 @@
             return instance;
         };
 
-        var getGfxInstance2DAnimation = function (instanceId) {
-            return getGfxInstance(instanceId, gfx2DAnimationInstances);
+        var getGraphicsComponentInstance2DAnimation = function (instanceId) {
+            return getGraphicsComponentInstance(instanceId, gfx2DAnimationInstances);
         };
 
-        var getGfxInstanceFont = function (instanceId) {
-            return getGfxInstance(instanceId, gfxFontInstances);
+        var getGraphicsComponentInstanceFont = function (instanceId) {
+            return getGraphicsComponentInstance(instanceId, gfxFontInstances);
         };
 
         var setInstanceAnimationState = function (instanceId, animationState) {
-            var gfxInstance = getGfxInstance2DAnimation(instanceId);
+            var gfxInstance = getGraphicsComponentInstance2DAnimation(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.animationState = animationState;
                 setAnimationFrameFromDefinition(gfxInstance.graphics);
@@ -1203,7 +1199,7 @@
         };
 
         var setInstanceAnimationFrame = function (instanceId, animationFrame) {
-            var gfxInstance = getGfxInstance2DAnimation(instanceId);
+            var gfxInstance = getGraphicsComponentInstance2DAnimation(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.animationFrame = animationFrame;
                 setAnimationFrameFromDefinition(gfxInstance.graphics);
@@ -1211,29 +1207,29 @@
         };
 
         var setAnimationFrameFromDefinition = function (gfxComp) {
-            var animationFrameDefinition = getAnimationFrameDefinitionOfGfxComp(gfxComp);
-            gfxComp.setTextureCoords(animationFrameDefinition.texCoordTL, animationFrameDefinition.texCoordTR, animationFrameDefinition.texCoordBR, animationFrameDefinition.texCoordBL);
+            var animationFrameDefinition = getAnimationFrameDefinitionOfGraphicsComponentInstance(gfxComp);
+            gfxComp.setTextureCoords(animationFrameDefinition.texCoordTop, animationFrameDefinition.texCoordRight, animationFrameDefinition.texCoordBottom, animationFrameDefinition.texCoordLeft);
             gfxComp.currentDuration = 0;
         };
 
         var setInstanceText = function (instanceId, text) {
-            var gfxInstance = getGfxInstanceFont(instanceId);
+            var gfxInstance = getGraphicsComponentInstanceFont(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.setText(text ? text : "");
             }
         };
 
-        var getGfxCompInstanceForEntityInstance = function (instanceId) {
-            var instance = getGfxInstance2DAnimation(instanceId);
+        var getGraphicsComponentInstanceForEntityInstance = function (instanceId) {
+            var instance = getGraphicsComponentInstance2DAnimation(instanceId);
             if (instance == null) {
-                instance = getGfxInstanceFont(instanceId);
+                instance = getGraphicsComponentInstanceFont(instanceId);
             }
             if (instance !== null) {
-                messengerEngine.postImmediate("getGfxCompInstanceForEntityInstanceResponse", instanceId, instance);
+                messengerEngine.postImmediate("getGraphicsComponentInstanceForEntityInstanceResponse", instanceId, instance);
             }
         };
 
-        var removeGfxCompInstanceFromMessage = function (instanceId) {
+        var removeGraphicsComponentInstanceFromMessage = function (instanceId) {
             for (var i = 0, j = renderPasses.length; i < j; ++i) {
                 if (gfx2DAnimationInstances[i].length > 0 && instanceId <= gfx2DAnimationInstances[i][gfx2DAnimationInstances[i].length - 1].instanceId) {
                     for (var k = 0; k < gfx2DAnimationInstances[i].length; ++k) {
@@ -1257,14 +1253,13 @@
             }
         };
 
-        messengerEngine.register("createGraphics", this, createGfxCompInstance);
         messengerEngine.register("setShaderProgram", this, setShaderProgram);
         messengerEngine.register("setInstanceAnimationState", this, setInstanceAnimationState);
         messengerEngine.register("setInstanceAnimationFrame", this, setInstanceAnimationFrame);
         messengerEngine.register("setInstanceText", this, setInstanceText);
         messengerEngine.register("clearInstanceText", this, setInstanceText);
-        messengerEngine.register("getGfxCompInstanceForEntityInstanceRequest", this, getGfxCompInstanceForEntityInstance);
-        messengerEngine.register("removeEntityInstance", this, removeGfxCompInstanceFromMessage);
+        messengerEngine.register("getGraphicsComponentInstanceForEntityInstanceRequest", this, getGraphicsComponentInstanceForEntityInstance);
+        messengerEngine.register("removeEntityInstance", this, removeGraphicsComponentInstanceFromMessage);
     };
 
     namespace.Engines.GfxEngine.getShader = function (gl, id) {

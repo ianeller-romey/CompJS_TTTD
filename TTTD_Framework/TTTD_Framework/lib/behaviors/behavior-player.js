@@ -7,7 +7,7 @@
             var deathMessages = ["OUCH", "RATS", "UGH", "DEAD", "OH NO!", "SPLAT", "OOPS!"];
 
             var messengerEngine = globalMessengerEngine;
-            var inputManager = globalInputManager;
+            var inputManager = globalInputEngine;
 
             var godMode = false;
 

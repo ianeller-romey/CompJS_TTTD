@@ -51,7 +51,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_physicsInstanceDefinitions = new UserControl_NewAndSelect<PhysicsInstanceDefinition>(DataManager.PhysicsInstanceDefinitions, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_physicsInstanceDefinitions, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_physicsInstanceDefinitions, 0, 0);
 
             ////////
             // Fin
@@ -69,7 +69,7 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition();
-            m_grid_main.SetGridRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
         }
 
         private void Select(PhysicsInstanceDefinition physicsInstanceDefinition)
@@ -85,7 +85,7 @@ namespace TTTD_Builder.Controls.TabControls
                 m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(new PhysicsInstanceDefinition_WithCircle(physicsInstanceDefinition));
             }
 
-            m_grid_main.SetGridRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
         }
 
         #endregion

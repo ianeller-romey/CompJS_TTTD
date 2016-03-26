@@ -284,7 +284,7 @@ namespace TTTD_Builder.EditData
             Grid grid_sub = new Grid();
             grid_sub.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_sub.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
-            grid_main.SetGridRowColumn(grid_sub, 3, 0);
+            grid_main.SetRowColumn(grid_sub, 3, 0);
 
             Grid grid_left = new Grid();
             grid_left.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -295,7 +295,7 @@ namespace TTTD_Builder.EditData
             grid_left.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_left.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_left.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_sub.SetGridRowColumn(grid_left, 0, 0);
+            grid_sub.SetRowColumn(grid_left, 0, 0);
 
             ////////
             // Id
@@ -304,9 +304,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -316,9 +316,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // Texture
@@ -332,11 +332,11 @@ namespace TTTD_Builder.EditData
             grid_texture.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_texture.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
             grid_texture.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_texture.SetGridRowColumn(button_texture, 1, 1);
-            grid_texture.SetGridRowColumn(validator_texture, 1, 0);
+            grid_texture.SetRowColumn(button_texture, 1, 1);
+            grid_texture.SetRowColumn(validator_texture, 1, 0);
             Grid.SetColumnSpan(label_texture, 2);
-            grid_texture.SetGridRowColumn(label_texture, 0, 0);
-            grid_main.SetGridRowColumn(grid_texture, 2, 0);
+            grid_texture.SetRowColumn(label_texture, 0, 0);
+            grid_main.SetRowColumn(grid_texture, 2, 0);
 
             ////////
             // Duration
@@ -346,9 +346,9 @@ namespace TTTD_Builder.EditData
             Grid grid_duration = new Grid();
             grid_duration.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_duration.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_duration.SetGridRowColumn(validator_duration, 1, 0);
-            grid_duration.SetGridRowColumn(label_duration, 0, 0);
-            grid_left.SetGridRowColumn(grid_duration, 0, 0);
+            grid_duration.SetRowColumn(validator_duration, 1, 0);
+            grid_duration.SetRowColumn(label_duration, 0, 0);
+            grid_left.SetRowColumn(grid_duration, 0, 0);
 
             ////////
             // Width
@@ -358,9 +358,9 @@ namespace TTTD_Builder.EditData
             Grid grid_width = new Grid();
             grid_width.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_width.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_width.SetGridRowColumn(validator_width, 1, 0);
-            grid_width.SetGridRowColumn(label_width, 0, 0);
-            grid_left.SetGridRowColumn(grid_width, 1, 0);
+            grid_width.SetRowColumn(validator_width, 1, 0);
+            grid_width.SetRowColumn(label_width, 0, 0);
+            grid_left.SetRowColumn(grid_width, 1, 0);
 
             ////////
             // Height
@@ -370,9 +370,9 @@ namespace TTTD_Builder.EditData
             Grid grid_height = new Grid();
             grid_height.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_height.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_height.SetGridRowColumn(validator_height, 1, 0);
-            grid_height.SetGridRowColumn(label_height, 0, 0);
-            grid_left.SetGridRowColumn(grid_height, 2, 0);
+            grid_height.SetRowColumn(validator_height, 1, 0);
+            grid_height.SetRowColumn(label_height, 0, 0);
+            grid_left.SetRowColumn(grid_height, 2, 0);
 
             ////////
             // Get/Set Width/Height
@@ -397,9 +397,9 @@ namespace TTTD_Builder.EditData
             Grid grid_getSetLengths = new Grid() { Margin = new Thickness(1.0, 2.5, 1.0, 0.0) };
             grid_getSetLengths.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
             grid_getSetLengths.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
-            grid_getSetLengths.SetGridRowColumn(button_getLengths, 0, 0);
-            grid_getSetLengths.SetGridRowColumn(button_setLengths, 0, 1);
-            grid_left.SetGridRowColumn(grid_getSetLengths, 3, 0);
+            grid_getSetLengths.SetRowColumn(button_getLengths, 0, 0);
+            grid_getSetLengths.SetRowColumn(button_setLengths, 0, 1);
+            grid_left.SetRowColumn(grid_getSetLengths, 3, 0);
 
             ////////
             // TexCoordTop
@@ -409,9 +409,9 @@ namespace TTTD_Builder.EditData
             Grid grid_texCoordTop = new Grid();
             grid_texCoordTop.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_texCoordTop.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_texCoordTop.SetGridRowColumn(validator_texCoordTop, 1, 0);
-            grid_texCoordTop.SetGridRowColumn(label_texCoordTop, 0, 0);
-            grid_left.SetGridRowColumn(grid_texCoordTop, 4, 0);
+            grid_texCoordTop.SetRowColumn(validator_texCoordTop, 1, 0);
+            grid_texCoordTop.SetRowColumn(label_texCoordTop, 0, 0);
+            grid_left.SetRowColumn(grid_texCoordTop, 4, 0);
 
             ////////
             // TexCoordRight
@@ -421,9 +421,9 @@ namespace TTTD_Builder.EditData
             Grid grid_texCoordRight = new Grid();
             grid_texCoordRight.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_texCoordRight.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_texCoordRight.SetGridRowColumn(validator_texCoordRight, 1, 0);
-            grid_texCoordRight.SetGridRowColumn(label_texCoordRight, 0, 0);
-            grid_left.SetGridRowColumn(grid_texCoordRight, 5, 0);
+            grid_texCoordRight.SetRowColumn(validator_texCoordRight, 1, 0);
+            grid_texCoordRight.SetRowColumn(label_texCoordRight, 0, 0);
+            grid_left.SetRowColumn(grid_texCoordRight, 5, 0);
 
             ////////
             // TexCoordBottom
@@ -433,9 +433,9 @@ namespace TTTD_Builder.EditData
             Grid grid_texCoordBottom = new Grid();
             grid_texCoordBottom.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_texCoordBottom.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_texCoordBottom.SetGridRowColumn(validator_texCoordBottom, 1, 0);
-            grid_texCoordBottom.SetGridRowColumn(label_texCoordBottom, 0, 0);
-            grid_left.SetGridRowColumn(grid_texCoordBottom, 6, 0);
+            grid_texCoordBottom.SetRowColumn(validator_texCoordBottom, 1, 0);
+            grid_texCoordBottom.SetRowColumn(label_texCoordBottom, 0, 0);
+            grid_left.SetRowColumn(grid_texCoordBottom, 6, 0);
 
             ////////
             // TexCoordLeft
@@ -445,9 +445,9 @@ namespace TTTD_Builder.EditData
             Grid grid_texCoordLeft = new Grid();
             grid_texCoordLeft.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_texCoordLeft.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_texCoordLeft.SetGridRowColumn(validator_texCoordLeft, 1, 0);
-            grid_texCoordLeft.SetGridRowColumn(label_texCoordLeft, 0, 0);
-            grid_left.SetGridRowColumn(grid_texCoordLeft, 7, 0);
+            grid_texCoordLeft.SetRowColumn(validator_texCoordLeft, 1, 0);
+            grid_texCoordLeft.SetRowColumn(label_texCoordLeft, 0, 0);
+            grid_left.SetRowColumn(grid_texCoordLeft, 7, 0);
 
             ////////
             // Canvas
@@ -475,7 +475,7 @@ namespace TTTD_Builder.EditData
                     MinScale = 1.0,
                     MaxScale = 100
                 };
-            grid_sub.SetGridRowColumn(m_zoomBox, 0, 1);
+            grid_sub.SetRowColumn(m_zoomBox, 0, 1);
 
             ////////
             // FIN

@@ -5,7 +5,7 @@
     // BhvCompInst
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Inst = namespace.Comp.Inst || {};
-    namespace.Comp.Inst.Bhv = function (entity, behavior) {
+    namespace.Comp.Inst.Behavior = function (entity, behavior) {
         this.instanceId = entity.instanceId;
         this.behavior = behavior;
         // if the behavior doesn't define its own data, do it for them
@@ -14,9 +14,9 @@
         }
     };
 
-    namespace.Comp.Inst.Bhv.prototype = new namespace.Comp.Inst.Component();
+    namespace.Comp.Inst.Behavior.prototype = new namespace.Comp.Inst.Component();
 
-    namespace.Comp.Inst.Bhv.prototype.destroy = function (messengerEngine) {
+    namespace.Comp.Inst.Behavior.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
             messengerEngine.unregisterAll(this);
             if (this.behavior !== null) {
@@ -29,7 +29,7 @@
     // BhvCompDef
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.Bhv = function (def) {
+    namespace.Comp.Def.Behavior = function (def) {
         this.stateFile = def.stateFile;
         this.behaviorConstructor = def.behaviorConstructor;
     };
@@ -42,22 +42,22 @@
         var Def = namespace.Comp.Def;
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
-        var servicesEngine = namespace.Globals.globalServicesEngine;
+        var dataEngine = namespace.Globals.globalDataEngine;
 
         var bhvConstructors = namespace.Engines.BhvEngine.bhvConstructors;
         var bhvCompDefinitions = [];
         var bhvCompInstances = [];
 
-        var buildBhvCompDefinitions = function (data) {
+        var buildBehaviorComponentInstanceDefinitions = function (data) {
             data.forEach(function (x) {
-                bhvCompDefinitions[x.id] = new Def.Bhv(x);
+                bhvCompDefinitions[x.id] = new Def.Behavior(x);
             });
         };
 
         this.init = function () {
             return new Promise(function (resolve, reject) {
-                servicesEngine.retrieveAllBhvCompDefinitionsForGame().then(function (data) {
-                    buildBhvCompDefinitions(data);
+                dataEngine.loadAllBehaviorInstanceDefinitions().then(function (data) {
+                    buildBehaviorComponentInstanceDefinitions(data);
                     resolve();
                 }, function (reason) {
                     var reasonPlus = "Failed to load behavior definitions";
@@ -89,14 +89,14 @@
             });
         };
 
-        var createBhvCompInstance = function (entity, bhvCompDefId) {
+        this.createBehaviorComponentInstance = function (entity, bhvCompDefId) {
             var behavior = new bhvConstructors[bhvCompDefinitions[bhvCompDefId].behaviorConstructor](entity);
-            var instance = new Inst.Bhv(entity, behavior);
+            var instance = new Inst.Behavior(entity, behavior);
             bhvCompInstances.push(instance);
             messengerEngine.queueForPosting("createdBehaviorInstance", instance.behavior, instance.instanceId);
         };
 
-        var setBehaviorInstanceData = function (instanceId, data) {
+        this.setBehaviorComponentInstanceData = function (instanceId, data) {
             var instance = bhvCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
@@ -109,16 +109,16 @@
             }
         };
 
-        var getBhvCompInstanceForEntityInstance = function (instanceId) {
+        var getBehaviorComponentInstanceForEntityInstance = function (instanceId) {
             var instance = bhvCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                messengerEngine.postImmediate("getBhvCompInstanceForEntityInstanceResponse", instanceId, instance);
+                messengerEngine.postImmediate("getBehaviorComponentInstanceForEntityInstanceResponse", instanceId, instance);
             }
         };
 
-        var removeBhvCompInstanceFromMessage = function (instanceId) {
+        var removeBehaviorComponentInstanceFromMessage = function (instanceId) {
             for (var i = 0; i < bhvCompInstances.length; ++i) {
                 if (bhvCompInstances[i].instanceId === instanceId) {
                     bhvCompInstances[i].destroy(messengerEngine);
@@ -128,10 +128,9 @@
             }
         };
 
-        messengerEngine.register("createBehavior", this, createBhvCompInstance);
-        messengerEngine.register("setBehaviorInstanceData", this, setBehaviorInstanceData);
-        messengerEngine.register("getBhvCompInstanceForEntityInstanceRequest", this, getBhvCompInstanceForEntityInstance);
-        messengerEngine.register("removeEntityInstance", this, removeBhvCompInstanceFromMessage);
+        messengerEngine.register("setInstanceData", this, this.setBehaviorComponentInstanceData);
+        messengerEngine.register("getBehaviorComponentInstanceForEntityInstanceRequest", this, getBehaviorComponentInstanceForEntityInstance);
+        messengerEngine.register("removeEntityInstance", this, removeBehaviorComponentInstanceFromMessage);
     };
 
     namespace.Engines.BhvEngine.setBehaviorConstructor = function (constructorName, constructorFunction) {
@@ -147,7 +146,7 @@
         namespace.Engines.BhvEngine.bhvConstructors = {};
         namespace.Engines.BhvEngine.bhvScriptElements = [];
 
-        var bhvScriptElementList = BhvEngine.bhvScriptElements;
+        var bhvScriptElementList = namespace.Engines.BhvEngine.bhvScriptElements;
         data.forEach(function (x) {
             var script = document.createElement("script");
             script.setAttribute("type", "text/javascript");

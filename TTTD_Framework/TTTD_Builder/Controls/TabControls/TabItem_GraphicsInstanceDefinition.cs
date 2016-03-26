@@ -67,7 +67,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_graphicsInstanceDefinitions = new UserControl_NewAndSelect<GraphicsInstanceDefinition>(DataManager.GraphicsInstanceDefinitions, NewGraphicsInstanceDefinition, SelectGraphicsInstanceDefinition);
-            m_grid_main.SetGridRowColumn(m_comboBox_graphicsInstanceDefinitions, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_graphicsInstanceDefinitions, 0, 0);
             
             ////////
             // Fin
@@ -83,7 +83,7 @@ namespace TTTD_Builder.Controls.TabControls
             var g = m_selectedGraphicsInstanceDefinition as GraphicsInstanceDefinition_WithAnimationStateDefinitions;
             m_comboBox_animationStateDefinition = new UserControl_NewAndSelect<AnimationStateDefinition_WithAnimationFrameDefinitions>(g.AnimationStates, NewAnimationStateDefinition, SelectAnimationStateDefinition);
             m_comboBox_animationStateDefinition.SelectionChanged += ComboBox_AnimationStateDefinition_SelectionChanged;
-            m_grid_main.SetGridRowColumn(m_comboBox_animationStateDefinition, 2, 0);
+            m_grid_main.SetRowColumn(m_comboBox_animationStateDefinition, 2, 0);
 
             if (m_comboBox_animationStateDefinition.SelectedItem != null)
             {
@@ -99,7 +99,7 @@ namespace TTTD_Builder.Controls.TabControls
             RemoveAnimationFrameControls(true);
 
             m_comboBox_animationFrameDefinition = new UserControl_NewAndSelect<AnimationFrameDefinition>(m_selectedAnimationStateDefinition.AnimationFrames, NewAnimationFrameDefinition, SelectAnimationFrameDefinition);
-            m_grid_main.SetGridRowColumn(m_comboBox_animationFrameDefinition, 0, 1);
+            m_grid_main.SetRowColumn(m_comboBox_animationFrameDefinition, 0, 1);
         }
 
         private void AddFontControls()
@@ -178,7 +178,7 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControls();
             m_userControl_graphicsInstanceDefinition = new UserControl_GraphicsInstanceDefinition();
-            m_grid_main.SetGridRowColumn(m_userControl_graphicsInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_graphicsInstanceDefinition, 1, 0);
         }
 
         private void SelectGraphicsInstanceDefinition(GraphicsInstanceDefinition graphicsInstanceDefinition)
@@ -203,7 +203,7 @@ namespace TTTD_Builder.Controls.TabControls
             }
 
             m_userControl_graphicsInstanceDefinition = new UserControl_GraphicsInstanceDefinition(m_selectedGraphicsInstanceDefinition);
-            m_grid_main.SetGridRowColumn(m_userControl_graphicsInstanceDefinition, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_graphicsInstanceDefinition, 1, 0);
         }
 
         private void NewAnimationStateDefinition()
@@ -212,7 +212,7 @@ namespace TTTD_Builder.Controls.TabControls
             m_userControl_animationStateDefinition = new UserControl_AnimationStateDefinition(null);
             m_userControl_animationStateDefinition.NewDataAddedEvent += UserControl_AnimationStateDefinition_NewDataAdded;
             m_userControl_animationStateDefinition.ExistingDataUpdatedEvent += UserControl_AnimationStateDefinition_ExistingDataUpdated;
-            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 3, 0);
+            m_grid_main.SetRowColumn(m_userControl_animationStateDefinition, 3, 0);
         }
 
         private void SelectAnimationStateDefinition(AnimationStateDefinition_WithAnimationFrameDefinitions animationStateDefinition)
@@ -221,7 +221,7 @@ namespace TTTD_Builder.Controls.TabControls
             m_userControl_animationStateDefinition = new UserControl_AnimationStateDefinition(animationStateDefinition.AnimationStateDefinition);
             m_userControl_animationStateDefinition.NewDataAddedEvent += UserControl_AnimationStateDefinition_NewDataAdded;
             m_userControl_animationStateDefinition.ExistingDataUpdatedEvent += UserControl_AnimationStateDefinition_ExistingDataUpdated;
-            m_grid_main.SetGridRowColumn(m_userControl_animationStateDefinition, 3, 0);
+            m_grid_main.SetRowColumn(m_userControl_animationStateDefinition, 3, 0);
         }
 
         private void NewAnimationFrameDefinition()
@@ -231,7 +231,7 @@ namespace TTTD_Builder.Controls.TabControls
             Grid.SetRowSpan(m_userControl_animationFrameDefinition, 4);
             m_userControl_animationFrameDefinition.NewDataAddedEvent += UserControl_AnimationFrameDefinition_NewDataAdded;
             m_userControl_animationFrameDefinition.ExistingDataUpdatedEvent += UserControl_AnimationFrameDefinition_ExistingDataUpdated;
-            m_grid_main.SetGridRowColumn(m_userControl_animationFrameDefinition, 1, 1);
+            m_grid_main.SetRowColumn(m_userControl_animationFrameDefinition, 1, 1);
         }
 
         private void SelectAnimationFrameDefinition(AnimationFrameDefinition animationFrameDefinition)
@@ -241,7 +241,7 @@ namespace TTTD_Builder.Controls.TabControls
             Grid.SetRowSpan(m_userControl_animationFrameDefinition, 4);
             m_userControl_animationFrameDefinition.NewDataAddedEvent += UserControl_AnimationFrameDefinition_NewDataAdded;
             m_userControl_animationFrameDefinition.ExistingDataUpdatedEvent += UserControl_AnimationFrameDefinition_ExistingDataUpdated;
-            m_grid_main.SetGridRowColumn(m_userControl_animationFrameDefinition, 1, 1);
+            m_grid_main.SetRowColumn(m_userControl_animationFrameDefinition, 1, 1);
         }
 
         private void UserControl_AnimationStateDefinition_NewDataAdded(int id)

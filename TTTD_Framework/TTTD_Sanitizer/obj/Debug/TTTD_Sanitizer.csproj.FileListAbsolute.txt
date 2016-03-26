@@ -1,0 +1,16 @@
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Sanitizer.exe.config
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Sanitizer.exe
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Sanitizer.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\AutoMapper.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\Newtonsoft.Json.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Builder.Lib.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_DataReaderWriter.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Sanitizer.Lib.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Builder.Lib.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_DataReaderWriter.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\TTTD_Sanitizer.Lib.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\AutoMapper.xml
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\bin\Debug\Newtonsoft.Json.xml
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\obj\Debug\TTTD_Sanitizer.csprojResolveAssemblyReference.cache
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\obj\Debug\TTTD_Sanitizer.exe
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_Sanitizer\obj\Debug\TTTD_Sanitizer.pdb

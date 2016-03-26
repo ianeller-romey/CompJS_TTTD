@@ -7,3 +7,7 @@ C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\pri.resfiles
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\LanguageQualifiers.txt
 C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\ProjectArchitectures.txt
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\priconfig.xml.intermediate
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\layout.resfiles.intermediate
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\resources.resfiles.intermediate
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_WindowsStore\bld\Debug\pri.resfiles.intermediate

@@ -1,0 +1,9 @@
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\TTTD_DataReaderWriter.JSON.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\TTTD_DataReaderWriter.JSON.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\Newtonsoft.Json.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\TTTD_DataReaderWriter.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\TTTD_DataReaderWriter.pdb
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\bin\Debug\Newtonsoft.Json.xml
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\obj\Debug\TTTD_DataReaderWriter.JSON.csprojResolveAssemblyReference.cache
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\obj\Debug\TTTD_DataReaderWriter.JSON.dll
+C:\Users\v-iaelle\Documents\GitHub\CompJS_TTTD\TTTD_Framework\TTTD_DataReaderWriter.JSON\obj\Debug\TTTD_DataReaderWriter.JSON.pdb

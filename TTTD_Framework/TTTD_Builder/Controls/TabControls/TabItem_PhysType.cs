@@ -49,7 +49,7 @@ namespace TTTD_Builder.Controls.TabControls
             ////////
             // ComboBox
             m_comboBox_physTypes = new UserControl_NewAndSelect<PhysType>(DataManager.PhysTypes, New, Select);
-            m_grid_main.SetGridRowColumn(m_comboBox_physTypes, 0, 0);
+            m_grid_main.SetRowColumn(m_comboBox_physTypes, 0, 0);
 
             ////////
             // Fin
@@ -67,14 +67,14 @@ namespace TTTD_Builder.Controls.TabControls
         {
             RemoveUserControl();
             m_userControl_physType = new UserControl_PhysType(null);
-            m_grid_main.SetGridRowColumn(m_userControl_physType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_physType, 1, 0);
         }
 
         private void Select(PhysType physType)
         {
             RemoveUserControl();
             m_userControl_physType = new UserControl_PhysType(physType);
-            m_grid_main.SetGridRowColumn(m_userControl_physType, 1, 0);
+            m_grid_main.SetRowColumn(m_userControl_physType, 1, 0);
         }
 
         #endregion

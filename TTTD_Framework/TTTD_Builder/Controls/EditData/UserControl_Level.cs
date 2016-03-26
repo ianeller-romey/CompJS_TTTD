@@ -83,9 +83,9 @@ namespace TTTD_Builder.EditData
             Grid grid_id = new Grid();
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             grid_id.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-            grid_id.SetGridRowColumn(m_textBlock_id, 0, 1);
-            grid_id.SetGridRowColumn(label_id, 0, 0);
-            grid_main.SetGridRowColumn(grid_id, 0, 0);
+            grid_id.SetRowColumn(m_textBlock_id, 0, 1);
+            grid_id.SetRowColumn(label_id, 0, 0);
+            grid_main.SetRowColumn(grid_id, 0, 0);
 
             ////////
             // Name
@@ -95,9 +95,9 @@ namespace TTTD_Builder.EditData
             Grid grid_name = new Grid();
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_name.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_name.SetGridRowColumn(validator_name, 1, 0);
-            grid_name.SetGridRowColumn(label_name, 0, 0);
-            grid_main.SetGridRowColumn(grid_name, 1, 0);
+            grid_name.SetRowColumn(validator_name, 1, 0);
+            grid_name.SetRowColumn(label_name, 0, 0);
+            grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
             // Order
@@ -106,9 +106,9 @@ namespace TTTD_Builder.EditData
             Grid grid_order = new Grid();
             grid_order.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_order.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_order.SetGridRowColumn(m_integerUpDown_order, 1, 0);
-            grid_order.SetGridRowColumn(label_order, 0, 0);
-            grid_main.SetGridRowColumn(grid_order, 2, 0);
+            grid_order.SetRowColumn(m_integerUpDown_order, 1, 0);
+            grid_order.SetRowColumn(label_order, 0, 0);
+            grid_main.SetRowColumn(grid_order, 2, 0);
 
             ////////
             // Width
@@ -118,9 +118,9 @@ namespace TTTD_Builder.EditData
             Grid grid_width = new Grid();
             grid_width.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_width.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_width.SetGridRowColumn(validator_width, 1, 0);
-            grid_width.SetGridRowColumn(label_width, 0, 0);
-            grid_main.SetGridRowColumn(grid_width, 3, 0);
+            grid_width.SetRowColumn(validator_width, 1, 0);
+            grid_width.SetRowColumn(label_width, 0, 0);
+            grid_main.SetRowColumn(grid_width, 3, 0);
 
             ////////
             // Height
@@ -130,9 +130,9 @@ namespace TTTD_Builder.EditData
             Grid grid_height = new Grid();
             grid_height.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_height.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_height.SetGridRowColumn(validator_height, 1, 0);
-            grid_height.SetGridRowColumn(label_height, 0, 0);
-            grid_main.SetGridRowColumn(grid_height, 4, 0);
+            grid_height.SetRowColumn(validator_height, 1, 0);
+            grid_height.SetRowColumn(label_height, 0, 0);
+            grid_main.SetRowColumn(grid_height, 4, 0);
 
             ////////
             // FIN

@@ -117,23 +117,23 @@ namespace TTTD_Builder.Controls.Helpers
                 };
             Content = m_groupBox;
 
-            m_grid_main.SetGridRowColumn(new Separator() { Margin = new Thickness(0.0, 10.0, 0.0, 5.0) } , 1, 0);
+            m_grid_main.SetRowColumn(new Separator() { Margin = new Thickness(0.0, 10.0, 0.0, 5.0) } , 1, 0);
 
             Grid grid_buttons = new Grid();
             grid_buttons.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
             grid_buttons.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
-            m_grid_main.SetGridRowColumn(grid_buttons, 2, 0);
+            m_grid_main.SetRowColumn(grid_buttons, 2, 0);
 
             m_button_accept = new Button() { Content = "Accept" };
             m_button_accept.Click += (sender, args) => 
             {
                 RaiseChangesAccepted(); Disable(); 
             };
-            grid_buttons.SetGridRowColumn(m_button_accept, 0, 0);
+            grid_buttons.SetRowColumn(m_button_accept, 0, 0);
 
             Button button_cancel = new Button() { Content = "Cancel" };
             button_cancel.Click += (sender, args) => { RaiseChangesCancelled(); Disable(); };
-            grid_buttons.SetGridRowColumn(button_cancel, 0, 1);
+            grid_buttons.SetRowColumn(button_cancel, 0, 1);
         }
 
         private void CreateContent()
@@ -141,7 +141,7 @@ namespace TTTD_Builder.Controls.Helpers
             if (ThisContent != null)
             {
                 if (ThisContent.Content != null)
-                    m_grid_main.SetGridRowColumn(ThisContent.Content, 0, 0);
+                    m_grid_main.SetRowColumn(ThisContent.Content, 0, 0);
 
                 if (ThisContent.FirstFocus != null)
                     m_uiElement_firstFocus = ThisContent.FirstFocus;

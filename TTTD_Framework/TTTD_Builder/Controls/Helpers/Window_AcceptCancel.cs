@@ -47,20 +47,20 @@ namespace TTTD_Builder.Controls.Helpers
             Grid grid_buttons = new Grid();
             grid_buttons.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
             grid_buttons.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(50.0, GridUnitType.Star) });
-            grid_main.SetGridRowColumn(grid_buttons, 1, 0);
+            grid_main.SetRowColumn(grid_buttons, 1, 0);
 
             Button button_accept = new Button() { Content = "Accept" };
             button_accept.Click += (sender, args) => { Accepted = true; Close(); };
-            grid_buttons.SetGridRowColumn(button_accept, 0, 0);
+            grid_buttons.SetRowColumn(button_accept, 0, 0);
 
             Button button_cancel = new Button() { Content = "Cancel" };
             button_cancel.Click += (sender, args) => { Close(); };
-            grid_buttons.SetGridRowColumn(button_cancel, 0, 1);
+            grid_buttons.SetRowColumn(button_cancel, 0, 1);
 
             UIElement thatContent = Content as UIElement;
             Content = null;
             if (thatContent != null)
-                grid_main.SetGridRowColumn(thatContent, 0, 0);
+                grid_main.SetRowColumn(thatContent, 0, 0);
             Content = grid_main;
         }
 
