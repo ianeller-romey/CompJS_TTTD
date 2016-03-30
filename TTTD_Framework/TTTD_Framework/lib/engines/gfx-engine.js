@@ -811,20 +811,24 @@
         };
 
         var buildTextureDefinitions = function (data) {
-            var createWebGLTexture = function (image) {
-                var webGLTexture = webGL.createTexture();
-                webGL.bindTexture(webGL.TEXTURE_2D, webGLTexture);
+            var createWebGLTexture = function (image, webGLTexture) {
+                var promise = new Promise(function (resolve, reject) {
+                    image.addEventListener("load", function () {
+                        webGL.bindTexture(webGL.TEXTURE_2D, webGLTexture);
 
-                // Set the parameters so we can render any size image
-                webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_WRAP_S, webGL.CLAMP_TO_EDGE);
-                webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_WRAP_T, webGL.CLAMP_TO_EDGE);
-                webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_MIN_FILTER, webGL.NEAREST);
-                webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_MAG_FILTER, webGL.NEAREST);
+                        // Set the parameters so we can render any size image
+                        webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_WRAP_S, webGL.CLAMP_TO_EDGE);
+                        webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_WRAP_T, webGL.CLAMP_TO_EDGE);
+                        webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_MIN_FILTER, webGL.NEAREST);
+                        webGL.texParameterf(webGL.TEXTURE_2D, webGL.TEXTURE_MAG_FILTER, webGL.NEAREST);
 
-                image.addEventListener("load", function () {
-                    webGL.texImage2D(webGL.TEXTURE_2D, 0, webGL.RGBA, webGL.RGBA, webGL.UNSIGNED_BYTE, image);
+                        webGL.texImage2D(webGL.TEXTURE_2D, 0, webGL.RGBA, webGL.RGBA, webGL.UNSIGNED_BYTE, image);
+
+                        resolve();
+                    });
                 });
-                return webGLTexture;
+
+                return promise;
             };
 
             var loadImagePromises = [];
@@ -832,17 +836,13 @@
                 var texture = data[i];
                 if (textureDefinitions[texture] === undefined) {
                     var image = new Image();
-                    var webGLTexture = createWebGLTexture(image);
+                    var webGLTexture = webGL.createTexture();
                     textureDefinitions[texture] = {
                         image: image,
                         webGLTexture: webGLTexture
                     };
 
-                    var promise = new Promise(function (resolve, reject) {
-                        image.addEventListener("load", function () {
-                            resolve();
-                        });
-                    });
+                    var promise = createWebGLTexture(image, webGLTexture);
                     loadImagePromises.push(promise);
 
                     image.src = texture;
@@ -955,7 +955,7 @@
                 webGL.uniform2f(resolutionLocation, width, height);
             }
 
-            if (webGLVertexShaderExtraStep !== null) {
+            if (webGLVertexShaderExtraStep != null) { // intentional truthiness
                 webGLVertexShaderExtraStep(webGL, webGLShaderProgram);
             }
 
@@ -970,15 +970,13 @@
                 webGL.vertexAttribPointer(texCoordLocation, 2, webGL.FLOAT, false, 0, 0);
             }
 
-            if (webGLFragmentShaderExtraStep !== null) {
+            if (webGLFragmentShaderExtraStep != null) { // intentional truthiness
                 webGLFragmentShaderExtraStep(webGL, webGLShaderProgram);
             }
 
             // bind active texture
             if (texture !== activeTexture) {
-                if (textureDefinitions[texture] === undefined) {
-                    var asdfadfadsfadf = 0;
-                }
+                webGL.activeTexture(webGL.TEXTURE0);
                 webGL.bindTexture(webGL.TEXTURE_2D, textureDefinitions[texture].webGLTexture);
 
                 activeTexture = texture;
@@ -1027,7 +1025,7 @@
                 // same texture? don't draw yet
                 var nextGfxComp = (i !== gfx2DAnimationInstances[renderPass].length - 1) ? gfx2DAnimationInstances[renderPass][i + 1].graphics : null;
                 var nextAnimationFrame = (nextGfxComp !== null) ? getAnimationFrameDefinitionOfGraphicsComponentInstance(nextGfxComp) : null;
-                if (nextAnimationFrame == null || animationFrameDefinition.texture !== nextAnimationFrame.texture) {
+                if (nextAnimationFrame === null || animationFrameDefinition.texture !== nextAnimationFrame.texture) {
                     draw(vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, animationFrameDefinition.texture);
 
                     vertexVerts = [];
@@ -1343,6 +1341,8 @@
                         resolve();
                     } else {
                         ++iterations;
+                        // shader constructors might send messages
+                        namespace.Globals.globalMessengerEngine.update();
                         setTimeout(checkShadersLoaded, 1);
                     }
                 } else {

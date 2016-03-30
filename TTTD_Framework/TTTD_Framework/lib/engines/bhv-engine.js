@@ -8,10 +8,26 @@
     namespace.Comp.Inst.Behavior = function (entity, behavior) {
         this.instanceId = entity.instanceId;
         this.behavior = behavior;
+        this.behaviorQueue = [];
+
+        this.behaviorQueue.push(this.behavior.firstBehavior);
+
         // if the behavior doesn't define its own data, do it for them
         if (this.behavior.data === undefined) {
             this.behavior.data = {};
         }
+
+        this.processBehaviorQueue = function (delta) {
+            var newBehaviors = this.behaviorQueue[0](delta);
+            if (Object.prototype.toString.call(newBehaviors) === "[object Array]") {
+                this.behaviorQueue.shift();
+                var that = this;
+                newBehaviors.forEach(function (x) {
+                    that.behaviorQueue.push(x);
+                });
+            }
+            this.behavior.data = {};
+        };
     };
 
     namespace.Comp.Inst.Behavior.prototype = new namespace.Comp.Inst.Component();
@@ -30,7 +46,7 @@
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
     namespace.Comp.Def.Behavior = function (def) {
-        this.stateFile = def.stateFile;
+        this.behaviorFile = def.behaviorFile;
         this.behaviorConstructor = def.behaviorConstructor;
     };
 
@@ -71,8 +87,7 @@
 
         this.update = function (delta) {
             for (var i = 0; i < bhvCompInstances.length; ++i) {
-                bhvCompInstances[i].behavior.update(delta);
-                bhvCompInstances[i].behavior.data = {};
+                bhvCompInstances[i].processBehaviorQueue(delta);
             }
         };
 
@@ -93,7 +108,6 @@
             var behavior = new bhvConstructors[bhvCompDefinitions[bhvCompDefId].behaviorConstructor](entity);
             var instance = new Inst.Behavior(entity, behavior);
             bhvCompInstances.push(instance);
-            messengerEngine.queueForPosting("createdBehaviorInstance", instance.behavior, instance.instanceId);
         };
 
         this.setBehaviorComponentInstanceData = function (instanceId, data) {
@@ -150,7 +164,7 @@
         data.forEach(function (x) {
             var script = document.createElement("script");
             script.setAttribute("type", "text/javascript");
-            script.setAttribute("src", x.stateFile);
+            script.setAttribute("src", x.behaviorFile);
             headElem.appendChild(script);
             bhvScriptElementList.push(script);
         });
@@ -170,6 +184,8 @@
                     if (count === data.length) {
                         resolve();
                     } else {
+                        // behavior constructors definitely send messages
+                        namespace.Globals.globalMessengerEngine.update();
                         setTimeout(checkScriptsLoaded, 1);
                     }
                 } else {

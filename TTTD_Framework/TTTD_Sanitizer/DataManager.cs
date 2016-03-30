@@ -61,7 +61,8 @@ namespace TTTD_Sanitizer
                 cfg.CreateMap<BData.AudioType, SData.AudioType>();
                 cfg.CreateMap<BData.Audio, SData.Audio>();
 
-                cfg.CreateMap<BData.BehaviorInstanceDefinition, SData.BehaviorInstanceDefinition>();
+                cfg.CreateMap<BData.BehaviorInstanceDefinition, SData.BehaviorInstanceDefinition>().
+                    ForMember(dest => dest.BehaviorFile, opt => opt.MapFrom(src => Path.Combine("lib/behaviors/", Path.GetFileName(src.BehaviorFile))));
 
                 cfg.CreateMap<BData.GraphicsInstanceDefinition, SData.GraphicsAnimationInstanceDefinition>();
                 cfg.CreateMap<BData.AnimationStateDefinition, SData.GraphicsAnimationInstanceDefinition.AnimationStateDefinition>();
@@ -69,7 +70,8 @@ namespace TTTD_Sanitizer
                     ForMember(dest => dest.Texture, opt => opt.MapFrom(src => Path.Combine("assets/textures/", Path.GetFileName(src.Texture))));
                 cfg.CreateMap<BData.GraphicsInstanceDefinition, SData.GraphicsFontInstanceDefinition>();
                 cfg.CreateMap<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>();
-                cfg.CreateMap<BData.Shader, SData.Shader>();
+                cfg.CreateMap<BData.Shader, SData.Shader>().
+                    ForMember(dest => dest.ShaderFile, opt => opt.MapFrom(src => Path.Combine("lib/shaders/", Path.GetFileName(src.ShaderFile))));
 
                 cfg.CreateMap<BData.CollisionType, SData.CollisionType>();
                 cfg.CreateMap<BData.PhysType, SData.PhysType>();

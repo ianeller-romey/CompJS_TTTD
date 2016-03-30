@@ -1,92 +1,62 @@
-﻿(function () {
-    if (BehaviorPlayer === undefined) {
-        var BehaviorPlayer = function (entity) {
+﻿(function (namespace, undefined) {
+    "use strict";
+
+    if (namespace.BehaviorPlayer === undefined) {
+        namespace.BehaviorPlayer = function (entity) {
             this.instanceId = entity.instanceId;
             this.transformation = entity.transformation;
 
-            var deathMessages = ["OUCH", "RATS", "UGH", "DEAD", "OH NO!", "SPLAT", "OOPS!"];
+            var that = this;
 
-            var messengerEngine = globalMessengerEngine;
-            var inputManager = globalInputEngine;
-
-            var godMode = false;
+            var messengerEngine = namespace.Globals.globalMessengerEngine;
+            var inputEngine = namespace.Globals.globalInputEngine;
 
             var controllerLeft = function () {
-                return inputManager.isPressed(inputManager.keys.arrowLeft) || inputManager.isPressed(inputManager.keys.a);
+                return inputEngine.isPressed(inputEngine.keys.arrowLeft) || inputEngine.isPressed(inputEngine.keys.a);
             };
 
             var controllerRight = function () {
-                return inputManager.isPressed(inputManager.keys.arrowRight) || inputManager.isPressed(inputManager.keys.d);
+                return inputEngine.isPressed(inputEngine.keys.arrowRight) || inputEngine.isPressed(inputEngine.keys.d);
             };
 
             var controllerUp = function () {
-                return inputManager.isPressed(inputManager.keys.arrowUp) || inputManager.isPressed(inputManager.keys.w);
+                return inputEngine.isPressed(inputEngine.keys.arrowUp) || inputEngine.isPressed(inputEngine.keys.w);
             };
 
             var controllerDown = function () {
-                return inputManager.isPressed(inputManager.keys.arrowDown) || inputManager.isPressed(inputManager.keys.s);
+                return inputEngine.isPressed(inputEngine.keys.arrowDown) || inputEngine.isPressed(inputEngine.keys.s);
             };
 
-            var controllerShoot = function () {
-                return inputManager.isTriggered(inputManager.keys.space) || inputManager.isTriggered(inputManager.keys.enter)
+            var controllerAction = function () {
+                return inputEngine.isTriggered(inputEngine.keys.space) || inputEngine.isTriggered(inputEngine.keys.enter)
             };
 
-            this.playerDeath = function () {
-                if (!godMode) {
-                    messengerEngine.queueForPosting("createEntityInstance", "Kaboom", {
-                        position: this.transformation.position.toXYObject(0, -16), data: {
-                            score: deathMessages[Math.floor(Math.random() * 10) % deathMessages.length]
-                        }
-                    });
-                    messengerEngine.postImmediate("removeEntityInstance", this.instanceId);
-                    messengerEngine.queueForPosting("playerModifyLives", -1);
-                    messengerEngine.queueForPosting("playerDeath", true);
-                    messengerEngine.postImmediate("playAudio", "PlayerDeath");
+            this.state_enterIdle = function (delta) {
+                messengerEngine.queueForPosting("setInstanceAnimationState", that.instanceId, 0);
+                return [that.state_updateIdle];
+            };
+
+            this.state_updateIdle = function (delta) {
+                if (controllerLeft()) {
+                    that.transformation.velocity.x = -50;
+                } else if (controllerRight()) {
+                    that.transformation.velocity.x = 50;
+                } else {
+                    that.transformation.velocity.x = 0;
+                }
+
+                if (controllerUp()) {
+                    that.transformation.velocity.y = -50;
+                } else if (controllerDown()) {
+                    that.transformation.velocity.y = 50;
+                } else {
+                    that.transformation.velocity.y = 0;
                 }
             };
 
-            this.update = function () {
-                if (this.data["spiderDamage"] !== undefined || this.data["scorpionDamage"] !== undefined || this.data["fleaDamage"] !== undefined || this.data["centipedeDamage"] !== undefined) {
-                    this.playerDeath();
-                }
-
-                var xVel = 0.0;
-                if (controllerLeft() && this.transformation.position.x > 4) {
-                    xVel = -0.25;
-                } else if (controllerRight() && this.transformation.position.x < 500) {
-                    xVel = 0.25;
-                }
-
-                var yVel = 0.0;
-                if (controllerUp() && this.transformation.position.y > 402) {
-                    yVel = -0.25;
-                } else if (controllerDown() && this.transformation.position.y < 500) {
-                    yVel = 0.25;
-                }
-
-                this.transformation.setVelocity(xVel, yVel);
-
-                if (controllerShoot()) {
-                    messengerEngine.queueForPosting("createEntityInstance", "PlayerBullet", {
-                        position: new Vector2D(this.transformation.position.x + 7, this.transformation.position.y - 7)
-                    });
-                }
-            };
-
-            var setPlayerGodMode = function (bool) {
-                godMode = bool;
-            };
-
-            this.getPlayerInstanceId = function () {
-                messengerEngine.queueForPosting("getPlayerInstanceIdResponse", this.instanceId);
-            };
-
-            messengerEngine.register("setPlayerGodMode", this, setPlayerGodMode);
-            messengerEngine.register("getPlayerInstanceIdRequest", this, this.getPlayerInstanceId);
-
-            messengerEngine.queueForPosting("setPointLightTransform", this.transformation);
+            this.firstBehavior = this.state_enterIdle;
         };
 
-        globalMessengerEngine.postImmediate("setBehaviorConstructor", "BehaviorPlayer", BehaviorPlayer);
+        namespace.Globals.globalMessengerEngine.queueForPosting("setBehaviorConstructor", "BehaviorPlayer", namespace.BehaviorPlayer);
     }
-}());
+}(window.TTTD = window.TTTD || {}));

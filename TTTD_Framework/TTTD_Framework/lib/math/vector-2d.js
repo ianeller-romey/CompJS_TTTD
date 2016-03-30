@@ -26,11 +26,11 @@
     };
 
     namespace.Math.Vector2D.prototype.clone = function () {
-        return new Math.Vector2D(this.x, this.y, this.normalized);
+        return new namespace.Math.Vector2D(this.x, this.y, this.normalized);
     };
 
     namespace.Math.Vector2D.prototype.toPerpendicular = function () {
-        return new Math.Vector2D(-this.y, this.x);
+        return new namespace.Math.Vector2D(-this.y, this.x);
     };
 
     namespace.Math.Vector2D.prototype.distance2 = function (other) {
@@ -65,6 +65,11 @@
                 this.notifyAll();
             }
         }
+        return this;
+    };
+
+    namespace.Math.Vector2D.prototype.subtract = function (otherX, otherY) {
+        return new namespace.Math.Vector2D(this.x - otherX, this.y - otherY);
     };
 
     namespace.Math.Vector2D.prototype.translateSelf = function (otherX, otherY) {
@@ -76,7 +81,7 @@
     };
 
     namespace.Math.Vector2D.prototype.translate = function (otherX, otherY) {
-        return new Math.Vector2D(this.x + otherX, this.y + otherT);
+        return new namespace.Math.Vector2D(this.x + otherX, this.y + otherY);
     };
 
     namespace.Math.Vector2D.prototype.scaleSelf = function (scalar) {
@@ -88,7 +93,7 @@
     };
 
     namespace.Math.Vector2D.prototype.scale = function (scalar) {
-        return new Math.Vector2D(this.x * scalar, this.y * scalar);
+        return new namespace.Math.Vector2D(this.x * scalar, this.y * scalar);
     };
 
 }(window.TTTD = window.TTTD || {}));

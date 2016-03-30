@@ -1,12 +1,14 @@
-﻿(function () {
+﻿(function (namespace, undefined) {
+    "use strict";
+
     var headElem = document.getElementsByTagName("head")[0];
     if (headElem !== undefined &&
         headElem !== null &&
-        GfxEngine !== undefined &&
-        GfxEngine.shaderList !== undefined &&
-        GfxEngine.compileShader !== undefined) {
-        var shaderList = GfxEngine.shaderList;
-        var compileShader = GfxEngine.compileShader;
+        namespace.Engines.GfxEngine !== undefined &&
+        namespace.Engines.GfxEngine.shaderList !== undefined &&
+        namespace.Engines.GfxEngine.compileShader !== undefined) {
+        var shaderList = namespace.Engines.GfxEngine.shaderList;
+        var compileShader = namespace.Engines.GfxEngine.compileShader;
 
         var shaderName = "Texture";
         if (shaderList[shaderName] === undefined || shaderList[shaderName] === null) {
@@ -84,4 +86,4 @@
             });
         }
     }
-}());
+}(window.TTTD = window.TTTD || {}));
