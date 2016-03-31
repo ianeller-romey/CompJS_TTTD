@@ -27,6 +27,7 @@ namespace TTTD_Builder.EditData
 
         private TextBlock m_textBlock_id;
         //private TextBox m_textBox_name;
+        private IntegerUpDown m_integerUpDown_priority;
         private Grid m_grid_data;
         private ObservableCollection<UserControl_LevelLayoutData> m_userControls_levelLayoutData = new ObservableCollection<UserControl_LevelLayoutData>();
         //private DoubleUpDown m_doubleUpDown_x;
@@ -364,6 +365,7 @@ namespace TTTD_Builder.EditData
             {
                 m_textBlock_id.Text = m_levelLayout.Id.ToString();
                 //m_textBox_name.Text = m_levelLayout.Name;
+                m_integerUpDown_priority.Value = m_levelLayout.Priority;
                 CreateControlsFromData(m_levelLayout.Data);
                 //m_doubleUpDown_x.Value = m_levelLayout.X;
                 //m_doubleUpDown_x.Value = m_levelLayout.Y;   
@@ -379,6 +381,7 @@ namespace TTTD_Builder.EditData
         {
             Grid grid_main = new Grid();
             grid_main.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(100.0, GridUnitType.Star) });
+            grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
@@ -409,6 +412,18 @@ namespace TTTD_Builder.EditData
             grid_main.SetRowColumn(grid_name, 1, 0);*/
 
             ////////
+            // Priority
+            m_integerUpDown_priority = new IntegerUpDown() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_priority = new ValidatorPanel(m_integerUpDown_priority, IntegerUpDown.ValueProperty, new Validate_NotNull());
+            Label label_priority = new Label() { Content = "Priority: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            Grid grid_priority = new Grid();
+            grid_priority.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_priority.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_priority.SetRowColumn(validator_priority, 1, 0);
+            grid_priority.SetRowColumn(label_priority, 0, 0);
+            grid_main.SetRowColumn(grid_priority, 2, 0);
+
+            ////////
             // X
             /*m_doubleUpDown_x = new DoubleUpDown() { VerticalAlignment = VerticalAlignment.Center };
             ValidatorPanel validator_x = new ValidatorPanel(m_doubleUpDown_x, IntegerUpDown.ValueProperty, new Validate_NotNull());
@@ -418,7 +433,7 @@ namespace TTTD_Builder.EditData
             grid_x.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_x.SetRowColumn(validator_x, 1, 0);
             grid_x.SetRowColumn(label_x, 0, 0);
-            grid_main.SetRowColumn(grid_x, 2, 0);*/
+            grid_main.SetRowColumn(grid_x, 3, 0);*/
 
             ////////
             // Y
@@ -430,7 +445,7 @@ namespace TTTD_Builder.EditData
             grid_y.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_y.SetRowColumn(validator_y, 1, 0);
             grid_y.SetRowColumn(label_y, 0, 0);
-            grid_main.SetRowColumn(grid_y, 3, 0);*/
+            grid_main.SetRowColumn(grid_y, 4, 0);*/
 
             ////////
             // Data
@@ -462,15 +477,16 @@ namespace TTTD_Builder.EditData
             grid_data.SetRowColumn(m_grid_data, 2, 0);
             grid_data.SetRowColumn(grid_newData, 1, 0);
             grid_data.SetRowColumn(label_data, 0, 0);
-            grid_main.SetRowColumn(grid_data, 4, 0);
+            grid_main.SetRowColumn(grid_data, 5, 0);
 
             ////////
             // FIN
-            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_grid_data };//, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
+            ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_integerUpDown_priority, Validators = new ValidatorBase[] {
                 //validator_name,
+                validator_priority,
                 //validator_x,
                 //validator_y
-            //}};
+            }};
         }
 
         protected override bool DataIsNull()
@@ -482,6 +498,7 @@ namespace TTTD_Builder.EditData
         {
             m_levelLayout = DataManager.Generate<LevelLayout>();
             //m_levelLayout.Name = m_textBox_name.Text;
+            m_levelLayout.Priority = m_integerUpDown_priority.Value.Value;
             m_levelLayout.Data.Clear();
             m_levelLayout.Data.AddRange(CreateDataFromControls());
             //m_levelLayout.X = m_doubleUpDown_x.Value.Value;
@@ -494,7 +511,8 @@ namespace TTTD_Builder.EditData
 
         protected override int UpdateExistingData()
         {
-            //m_levelLayout.Name = m_textBox_name.Text;            
+            //m_levelLayout.Name = m_textBox_name.Text;      
+            m_levelLayout.Priority = m_integerUpDown_priority.Value.Value;
             m_levelLayout.Data.Clear();
             m_levelLayout.Data.AddRange(CreateDataFromControls());
             //m_levelLayout.X = m_doubleUpDown_x.Value.Value;
@@ -506,6 +524,7 @@ namespace TTTD_Builder.EditData
         protected override void RevertNewData()
         {
             //m_textBox_name.Text = string.Empty;
+            m_integerUpDown_priority.Value = null;
             m_userControls_levelLayoutData.Clear();
             m_grid_data.Children.Clear();
             //m_doubleUpDown_x.Value = null;
@@ -515,6 +534,7 @@ namespace TTTD_Builder.EditData
         protected override void RevertExistingData()
         {
             //m_textBox_name.Text = m_levelLayout.Name;
+            m_integerUpDown_priority.Value = m_levelLayout.Priority;
             m_userControls_levelLayoutData.Clear();
             m_grid_data.Children.Clear();
             CreateControlsFromData(m_levelLayout.Data);

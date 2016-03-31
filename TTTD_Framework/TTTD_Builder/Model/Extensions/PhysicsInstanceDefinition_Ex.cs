@@ -41,9 +41,13 @@ namespace TTTD_Builder.Model.Extensions
             { 
                 if (value != m_physicsInstanceDefinition) 
                 { 
-                    m_physicsInstanceDefinition = value; 
-                    if(m_physicsInstanceDefinition != null)
-                        SetBoundingData(CalculateBoundingObject()); 
+                    m_physicsInstanceDefinition = value;
+                    if (m_physicsInstanceDefinition != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(m_physicsInstanceDefinition.BoundingData))
+                            ParseBoundingData(m_physicsInstanceDefinition.BoundingData);
+                        SetBoundingData(CalculateBoundingObject());
+                    }
                     NotifyPropertyChanged("PhysicsInstanceDefinition"); 
                 } 
             }

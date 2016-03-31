@@ -13,6 +13,7 @@ namespace TTTD_Builder.Lib.Data
         public string Name { get; set; }
         public int LevelId { get; set; }
         public int EntityInstanceDefinitionId { get; set; }
+        public int Priority { get; set; }
         public KeyValuePair<string, object>[] Data { get; set; }
         public double X { get; set; }
         public double Y { get; set; }

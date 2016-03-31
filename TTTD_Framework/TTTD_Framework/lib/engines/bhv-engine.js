@@ -144,7 +144,6 @@
 
         messengerEngine.register("setInstanceData", this, this.setBehaviorComponentInstanceData);
         messengerEngine.register("getBehaviorComponentInstanceForEntityInstanceRequest", this, getBehaviorComponentInstanceForEntityInstance);
-        messengerEngine.register("removeEntityInstance", this, removeBehaviorComponentInstanceFromMessage);
     };
 
     namespace.Engines.BhvEngine.setBehaviorConstructor = function (constructorName, constructorFunction) {

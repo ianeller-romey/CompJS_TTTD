@@ -180,6 +180,7 @@ namespace TTTD_Builder.EditData
                         Name = (x.Name != null) ? new string(x.Name.ToCharArray()) : null,
                         Level = x.Level,
                         EntityInstanceDefinition = x.EntityInstanceDefinition,
+                        Priority = x.Priority,
                         Data = x.Data,
                         X = x.X,
                         Y = x.Y
@@ -199,6 +200,7 @@ namespace TTTD_Builder.EditData
                     levelLayout.Name = temp.Name;
                     levelLayout.Level = temp.Level;
                     levelLayout.EntityInstanceDefinition = temp.EntityInstanceDefinition;
+                    levelLayout.Priority = temp.Priority;
                     levelLayout.Data = temp.Data;
                     levelLayout.X = temp.X;
                     levelLayout.Y = temp.Y;
@@ -211,6 +213,7 @@ namespace TTTD_Builder.EditData
                 levelLayout.Name = temp.Name;
                 levelLayout.Level = temp.Level;
                 levelLayout.EntityInstanceDefinition = temp.EntityInstanceDefinition;
+                levelLayout.Priority = temp.Priority;
                 levelLayout.Data = temp.Data;
                 levelLayout.X = temp.X;
                 levelLayout.Y = temp.Y;
@@ -227,6 +230,7 @@ namespace TTTD_Builder.EditData
                     Id = c_temporaryId,
                     EntityInstanceDefinition = entityInstanceDefinition,
                     Level = m_level,
+                    Priority = 0,
                     X = x,
                     Y = y
                 };

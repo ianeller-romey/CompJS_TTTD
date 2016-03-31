@@ -150,7 +150,8 @@
         // entity messages/requests
         createMessageType("createEntityInstance");
         createMessageType("removeEntityInstance");
-        createMessageType("removeAllEntityInstancesButOne");
+        createMessageType("removeEntityInstancesByPriority");
+        createMessageType("setInstancePriority");
         createMessageType("setInstancePosition");
         createMessageType("setInstanceScale");
 

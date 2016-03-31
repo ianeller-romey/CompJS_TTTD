@@ -35,6 +35,7 @@ namespace TTTD_Sanitizer.Lib.Data
         public int Id { get; set; }
         public string Name { get; set; }
         public int EntityInstanceDefinitionId { get; set; }
+        public int ZOrder { get; set; }
         public int RenderPass { get; set; }
         public AnimationStateDefinition[] AnimationStateDefinitions { get; set; }
     }

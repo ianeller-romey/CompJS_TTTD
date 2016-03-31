@@ -16,6 +16,7 @@ namespace TTTD_Builder.Model.Data
 
         private Level m_level;
         private EntityInstanceDefinition m_entityInstanceDefinition;
+        private int m_priority;
         private ObservableCollection<KeyValuePair<string, object>> m_data;
         private double m_x;
         private double m_y;
@@ -35,6 +36,12 @@ namespace TTTD_Builder.Model.Data
         {
             get { return m_entityInstanceDefinition; }
             set { if (value != m_entityInstanceDefinition) { m_entityInstanceDefinition = value; NotifyPropertyChanged("EntityInstanceDefinition"); } }
+        }
+
+        public int Priority
+        {
+            get { return m_priority; }
+            set { if (value != m_priority) { m_priority = value; NotifyPropertyChanged("Priority"); } }
         }
 
         public ObservableCollection<KeyValuePair<string, object>> Data

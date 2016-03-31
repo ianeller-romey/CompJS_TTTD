@@ -57,6 +57,8 @@
         var physCompDefinitions = [];
         var physCompInstances = [];
 
+        var gravity = new namespace.Math.Vector2D(0, 50);
+
         var buildPhysTypeDefinitions = function (data) {
             data.forEach(function (x) {
                 physTypeDefinitions[x.id] = new Def.TypeDesc(x);
@@ -147,7 +149,7 @@
 
                 var collisionTypeDefinition = collisionTypeDefinitions[instance.physics.collisionTypeId];
                 if (collisionTypeDefinition.name !== "Static") {
-                    var transformation = instance.transformation;
+                    var velocity = instance.transformation.velocity.translate(gravity.x, gravity.y);
                     var bounding = instance.physics.boundingData.clone();
 
                     var hasNonGhostCollider = false;
@@ -161,7 +163,7 @@
                         var otherTransformation = otherInstance.transformation;
                         var otherBounding = otherInstance.physics.boundingData;
 
-                        var relativeVelocity = transformation.velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
+                        var relativeVelocity = velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
                         relativeVelocity.x *= delta;
                         relativeVelocity.y *= delta;
                         var currentDisplacementVector;
@@ -185,8 +187,8 @@
 
                     //if (!hasNonGhostCollider || collisionTypeDefinition.name === "Ghost") {
                         var endVector = {
-                            x: (transformation.velocity.x * delta) + totalDisplacementVector.x,
-                            y: (transformation.velocity.y * delta) + totalDisplacementVector.y
+                            x: (velocity.x * delta) + totalDisplacementVector.x,
+                            y: (velocity.y * delta) + totalDisplacementVector.y
                         };
                         instance.transformation.position.translateSelf(endVector.x, endVector.y);
                         instance.physics.boundingData.translate(endVector.x, endVector.y);
@@ -237,7 +239,6 @@
         };
 
         messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
-        messengerEngine.register("removeEntityInstance", this, removePhysicsComponentInstanceFromMessage);
     };
         
     var Phys = namespace.Engines.PhysEngine;

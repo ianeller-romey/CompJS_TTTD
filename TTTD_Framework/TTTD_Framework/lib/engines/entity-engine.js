@@ -101,10 +101,11 @@
     // EntityInst
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Inst = namespace.Comp.Inst || {};
-    namespace.Comp.Inst.Entity = function (instanceId, entityInstanceDefinitionId, entityInstanceDefinitionName, position, rotation, scale, velocity) {
+    namespace.Comp.Inst.Entity = function (instanceId, entityInstanceDefinitionId, entityInstanceDefinitionName, priority, position, rotation, scale, velocity) {
         this.instanceId = instanceId;
         this.instanceDefinitionId = entityInstanceDefinitionId;
         this.instanceDefinitionName = entityInstanceDefinitionName;
+        this.priority = priority;
 
         this.transformation = new namespace.Comp.Inst.Transformation(position, rotation, scale, velocity);
     };
@@ -204,8 +205,8 @@
             });
         };
 
-        var createEntityInstance = function (xEntityType, data, callback) {
-            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
+        var createEntityInstance = function (xEntityType, priority, data, callback) {
+            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, priority, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
             entityInstances.push(entity);
 
             var entityDefinition = entityInstanceDefinitions[entity.instanceDefinitionId];
@@ -230,7 +231,7 @@
             }
         };
 
-        var createEntityInstanceFromMessage = function (identifier, additional, callback) {
+        var createEntityInstanceFromMessage = function (identifier, priority, additional, callback) {
             var entityInstanceDefinitionId;
             var entityInstanceDefinitionName;
             if (typeof (identifier) === "number") {
@@ -270,9 +271,9 @@
                             y: additional.velocity.y
                         };
                     }
-                    createEntityInstance(xEntityType, additional.data, callback);
+                    createEntityInstance(xEntityType, priority, additional.data, callback);
                 } else {
-                    createEntityInstance(xEntityType, null, callback);
+                    createEntityInstance(xEntityType, priority, null, callback);
                 }
             }
         };
@@ -281,17 +282,34 @@
             for (var i = 0; i < entityInstances.length; ++i) {
                 var instance = entityInstances[i];
                 if (instance.instanceId === instanceId) {
+                    var entityDefinition = entityInstanceDefinitions[instance.instanceDefinitionId];
+                    if (entityHasBehavior(entityDefinition)) {
+                        behaviorEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
+                    }
+                    if (entityHasGraphics(entityDefinition)) {
+                        graphicsEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
+                    }
+                    if (entityHasPhysics(entityDefinition)) {
+                        physicsEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
+                    }
+                    if (entityHasAudible(entityDefinition)) {
+                        throw "Not yet implemented";
+                    }
                     entityInstances.splice(i, 1);
                     break;
                 }
             }
         };
 
-        var removeAllEntityInstancesButOne = function (instanceId) {
-            while (entityInstances.length > 1) {
-                var index = (entityInstances[0].instanceId === instanceId) ? 1 : 0;
-                messengerEngine.postImmediate("removeEntityInstance", entityInstances[index].instanceId);
-            }
+        var removeEntityInstancesByPriority = function (priority) {
+            var entitiesToRemove = entityInstances.where(function (x) {
+                return x.priority >= priority;
+            }).select(function(x){
+                return x.instanceId;
+            });
+            entitiesToRemove.forEach(function (instanceId) {
+                removeEntityInstanceFromMessage(instanceId);
+            });
         };
 
         var getTransformationForEntityInstance = function (instanceId) {
@@ -300,6 +318,15 @@
             });
             if (entityInstance !== null) {
                 messengerEngine.postImmediate("getTransformationForEntityInstanceResponse", instanceId, entityInstance.transformation);
+            }
+        };
+
+        var setInstancePriority = function (instanceId, priority) {
+            var instance = entityInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            if (instance !== null) {
+                instance.priority = priority;
             }
         };
 
@@ -337,38 +364,9 @@
             }
         };
 
-        this.loadLevel = function (levelId) {
-            dataEngine.loadLevel(levelId).then(function (data) {
-                entityInstances = [];
-
-                data.levelPositions.forEach(function (x) {
-                    createEntityInstance(x);
-                });
-
-                data.entityInstanceDefinitionsOnAllLevels.forEach(function (x) {
-                    createEntityInstance({
-                        entityInstanceDefinitionId: x.id,
-                        entityInstanceDefinitionName: x.name,
-                        behavior: x.behavior,
-                        graphics: x.graphics,
-                        physics: x.physics,
-                        audible: x.audible,
-                        x: 0,
-                        y: 0
-                    });
-                });
-            }, function (reason) {
-                var reasonPlus = "Failed to load game level";
-                if (reason) { // intentional truthiness
-                    reasonPlus = reasonPlus + "\r\n" + reason;
-                }
-                reject(reasonPlus);
-            });
-        };
-
         messengerEngine.register("createEntityInstance", this, createEntityInstanceFromMessage);
         messengerEngine.register("removeEntityInstance", this, removeEntityInstanceFromMessage);
-        messengerEngine.register("removeAllEntityInstancesButOne", this, removeAllEntityInstancesButOne);
+        messengerEngine.register("removeEntityInstancesByPriority", this, removeEntityInstancesByPriority);
         messengerEngine.register("setInstancePosition", this, setInstancePosition);
         messengerEngine.register("setInstanceScale", this, setInstanceScale);
         messengerEngine.register("getTransformationForEntityInstanceRequest", this, getTransformationForEntityInstance);

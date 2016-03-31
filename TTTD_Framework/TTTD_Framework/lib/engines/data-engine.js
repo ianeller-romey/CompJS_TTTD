@@ -124,7 +124,7 @@
 
         var loadLevelLayout = function (levelId) {
             levelLayouts[levelId].forEach(function (ll) {
-                messengerEngine.queueForPosting("createEntityInstance", ll.entityInstanceDefinitionId, {
+                messengerEngine.queueForPosting("createEntityInstance", ll.entityInstanceDefinitionId, ll.priority, {
                     position: {
                         x: ll.x,
                         y: ll.y

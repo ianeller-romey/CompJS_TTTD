@@ -14,6 +14,7 @@ namespace TTTD_Builder.Model.Data
         #region MEMBER FIELDS
 
         private EntityInstanceDefinition m_entityInstanceDefinition;
+        private int m_zOrder;
         private int m_renderPass;
 
         #endregion
@@ -25,6 +26,12 @@ namespace TTTD_Builder.Model.Data
         {
             get { return m_entityInstanceDefinition; }
             set { if (value != m_entityInstanceDefinition) { m_entityInstanceDefinition = value; NotifyPropertyChanged("EntityInstanceDefinition"); } }
+        }
+
+        public int ZOrder
+        {
+            get { return m_zOrder; }
+            set { if (value != m_zOrder) { m_zOrder = value; NotifyPropertyChanged("ZOrder"); } }
         }
 
         public int RenderPass

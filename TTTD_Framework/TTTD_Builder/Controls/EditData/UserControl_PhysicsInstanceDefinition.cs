@@ -642,6 +642,7 @@ namespace TTTD_Builder.EditData
             Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, circle.OriginX - circle.Radius);
             Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, circle.OriginY - circle.Radius);
             m_canvasWithRectangle.SizableRectangle.Width = circle.Radius * 2.0;
+            m_canvasWithRectangle.SizableRectangle.Height = circle.Radius * 2.0;
         }
 
         #endregion

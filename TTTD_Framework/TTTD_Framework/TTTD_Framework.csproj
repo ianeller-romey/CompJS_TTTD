@@ -57,22 +57,9 @@
     <Reference Include="System.EnterpriseServices" />-->
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\behaviors\behavior-centipede-manager.js" />
-    <Content Include="lib\behaviors\behavior-centipede-segment.js" />
-    <Content Include="lib\behaviors\behavior-flea.js" />
-    <Content Include="lib\behaviors\behavior-game-state-manager.js" />
-    <Content Include="lib\behaviors\behavior-kaboom.js" />
-    <Content Include="lib\behaviors\behavior-life.js" />
-    <Content Include="lib\behaviors\behavior-lives.js" />
-    <Content Include="lib\behaviors\behavior-minion-manager.js" />
-    <Content Include="lib\behaviors\behavior-mushroom-manager.js" />
-    <Content Include="lib\behaviors\behavior-mushroom-waiter.js" />
-    <Content Include="lib\behaviors\behavior-mushroom.js" />
-    <Content Include="lib\behaviors\behavior-player-bullet.js" />
     <Content Include="lib\behaviors\behavior-player.js" />
-    <Content Include="lib\behaviors\behavior-score.js" />
-    <Content Include="lib\behaviors\behavior-scorpion.js" />
-    <Content Include="lib\behaviors\behavior-spider.js" />
+    <Content Include="lib\behaviors\behavior-door.js" />
+    <Content Include="lib\debug.js" />
     <Content Include="lib\driver.js" />
     <Content Include="lib\engines\aud-engine.js" />
     <Content Include="lib\engines\bhv-engine.js" />
