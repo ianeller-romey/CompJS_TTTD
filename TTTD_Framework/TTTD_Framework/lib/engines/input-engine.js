@@ -134,6 +134,14 @@
 
         var triggeredArrayAccepting = {};
 
+        var rect = null;
+        var mouseClickedTemp = false;
+        var mouseClicked = false;
+        var mouseHeld = false;
+        var mouseHeldCounter = null;
+        var mouseHeldThreshold = 500;
+        var mousePosition = null;
+
         var updateFunction;
 
         var keydownEvent = function (event) {
@@ -148,6 +156,19 @@
             pressedArrayTemp[event.keyCode] = false;
             triggeredArrayTemp[event.keyCode] = false;
             triggeredArrayAccepting[event.keyCode] = true;
+        };
+
+        var mouseDownEvent = function (event) {
+            mouseClickedTemp = true;
+            mousePosition = new namespace.Math.Vector2D(event.clientX - rect.left, event.clientY - rect.top);
+        };
+
+        var mouseUpEvent = function (event) {
+            mouseClickedTemp = false;
+            mouseClicked = false;
+            mouseHeld = false;
+            mouseHeldCounter = null;
+            mousePosition = null;
         };
 
         this.isPressed = function (keyCode) {
@@ -189,6 +210,18 @@
             return null;
         };
 
+        this.isMouseClicked = function () {
+            return mouseClicked;
+        };
+
+        this.isMouseHeld = function () {
+            return mouseHeld;
+        };
+
+        this.getMousePosition = function () {
+            return mousePosition;
+        };
+
         this.isCharacter = function (keyCode) {
             return this.characters[keyCode] != null;
         };
@@ -201,11 +234,14 @@
             return this.shiftedCharacters[keyCode];
         };
 
-        this.init = function () {
+        this.init = function (canvas) {
             return new Promise(function (resolve, reject) {
+                rect = canvas.getBoundingClientRect();
                 if (window.addEventListener != null) {
                     window.addEventListener("keydown", keydownEvent);
                     window.addEventListener("keyup", keyupEvent);
+                    canvas.onmousedown = mouseDownEvent;
+                    canvas.onmouseup = mouseUpEvent;
                     resolve();
                 } else {
                     reject("Browser does not support window.addEventListener");
@@ -213,12 +249,14 @@
             });
         };
 
-        this.shutdown = function () {
+        this.shutdown = function (canvas) {
             var that = this;
             return new Promise(function (resolve, reject) {
                 if (window.removeEventListener != null) {
                     window.removeEventListener("keydown", keydownEvent);
                     window.removeEventListener("keyup", keyupEvent);
+                    canvas.onmousedown = null;
+                    canvas.onmouseup = null;
                     messengerEngine.unregisterAll(that);
                     resolve();
                 } else {
@@ -227,7 +265,7 @@
             });
         }
 
-        var enabledUpdate = function () {
+        var enabledUpdate = function (delta) {
             var i;
             for (i in pressedArrayTemp) {
                 pressedArray[i] = pressedArrayTemp[i];
@@ -244,9 +282,27 @@
                     triggeredArrayTemp[i] = false;
                 }
             }
+
+            // this HAS to be explicit, and not truthiness
+            // mouseHeldCounter is only !== null after mouseClickedTemp === true; after onmouseup, it becomes null again
+            if (mouseHeldCounter !== null && mouseHeld === false) {
+                mouseHeldCounter += delta;
+                if (mouseHeldCounter >= mouseHeldThreshold) {
+                    mouseHeld = true;
+                }
+            }
+
+            if (mouseClickedTemp === true) {
+                mouseClickedTemp = false;
+                mouseClicked = true;
+                mouseHeldCounter = 0;
+            } else if (mouseClicked === true) {
+                // we've been true for a frame, so it's back to false until we click again
+                mouseClicked = true;
+            }
         };
 
-        var disabledUpdate = function () {
+        var disabledUpdate = function (delta) {
             var i;
             for (i in pressedArrayTemp) {
                 pressedArray[i] = false;
@@ -255,10 +311,15 @@
             for (i in triggeredArrayTemp) {
                     triggeredArray[i] = false;
             }
+
+            mouseClickedTemp = false;
+            mouseClicked = false;
+            mouseHeld = false;
+            mousePosition = null;
         };
 
-        this.update = function () {
-            updateFunction();
+        this.update = function (delta) {
+            updateFunction(delta);
         };
 
         this.enable = function () {

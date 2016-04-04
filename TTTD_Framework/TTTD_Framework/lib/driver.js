@@ -72,9 +72,9 @@
                     physEngine = new namespace.Engines.PhysEngine();
                     entManager = new namespace.Engines.EntityManager(audEngine, bhvEngine, gfxEngine, physEngine);
                     inputEngine = namespace.Globals.globalInputEngine;
-                    var initPromise = Promise.all([audEngine.init(), bhvEngine.init(), gfxEngine.init(), entManager.init(), physEngine.init(), inputEngine.init()]);
+                    var initPromise = Promise.all([audEngine.init(), bhvEngine.init(), gfxEngine.init(), entManager.init(), physEngine.init(), inputEngine.init(canvasElem)]);
                     initPromise.then(function () {
-                        dataEngine.loadLevel(0);
+                        dataEngine.loadLevel(0, 0);
 
                         var d = new Date();
                         var n = d.getTime();
@@ -94,7 +94,7 @@
                             physEngine.update(delta);
 
                             if (inputEngine.isTriggered(inputEngine.keys.escape)) {
-                                var shutdownPromise = Promise.all([audEngine.shutdown(), bhvEngine.shutdown(), gfxEngine.shutdown(), entManager.shutdown(), physEngine.shutdown(), inputEngine.shutdown()]);
+                                var shutdownPromise = Promise.all([audEngine.shutdown(), bhvEngine.shutdown(), gfxEngine.shutdown(), entManager.shutdown(), physEngine.shutdown(), inputEngine.shutdown(canvasElem)]);
                                 shutdownPromise.then(function () {
                                     Promise.all([namespace.Engines.BhvEngine.unloadBehaviorScripts(), namespace.Engines.GfxEngine.unloadShaderScripts()]).then(function () {
                                         setTimeout(displayMenu, 1);

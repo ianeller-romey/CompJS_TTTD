@@ -1126,10 +1126,10 @@
                 while (renderPasses.length > 0) {
                     var renderPass = renderPasses[0];
                     for (var i = 0; i < gfx2DAnimationInstances[renderPass].length; ++i) {
-                        gfx2DAnimationInstances[renderPass][i].destroy();
+                        gfx2DAnimationInstances[renderPass][i].destroy(messengerEngine);
                     }
                     for (var i = 0; i < gfxFontInstances[renderPass].length; ++i) {
-                        gfxFontInstances[renderPass][i].destroy();
+                        gfxFontInstances[renderPass][i].destroy(messengerEngine);
                     }
                     renderPasses.shift();
                 }
@@ -1248,23 +1248,23 @@
             }
         };
 
-        var getGraphicsComponentInstanceForEntityInstance = function (instanceId) {
+        var getGraphicsComponentInstanceForEntityInstance = function (callback, instanceId) {
             var instance = getGraphicsComponentInstance2DAnimation(instanceId);
             if (instance === null) {
                 instance = getGraphicsComponentInstanceFont(instanceId);
             }
             if (instance !== null) {
-                messengerEngine.postImmediate("getGraphicsComponentInstanceForEntityInstanceResponse", instanceId, instance);
+                callback(instance);
             }
         };
 
-        var removeGraphicsComponentInstanceFromMessage = function (instanceId) {
+        this.removeGraphicsComponentInstanceFromMessage = function (instanceId) {
             for (var z = 0, zEnd = zOrders.length; z < zEnd; ++z) {
                 for (var rp = 0, rpEnd = renderPasses.length; rp < rpEnd; ++rp) {
                     if (gfx2DAnimationInstances[z][rp].length > 0) {
                         for (var k = 0; k < gfx2DAnimationInstances[z][rp].length; ++k) {
                             if (gfx2DAnimationInstances[z][rp][k].instanceId === instanceId) {
-                                gfx2DAnimationInstances[z][rp][k].destroy();
+                                gfx2DAnimationInstances[z][rp][k].destroy(messengerEngine);
                                 gfx2DAnimationInstances[z][rp].splice(k, 1);
                                 return;
                             }
@@ -1274,7 +1274,7 @@
                     if (gfxFontInstances[z][rp].length > 0) {
                         for (var k = 0; k < gfxFontInstances[z][rp].length; ++k) {
                             if (gfxFontInstances[z][rp][k].instanceId === instanceId) {
-                                gfxFontInstances[z][rp][k].destroy();
+                                gfxFontInstances[z][rp][k].destroy(messengerEngine);
                                 gfxFontInstances[z][rp].splice(k, 1);
                                 return;
                             }

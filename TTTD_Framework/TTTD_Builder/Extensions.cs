@@ -16,6 +16,8 @@ using Newtonsoft.Json;
 using TTTD_Builder.Managers;
 using TTTD_Builder.Model.Data;
 
+using TTTD_Builder.Properties;
+
 
 namespace TTTD_Builder
 {
@@ -51,6 +53,11 @@ namespace TTTD_Builder
                 str = str + s.Substring(1);
 
             return str;
+        }
+
+        public static bool IsPlayerEntityInstanceDefinition(this EntityInstanceDefinition entityInstanceDefinition)
+        {
+            return entityInstanceDefinition.Name == Settings.Default.PlayerEntityInstanceDefinitionName;
         }
 
         public static AnimationFrameDefinition GetFirstAnimationFrameDefinition(this EntityInstanceDefinition entityInstanceDefinition)

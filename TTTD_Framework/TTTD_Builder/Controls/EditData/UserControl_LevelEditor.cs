@@ -78,6 +78,7 @@ namespace TTTD_Builder.EditData
                 ResetLevelLayoutList();
                 foreach (var l in m_levelLayouts)
                     CreateLevelLayoutControl(l);
+                AddPlayerLevelLayoutControl();
             }
         }
 
@@ -156,6 +157,7 @@ namespace TTTD_Builder.EditData
             ResetLevelLayoutList();
             foreach (var l in m_levelLayouts)
                 CreateLevelLayoutControl(l);
+            AddPlayerLevelLayoutControl();
         }
 
         protected override void RevertExistingData()
@@ -164,6 +166,7 @@ namespace TTTD_Builder.EditData
             ResetLevelLayoutList();
             foreach (var l in m_levelLayouts)
                 CreateLevelLayoutControl(l);
+            AddPlayerLevelLayoutControl();
         }
 
         private void ResetLevelLayoutList()
@@ -192,7 +195,7 @@ namespace TTTD_Builder.EditData
         private void SaveData()
         {
             // update all the preexisting LevelLayout objects
-            foreach (var temp in m_levelLayouts.Where(x => x.Id > c_temporaryId))
+            foreach (var temp in m_levelLayouts.Where(x => x.Id > c_temporaryId && !x.EntityInstanceDefinition.IsPlayerEntityInstanceDefinition()))
             {
                 var levelLayout = DataManager.LevelLayouts.FirstOrDefault(x => x.Id == temp.Id);
                 if (levelLayout != null)
@@ -207,7 +210,7 @@ namespace TTTD_Builder.EditData
                 }
             }
             // add any new LevelLayout objects
-            foreach (var temp in m_levelLayouts.Where(x => x.Id == c_temporaryId))
+            foreach (var temp in m_levelLayouts.Where(x => x.Id == c_temporaryId && !x.EntityInstanceDefinition.IsPlayerEntityInstanceDefinition()))
             {
                 var levelLayout = DataManager.Generate<LevelLayout>();
                 levelLayout.Name = temp.Name;
@@ -219,6 +222,18 @@ namespace TTTD_Builder.EditData
                 levelLayout.Y = temp.Y;
 
                 DataManager.LevelLayouts.Add(levelLayout);
+            }
+            var playerLevelLayout = m_levelLayouts.FirstOrDefault(x => x.EntityInstanceDefinition.IsPlayerEntityInstanceDefinition());
+            m_level.PlayerPosition = (playerLevelLayout != null) ? new Nullable<Point>(new Point(playerLevelLayout.X, playerLevelLayout.Y)) : null;
+        }
+
+        private void AddPlayerLevelLayoutControl()
+        {
+            if (m_level.PlayerPosition.HasValue)
+            {
+                var playerEntityInstanceDefinition = DataManager.EntityInstanceDefinitions.FirstOrDefault(x => x.IsPlayerEntityInstanceDefinition());
+                if (playerEntityInstanceDefinition != null)
+                    CreateLevelLayoutControl(AddTemporaryLevelLayout(playerEntityInstanceDefinition, m_level.PlayerPosition.Value.X, m_level.PlayerPosition.Value.Y));
             }
         }
 

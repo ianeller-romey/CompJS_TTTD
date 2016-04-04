@@ -5,6 +5,7 @@
         namespace.BehaviorDoor = function (entity) {
             this.instanceId = entity.instanceId;
             this.transformation = entity.transformation;
+            this.physics = null;
             this.loadLevelId = null;
             this.loadLevelPriority = null;
 
@@ -14,12 +15,15 @@
             var inputEngine = namespace.Globals.globalInputEngine;
 
             this.state_init = function (delta) {
-                if (this.data["loadLevelId"] != null) { // intentional truthiness
-                    that.loadLevelId = this.data["loadLevelId"];
+                if (that.data["loadLevelId"] != null) { // intentional truthiness
+                    that.loadLevelId = that.data["loadLevelId"];
                 }
-                if (this.data["loadLevelPriority"] != null) { // intentional truthiness
-                    that.loadLevelPriority = this.data["loadLevelPriority"];
+                if (that.data["loadLevelPriority"] != null) { // intentional truthiness
+                    that.loadLevelPriority = that.data["loadLevelPriority"];
                 }
+                messengerEngine.request("getPhysicsComponentInstanceForEntityInstance", function (instance) {
+                    that.physics = instance;
+                }, that.instanceId);
                 if (that.loadLevelId !== null && that.loadLevelPriority !== null) {
                     return [that.state_update];
                 } else {
@@ -30,6 +34,14 @@
             };
 
             this.state_update = function (delta) {
+                if (that.physics.physical.colliders) { // intentional truthiness
+                    that.physics.physical.colliders.forEach(function (x) {
+                        if (x.instanceDefinitionName === "Player") {
+                            messengerEngine.queueForPosting("loadLevel", that.loadLevelId, that.loadLevelPriority);
+                        }
+                    });
+                }
+                return false;
             };
 
             this.firstBehavior = this.state_init;

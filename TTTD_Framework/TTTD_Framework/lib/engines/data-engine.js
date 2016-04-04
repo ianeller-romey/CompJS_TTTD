@@ -1,6 +1,27 @@
 ﻿(function (namespace, undefined) {
     "use strict";
 
+    ////////
+    // LevelLayoutCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.LevelLayout = function (def) {
+        this.layout = def.layout;
+        this.playerPosition = def.playerPosition;
+
+        this.layout.forEach(function (x) {
+            if (x.data.length > 0) {
+                var dataTemp = {};
+                x.data.forEach(function (y) {
+                    dataTemp[y.key] = y.value;
+                });
+                x.data = dataTemp;
+            } else {
+                x.data = null;
+            }
+        });
+    };
+
     namespace.Engines = namespace.Engines || {};
     namespace.Engines.DataEngine = function () {
         var audioTypesFile = "/compjs/tttd/assets/json/AudioType.json";
@@ -12,7 +33,7 @@
         var graphicsAnimationInstanceDefinitionsFile = "/compjs/tttd/assets/json/GraphicsAnimationInstanceDefinition.json";
         var graphicsFontInstanceDefinitionsFile = "/compjs/tttd/assets/json/GraphicsFontInstanceDefinition.json";
         var physicsInstanceDefinitionsFile = "/compjs/tttd/assets/json/PhysicsInstanceDefinition.json";
-        var entityInstanceDefinitiosnFile = "/compjs/tttd/assets/json/EntityInstanceDefinition.json";
+        var entityInstanceDefinitionsFile = "/compjs/tttd/assets/json/EntityInstanceDefinition.json";
         var levelsFile = "/compjs/tttd/assets/json/Level.json";
         var levels = {};
         var levelLayouts = {};
@@ -70,7 +91,7 @@
                     var level = data.firstOrNull(function (x) {
                         return x.id === levelId;
                     });
-                    resolve((level !== null) ? level.layout : null);
+                    resolve((level !== null) ? new namespace.Comp.Def.LevelLayout(level) : null);
                 });
             });
         };
@@ -119,21 +140,31 @@
         };
 
         this.loadAllEntityInstanceDefinitions = function () {
-            return sendHttpGetJSONRequest(entityInstanceDefinitiosnFile);
+            return sendHttpGetJSONRequest(entityInstanceDefinitionsFile);
         };
 
         var loadLevelLayout = function (levelId) {
-            levelLayouts[levelId].forEach(function (ll) {
+            var levelLayoutToLoad = levelLayouts[levelId];
+            if (levelLayoutToLoad.playerPosition) { // intentional truthiness
+                messengerEngine.queueForPosting("createAndPositionPlayerEntityInstance", {
+                    position: {
+                        x: levelLayoutToLoad.playerPosition.x,
+                        y: levelLayoutToLoad.playerPosition.y
+                    }
+                });
+            }
+            levelLayouts[levelId].layout.forEach(function (ll) {
                 messengerEngine.queueForPosting("createEntityInstance", ll.entityInstanceDefinitionId, ll.priority, {
                     position: {
                         x: ll.x,
                         y: ll.y
-                    }
+                    }, data: ll.data
                 });
             });
         };
 
-        this.loadLevel = function (levelId) {
+        this.loadLevel = function (levelId, priority) {
+            messengerEngine.queueForPosting("removeEntityInstancesByPriority", priority);
             // TODO: Caching?
             if (levelLayouts[levelId] == null) { // intentional truthiness
                 readLevelLayout(levelId).then(function (data) {
@@ -146,6 +177,8 @@
         };
 
         setupLevelCache();
+
+        messengerEngine.register("loadLevel", this, this.loadLevel);
     };
 
     namespace.Globals = namespace.Globals || {};

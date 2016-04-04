@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 using TTTD_Builder.Model.Data.Base;
 
@@ -16,6 +17,7 @@ namespace TTTD_Builder.Model.Data
         private int? m_order;
         private double m_width;
         private double m_height;
+        private Point? m_playerPosition;
 
         #endregion
 
@@ -38,6 +40,12 @@ namespace TTTD_Builder.Model.Data
         {
             get { return m_height; }
             set { if (value != m_height) { m_height = value; NotifyPropertyChanged("Height"); } }
+        }
+
+        public Point? PlayerPosition
+        {
+            get { return m_playerPosition; }
+            set { if (value != m_playerPosition) { m_playerPosition = value; NotifyPropertyChanged("PlayerPosition"); } }
         }
 
 

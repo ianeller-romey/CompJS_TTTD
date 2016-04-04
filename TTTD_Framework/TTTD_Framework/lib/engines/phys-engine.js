@@ -7,9 +7,9 @@
     namespace.Comp.Inst = namespace.Comp.Inst || {};
     namespace.Comp.Inst.Physics = function (entity, physCompDefinition) {
         this.instanceId = entity.instanceId;
-        this.entityTypeName = entity.typeName;
+        this.instanceDefinitionName = entity.instanceDefinitionName;
         this.transformation = entity.transformation;
-        this.physics = new namespace.Comp.Inst.Physics.Physical(physCompDefinition, this.transformation);
+        this.physical = new namespace.Comp.Inst.Physics.Physical(physCompDefinition, this.transformation);
     };
 
     namespace.Comp.Inst.Physics.prototype = new namespace.Comp.Inst.Component();
@@ -17,8 +17,8 @@
     namespace.Comp.Inst.Physics.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
             messengerEngine.unregisterAll(this);
-            if (this.physics !== null) {
-                messengerEngine.unregisterAll(this.physics);
+            if (this.physical !== null) {
+                messengerEngine.unregisterAll(this.physical);
             }
         }
     };
@@ -29,7 +29,7 @@
         this.boundingData = physCompDefinition.boundingData.clone();
         this.colliders = [];
         
-        this.boundingData.translate(transformation.position.x, transformation.position.y);
+        this.boundingData.translateSelf(transformation.position.x, transformation.position.y);
     };
 
     ////////
@@ -134,9 +134,9 @@
         };
 
         var addColliders = function (instance, otherInstance) {
-            instance.physics.colliders.push({
+            instance.physical.colliders.push({
                 instanceId: otherInstance.instanceId,
-                entityTypeName: otherInstance.entityTypeName,
+                instanceDefinitionName: otherInstance.instanceDefinitionName,
                 position: new namespace.Math.Vector2D(otherInstance.transformation.position.x, otherInstance.transformation.position.y)
             });
         };
@@ -145,12 +145,12 @@
             delta = delta / 1000; // translate milliseconds to seconds
             for (var i = 0; i < physCompInstances.length; ++i) {
                 var instance = physCompInstances[i];
-                instance.physics.colliders = [];
+                instance.physical.colliders = [];
 
-                var collisionTypeDefinition = collisionTypeDefinitions[instance.physics.collisionTypeId];
+                var collisionTypeDefinition = collisionTypeDefinitions[instance.physical.collisionTypeId];
                 if (collisionTypeDefinition.name !== "Static") {
-                    var velocity = instance.transformation.velocity.translate(gravity.x, gravity.y);
-                    var bounding = instance.physics.boundingData.clone();
+                    var velocity = (collisionTypeDefinition.name !== "NoGravity") ? instance.transformation.velocity.translate(gravity.x, gravity.y) : instance.transformation.velocity.clone();
+                    var bounding = instance.physical.boundingData.clone();
 
                     var hasNonGhostCollider = false;
                     var totalDisplacementVector = new namespace.Math.Vector2D(0, 0);
@@ -161,25 +161,24 @@
                         // TODO: Optimize so we don't check the same two instances twice
                         var otherInstance = physCompInstances[j];
                         var otherTransformation = otherInstance.transformation;
-                        var otherBounding = otherInstance.physics.boundingData;
+                        var otherBounding = otherInstance.physical.boundingData;
 
                         var relativeVelocity = velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
                         relativeVelocity.x *= delta;
                         relativeVelocity.y *= delta;
                         var currentDisplacementVector;
 
-                        if (physTypeDefinitions[otherInstance.physics.physTypeId].name === "Circle") {
+                        if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "Circle") {
                             currentDisplacementVector = bounding.collideWithBoundingCircle(otherBounding, relativeVelocity);
-                        } else if (physTypeDefinitions[otherInstance.physics.physTypeId].name === "AABB") {
+                        } else if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "AABB") {
                             currentDisplacementVector = bounding.collideWithBoundingAABB(otherBounding, relativeVelocity);
                         }
                         // TODO: OBB
 
                         if (currentDisplacementVector) {
-                            if (!hasNonGhostCollider && collisionTypeDefinitions[otherInstance.physics.collisionTypeId].name !== "Ghost") {
+                            if (!hasNonGhostCollider && collisionTypeDefinitions[otherInstance.physical.collisionTypeId].name !== "Ghost") {
                                 hasNonGhostCollider = true;
                             }
-                            // the displacement vector will always be positive; use the opposite of whatever direction we're actually heading
                             totalDisplacementVector.translateSelf(currentDisplacementVector.x, currentDisplacementVector.y);
                             addColliders(instance, otherInstance);
                         }
@@ -191,7 +190,7 @@
                             y: (velocity.y * delta) + totalDisplacementVector.y
                         };
                         instance.transformation.position.translateSelf(endVector.x, endVector.y);
-                        instance.physics.boundingData.translate(endVector.x, endVector.y);
+                        instance.physical.boundingData.translateSelf(endVector.x, endVector.y);
                     //}
                 }
             }
@@ -218,26 +217,38 @@
             physCompInstances.push(instance);
         };
 
-        var getPhysicsComponentInstanceForEntityInstance = function (instanceId) {
+        var getPhysicsComponentInstanceForEntityInstance = function (callback, instanceId) {
             var instance = physCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                messengerEngine.postImmediate("getPhysicsComponentInstanceForEntityInstanceResponse", instanceId, instance);
+                callback(instance);
             }
         };
 
-        var removePhysicsComponentInstanceFromMessage = function (instanceId) {
+        var setInstanceAndBoundingDataPosition = function (instanceId, position) {
+            var instance = physCompInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            if (instance !== null) {
+                var translation = position.subtract(instance.transformation.position.x, instance.transformation.position.y);
+                instance.transformation.position.translateSelf(translation.x, translation.y);
+                instance.physical.boundingData.translateSelf(translation.x, translation.y);
+            }
+        };
+
+        this.removePhysicsComponentInstanceFromMessage = function (instanceId) {
             for (var i = 0; i < physCompInstances.length; ++i) {
                 var instance = physCompInstances[i];
                 if (instance.instanceId === instanceId) {
-                    physCompInstances[i].destroy();
+                    physCompInstances[i].destroy(messengerEngine);
                     physCompInstances.splice(i, 1);
                     break;
                 }
             }
         };
-
+        
+        messengerEngine.register("setInstanceAndBoundingDataPosition", this, setInstanceAndBoundingDataPosition);
         messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
     };
         
@@ -325,7 +336,7 @@
             return new Phys.Collision.BoundingCircle(this.origin, this.radius);
         };
 
-        Phys.Collision.BoundingCircle.prototype.translate = function(translateX, translateY) {
+        Phys.Collision.BoundingCircle.prototype.translateSelf = function(translateX, translateY) {
             this.origin.translateSelf(translateX, translateY);
         };
 
@@ -431,7 +442,7 @@
             });
         };
 
-        Phys.Collision.BoundingAABB.prototype.translate = function (translateX, translateY) {
+        Phys.Collision.BoundingAABB.prototype.translateSelf = function (translateX, translateY) {
             this.minVals.translateSelf(translateX, translateY);
             this.maxVals.translateSelf(translateX, translateY);
             this.origin.translateSelf(translateX, translateY);

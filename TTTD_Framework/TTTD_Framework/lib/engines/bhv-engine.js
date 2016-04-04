@@ -25,6 +25,12 @@
                 newBehaviors.forEach(function (x) {
                     that.behaviorQueue.push(x);
                 });
+            } else if (newBehaviors === true) {
+                this.behaviorQueue.shift();
+            } else if (newBehaviors === false) {
+                // no op
+            } else if (namespace.DebugEnabled === true) {
+                throw "Behavior update function did not return a valid value.";
             }
             this.behavior.data = {};
         };
@@ -123,16 +129,16 @@
             }
         };
 
-        var getBehaviorComponentInstanceForEntityInstance = function (instanceId) {
+        var getBehaviorComponentInstanceForEntityInstance = function (callback, instanceId) {
             var instance = bhvCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                messengerEngine.postImmediate("getBehaviorComponentInstanceForEntityInstanceResponse", instanceId, instance);
+                callback(instance);
             }
         };
 
-        var removeBehaviorComponentInstanceFromMessage = function (instanceId) {
+        this.removeBehaviorComponentInstanceFromMessage = function (instanceId) {
             for (var i = 0; i < bhvCompInstances.length; ++i) {
                 if (bhvCompInstances[i].instanceId === instanceId) {
                     bhvCompInstances[i].destroy(messengerEngine);

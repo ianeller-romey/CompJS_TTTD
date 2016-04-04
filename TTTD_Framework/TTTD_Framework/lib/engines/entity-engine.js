@@ -164,6 +164,10 @@
         var entityInstanceDefinitionNamedIds = [];
         var entityInstances = [];
 
+        var playerEntityInstanceDefinitionName = "Player";
+        var playerEntityInstanceDefaultPriority = 0;
+        var playerEntityInstance = null;
+
         var entityHasBehavior = namespace.Comp.Inst.Entity.hasBehavior;
         var entityHasGraphics = namespace.Comp.Inst.Entity.hasGraphics;
         var entityHasPhysics = namespace.Comp.Inst.Entity.hasPhysics;
@@ -209,6 +213,10 @@
             var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, priority, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
             entityInstances.push(entity);
 
+            if (playerEntityInstance === null && xEntityType.entityInstanceDefinitionName === playerEntityInstanceDefinitionName) {
+                playerEntityInstance = entity;
+            }
+
             var entityDefinition = entityInstanceDefinitions[entity.instanceDefinitionId];
             if (entityHasBehavior(entityDefinition)) {
                 behaviorEngine.createBehaviorComponentInstance(entity, entityDefinition.behavior);
@@ -228,6 +236,20 @@
 
             if (callback) { // intentional truthiness
                 callback(entity.instanceId);
+            }
+        };
+
+        var createAndPositionPlayerEntityInstance = function (additional, callback) {
+            if (namespace.DebugEnabled) { // intentional truthiness
+                if (additional.position == null) { // intentional truthiness
+                    throw "createAndPositionPlayerEntityInstance called without providing position data.";
+                }
+            }
+
+            if (playerEntityInstance === null) {
+                createEntityInstanceFromMessage(playerEntityInstanceDefinitionName, playerEntityInstanceDefaultPriority, additional, callback);
+            } else {
+                messengerEngine.queueForPosting("setInstanceAndBoundingDataPosition", playerEntityInstance.instanceId, new namespace.Math.Vector2D(additional.position.x, additional.position.y));
             }
         };
 
@@ -287,13 +309,16 @@
                         behaviorEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
                     }
                     if (entityHasGraphics(entityDefinition)) {
-                        graphicsEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
+                        graphicsEngine.removeGraphicsComponentInstanceFromMessage(instance.instanceId);
                     }
                     if (entityHasPhysics(entityDefinition)) {
-                        physicsEngine.removeBehaviorComponentInstanceFromMessage(instance.instanceId);
+                        physicsEngine.removePhysicsComponentInstanceFromMessage(instance.instanceId);
                     }
                     if (entityHasAudible(entityDefinition)) {
                         throw "Not yet implemented";
+                    }
+                    if (instance.entityInstanceDefinitionName === playerEntityInstanceDefinitionName && playerEntityInstance !== null) {
+                        playerEntityInstance = null;
                     }
                     entityInstances.splice(i, 1);
                     break;
@@ -312,12 +337,12 @@
             });
         };
 
-        var getTransformationForEntityInstance = function (instanceId) {
+        var getTransformationForEntityInstance = function (callback, instanceId) {
             var entityInstance = entityInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
             if (entityInstance !== null) {
-                messengerEngine.postImmediate("getTransformationForEntityInstanceResponse", instanceId, entityInstance.transformation);
+                callback(entityInstance.transformation);
             }
         };
 
@@ -364,6 +389,7 @@
             }
         };
 
+        messengerEngine.register("createAndPositionPlayerEntityInstance", this, createAndPositionPlayerEntityInstance);
         messengerEngine.register("createEntityInstance", this, createEntityInstanceFromMessage);
         messengerEngine.register("removeEntityInstance", this, removeEntityInstanceFromMessage);
         messengerEngine.register("removeEntityInstancesByPriority", this, removeEntityInstancesByPriority);

@@ -11,6 +11,10 @@
             var messengerEngine = namespace.Globals.globalMessengerEngine;
             var inputEngine = namespace.Globals.globalInputEngine;
 
+            var destination = null;
+            var destinationThreshold = .5;
+            var playerSpeed = 50;
+
             var controllerLeft = function () {
                 return inputEngine.isPressed(inputEngine.keys.arrowLeft) || inputEngine.isPressed(inputEngine.keys.a);
             };
@@ -31,30 +35,61 @@
                 return inputEngine.isTriggered(inputEngine.keys.space) || inputEngine.isTriggered(inputEngine.keys.enter)
             };
 
+            this.getVelocityFromMouseClick = function () {
+                if (inputEngine.isMouseClicked()) {
+                    destination = inputEngine.getMousePosition();
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
             this.state_enterIdle = function (delta) {
+                that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(0);
+                that.transformation.velocity.x = that.transformation.velocity.y.setAndNotify(0);
                 messengerEngine.queueForPosting("setInstanceAnimationState", that.instanceId, 0);
-                return [that.state_updateIdle];
+                return true;
             };
 
             this.state_updateIdle = function (delta) {
-                if (controllerLeft()) {
-                    that.transformation.velocity.x = -50;
-                } else if (controllerRight()) {
-                    that.transformation.velocity.x = 50;
+                if (that.getVelocityFromMouseClick()) {
+                    return that.getState_moving();
                 } else {
-                    that.transformation.velocity.x = 0;
+                    return false;
                 }
+            };
+            
+            this.getState_idle = function () {
+                return [that.state_enterIdle, that.state_updateIdle];
+            };
 
-                if (controllerUp()) {
-                    that.transformation.velocity.y = -50;
-                } else if (controllerDown()) {
-                    that.transformation.velocity.y = 50;
+            this.state_enterMoving = function (delta) {
+                var velocity = (destination.x > that.transformation.position.x) ? playerSpeed : -playerSpeed;
+                that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(velocity);
+                //messengerEngine.queueForPosting("setInstanceAnimationState", that.instanceId, (playerSpeed > 0) ? 1 : 2);
+                return true;
+            };
+
+            this.state_updateMoving = function (delta) {
+                if (that.getVelocityFromMouseClick()) {
+                    return that.getState_moving();
                 } else {
-                    that.transformation.velocity.y = 0;
+                    if (Math.abs(that.transformation.position.x + 8 /* half width */ - destination.x) < destinationThreshold) {
+                        return that.getState_idle();
+                    } else {
+                        return false;
+                    }
                 }
             };
 
-            this.firstBehavior = this.state_enterIdle;
+            this.getState_moving = function () {
+                return [that.state_enterMoving, that.state_updateMoving];
+            };
+
+            this.firstBehavior = function (delta) {
+                that.state_enterIdle(delta);
+                return [that.state_updateIdle];
+            };
         };
 
         namespace.Globals.globalMessengerEngine.queueForPosting("setBehaviorConstructor", "BehaviorPlayer", namespace.BehaviorPlayer);

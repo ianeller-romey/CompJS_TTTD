@@ -1,1 +1,1 @@
-[{"id":0,"name":"Player","entityInstanceDefinitionId":0,"behaviorFile":"lib/behaviors/behavior-player.js","behaviorConstructor":"BehaviorPlayer"}]
+[{"id":0,"name":"Player","entityInstanceDefinitionId":0,"behaviorFile":"lib/behaviors/behavior-player.js","behaviorConstructor":"BehaviorPlayer"},{"id":1,"name":"Door","entityInstanceDefinitionId":2,"behaviorFile":"lib/behaviors/behavior-door.js","behaviorConstructor":"BehaviorDoor"}]

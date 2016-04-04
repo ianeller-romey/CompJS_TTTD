@@ -56,6 +56,8 @@ namespace TTTD_Sanitizer
         {
             Mapper.Initialize(cfg =>
             {
+                cfg.CreateMap<BData.PositionInformation, SData.PositionInformation>();
+
                 cfg.CreateMap<BData.EntityInstanceDefinition, SData.EntityInstanceDefinition>();
 
                 cfg.CreateMap<BData.AudioType, SData.AudioType>();

@@ -43,6 +43,7 @@
     <Compile Include="Data\AudioType.cs" />
     <Compile Include="Data\BehaviorInstanceDefinition.cs" />
     <Compile Include="Data\CollisionType.cs" />
+    <Compile Include="Data\PositionInformation.cs" />
     <Compile Include="Data\GraphicsAnimationInstanceDefinition.cs" />
     <Compile Include="Data\GraphicsFontInstanceDefinition.cs" />
     <Compile Include="Data\EntityInstanceDefinition.cs" />

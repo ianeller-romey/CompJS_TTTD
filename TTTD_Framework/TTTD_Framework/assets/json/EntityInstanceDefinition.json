@@ -1,1 +1,1 @@
-[{"id":0,"name":"Player","behavior":0,"graphics":0,"physics":0,"audible":null},{"id":1,"name":"Ground","behavior":null,"graphics":1,"physics":1,"audible":null},{"id":2,"name":"Door","behavior":null,"graphics":2,"physics":2,"audible":null}]
+[{"id":0,"name":"Player","behavior":0,"graphics":0,"physics":0,"audible":null},{"id":1,"name":"Ground","behavior":null,"graphics":1,"physics":1,"audible":null},{"id":2,"name":"Door","behavior":1,"graphics":2,"physics":2,"audible":null}]

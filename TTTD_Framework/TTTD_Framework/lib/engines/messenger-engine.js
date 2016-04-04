@@ -143,11 +143,13 @@
 
 
         // physics messages/requests
+        createMessageType("setInstanceAndBoundingDataPosition");
 
         createRequestType("getPhysicsComponentInstanceForEntityInstance");
 
 
         // entity messages/requests
+        createMessageType("createAndPositionPlayerEntityInstance");
         createMessageType("createEntityInstance");
         createMessageType("removeEntityInstance");
         createMessageType("removeEntityInstancesByPriority");

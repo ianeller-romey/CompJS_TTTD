@@ -14,5 +14,6 @@ namespace TTTD_Builder.Lib.Data
         public int? Order { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+        public PositionInformation PlayerPosition { get; set; }
     }
 }

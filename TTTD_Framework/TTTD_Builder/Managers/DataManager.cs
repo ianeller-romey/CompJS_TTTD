@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 using AutoMapper;
 
@@ -96,6 +97,14 @@ namespace TTTD_Builder.Managers
 
         static DataManager()
         {
+            // this mapping should only happen when PlayerPosition is not null, so it should be safe to assume that the Nullable<Point>.Value is not null
+            Mapper.Configuration.CreateMap<Nullable<Point>, LibData.PositionInformation>()
+                .ForMember(dest => dest.X, opt => opt.MapFrom(src => src.Value.X))
+                .ForMember(dest => dest.Y, opt => opt.MapFrom(src => src.Value.Y));
+            // rather than mapping from a PositionInformation class back to a Nullable<Point>, we just explicitly check the members and manually create a new Nullable<Point>
+            // in the Level mapping
+            //Mapper.Configuration.CreateMap<LibData.PositionInformation, Nullable<Point>>();
+
             Mapper.Configuration.CreateMap<ModelData.EntityInstanceDefinition, LibData.EntityInstanceDefinition>();
             Mapper.Configuration.CreateMap<LibData.EntityInstanceDefinition, ModelData.EntityInstanceDefinition>();
 
@@ -150,8 +159,10 @@ namespace TTTD_Builder.Managers
                 .ForMember(dest => dest.PhysType, opt => opt.MapFrom(src => PhysTypes.FirstOrDefault(x => x.Id == src.PhysTypeId)))
                 .ForMember(dest => dest.EntityInstanceDefinition, opt => opt.MapFrom(src => EntityInstanceDefinitions.FirstOrDefault(x => x.Id == src.EntityInstanceDefinitionId)));
 
-            Mapper.Configuration.CreateMap<ModelData.Level, LibData.Level>();
-            Mapper.Configuration.CreateMap<LibData.Level, ModelData.Level>();
+            Mapper.Configuration.CreateMap<ModelData.Level, LibData.Level>()
+                .ForMember(dest => dest.PlayerPosition, opt => opt.Condition(src => src.PlayerPosition != null));
+            Mapper.Configuration.CreateMap<LibData.Level, ModelData.Level>()
+                .ForMember(dest => dest.PlayerPosition, opt => opt.MapFrom(src => (src.PlayerPosition != null) ? new Nullable<Point>(new Point(src.PlayerPosition.X, src.PlayerPosition.Y)) : null));
 
             Mapper.Configuration.CreateMap<ModelData.LevelLayout, LibData.LevelLayout>()
                 .ForMember(dest => dest.LevelId, opt => opt.MapFrom(src => src.Level.Id))
