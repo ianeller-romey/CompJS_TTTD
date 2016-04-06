@@ -291,11 +291,16 @@
                     mouseHeld = true;
                 }
             }
+            if (mouseHeld === true) {
+                messengerEngine.request("setMouseHeldCollider", getMousePosition());
+            }
 
+            // check for initial click AFTER checking to update the held counter
             if (mouseClickedTemp === true) {
                 mouseClickedTemp = false;
                 mouseClicked = true;
-                mouseHeldCounter = 0;
+                mouseHeldCounter = 1;
+                messengerEngine.request("setMouseClickCollider", getMousePosition());
             } else if (mouseClicked === true) {
                 // we've been true for a frame, so it's back to false until we click again
                 mouseClicked = true;

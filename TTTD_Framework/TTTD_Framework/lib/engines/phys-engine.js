@@ -247,9 +247,43 @@
                 }
             }
         };
+
+        var setMouseClickCollider = function (point) {
+            for (var i = 0; i < physCompInstances.length; ++i) {
+                var instance = physCompInstances[i];
+                var boundingData = instance.physical.boundingData.clone();
+                if (boundingData.collideWithPoint(point)) {
+                    instance.physical.colliders.push({
+                        instanceId: -1,
+                        instanceDefinitionName: "MouseClick",
+                        position: point.clone()
+                    });
+                    // do not return
+                    // we want to let everyone know they're colliding
+                }
+            }
+        };
+
+        var setMouseHeldCollider = function (point) {
+            for (var i = 0; i < physCompInstances.length; ++i) {
+                var instance = physCompInstances[i];
+                var boundingData = instance.physical.boundingData.clone();
+                if (boundingData.collideWithPoint(point)) {
+                    instance.physical.colliders.push({
+                        instanceId: -1,
+                        instanceDefinitionName: "MouseHeld",
+                        position: point.clone()
+                    });
+                    // do not return
+                    // we want to let everyone know they're colliding
+                }
+            }
+        };
         
         messengerEngine.register("setInstanceAndBoundingDataPosition", this, setInstanceAndBoundingDataPosition);
         messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
+        messengerEngine.register("setMouseClickCollider", this, setMouseClickCollider);
+        messengerEngine.register("setMouseHeldCollider", this, setMouseHeldCollider);
     };
         
     var Phys = namespace.Engines.PhysEngine;
@@ -410,6 +444,14 @@
             var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
         };
+
+        /*
+            Simply returns true or false, not a displacement vector.
+        */
+        Phys.Collision.BoundingCircle.prototype.collideWithPoint = function (point) {
+            var r2 = this.radius * this.radius;
+            return this.origin.distance2(point) <= r2;
+        };
         
         /*
             The provided axis should already be normalized.
@@ -510,6 +552,25 @@
 
             var displacementVector = (calculation.willIntersect) ? calculation.getDisplacementVector() : new namespace.Math.Vector2D(0, 0);
             return displacementVector;
+        };
+
+        /*
+            Simply returns true or false, not a displacement vector.
+        */
+        Phys.Collision.BoundingAABB.prototype.collideWithPoint = function (point) {
+            if (point.x > this.maxVals.x) {
+                return false;
+            }
+            if (point.x < this.minVals.x) {
+                return false;
+            }
+            if (point.y > this.maxVals.y) {
+                return false;
+            }
+            if (point.y < this.minVals.y) {
+                return false;
+            }
+            return true;
         };
 
         /*

@@ -149,7 +149,8 @@
         createMessageType("setInstanceAndBoundingDataPosition");
 
         createRequestType("getPhysicsComponentInstanceForEntityInstance");
-
+        createRequestType("setMouseClickCollider");
+        createRequestType("setMouseHeldCollider");
 
         // entity messages/requests
         createMessageType("createAndPositionPlayerEntityInstance");
