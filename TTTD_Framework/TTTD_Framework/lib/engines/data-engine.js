@@ -29,6 +29,7 @@
         var collisionTypesFile = "/compjs/tttd/assets/json/CollisionType.json";
         var audioFile = "/compjs/tttd/assets/json/Audio.json";
         var shadersFile = "/compjs/tttd/assets/json/Shader.json";
+        var textureInformationFile = "/compjs/tttd/assets/json/TextureInformation.json";
         var behaviorInstanceDefinitionsFile = "/compjs/tttd/assets/json/BehaviorInstanceDefinition.json";
         var graphicsAnimationInstanceDefinitionsFile = "/compjs/tttd/assets/json/GraphicsAnimationInstanceDefinition.json";
         var graphicsFontInstanceDefinitionsFile = "/compjs/tttd/assets/json/GraphicsFontInstanceDefinition.json";
@@ -114,6 +115,10 @@
 
         this.loadAllShaders = function () {
             return sendHttpGetJSONRequest(shadersFile);
+        };
+
+        this.loadAllTextureInformation = function () {
+            return sendHttpGetJSONRequest(textureInformationFile);
         };
 
         this.loadAllBehaviorInstanceDefinitions = function () {

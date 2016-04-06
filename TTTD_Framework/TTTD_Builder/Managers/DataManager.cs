@@ -32,6 +32,7 @@ namespace TTTD_Builder.Managers
         private static ObservableCollection<ModelData.AnimationFrameDefinition> s_animationFrameDefinitions = new ObservableCollection<ModelData.AnimationFrameDefinition>();
         private static ObservableCollection<ModelData.FontTextureDefinition> s_fontTextureDefinition = new ObservableCollection<ModelData.FontTextureDefinition>();
         private static ObservableCollection<ModelData.Shader> s_shaders = new ObservableCollection<ModelData.Shader>();
+        private static ObservableCollection<ModelData.TextureInformation> s_textureInformation = new ObservableCollection<ModelData.TextureInformation>();
         
         private static ObservableCollection<ModelData.CollisionType> s_collisionTypes = new ObservableCollection<ModelData.CollisionType>();
         private static ObservableCollection<ModelData.PhysType> s_physTypes = new ObservableCollection<ModelData.PhysType>();
@@ -39,6 +40,7 @@ namespace TTTD_Builder.Managers
 
         private static ObservableCollection<ModelData.Level> s_levels = new ObservableCollection<ModelData.Level>();
         private static ObservableCollection<ModelData.LevelLayout> s_levelLayouts = new ObservableCollection<ModelData.LevelLayout>();
+
 
         private static Dictionary<Type, int> s_idGenerator = new Dictionary<Type, int>
         {
@@ -54,6 +56,7 @@ namespace TTTD_Builder.Managers
             { typeof(ModelData.AnimationFrameDefinition), 0 },
             { typeof(ModelData.FontTextureDefinition), 0 },
             { typeof(ModelData.Shader), 0 },
+            { typeof(ModelData.TextureInformation), 0 },
 
             { typeof(ModelData.CollisionType), 0 },
             { typeof(ModelData.PhysType), 0 },
@@ -80,6 +83,7 @@ namespace TTTD_Builder.Managers
         public static ObservableCollection<ModelData.AnimationFrameDefinition> AnimationFrameDefinitions { get { return s_animationFrameDefinitions; } }
         public static ObservableCollection<ModelData.FontTextureDefinition> FontTextureDefinitions { get { return s_fontTextureDefinition; } }
         public static ObservableCollection<ModelData.Shader> Shaders { get { return s_shaders; } }
+        public static ObservableCollection<ModelData.TextureInformation> TextureInformation { get { return s_textureInformation; } }
 
         public static ObservableCollection<ModelData.CollisionType> CollisionTypes { get { return s_collisionTypes; } }
         public static ObservableCollection<ModelData.PhysType> PhysTypes { get { return s_physTypes; } }
@@ -98,7 +102,7 @@ namespace TTTD_Builder.Managers
         static DataManager()
         {
             // this mapping should only happen when PlayerPosition is not null, so it should be safe to assume that the Nullable<Point>.Value is not null
-            Mapper.Configuration.CreateMap<Nullable<Point>, LibData.PositionInformation>()
+            Mapper.Configuration.CreateMap<Nullable<Point>, TTTD_Builder.Lib.Helpers.PositionInformation>()
                 .ForMember(dest => dest.X, opt => opt.MapFrom(src => src.Value.X))
                 .ForMember(dest => dest.Y, opt => opt.MapFrom(src => src.Value.Y));
             // rather than mapping from a PositionInformation class back to a Nullable<Point>, we just explicitly check the members and manually create a new Nullable<Point>
@@ -143,6 +147,9 @@ namespace TTTD_Builder.Managers
 
             Mapper.Configuration.CreateMap<ModelData.Shader, LibData.Shader>();
             Mapper.Configuration.CreateMap<LibData.Shader, ModelData.Shader>();
+
+            Mapper.Configuration.CreateMap<ModelData.TextureInformation, LibData.TextureInformation>();
+            Mapper.Configuration.CreateMap<LibData.TextureInformation, ModelData.TextureInformation>();
 
             Mapper.Configuration.CreateMap<ModelData.CollisionType, LibData.CollisionType>();
             Mapper.Configuration.CreateMap<LibData.CollisionType, ModelData.CollisionType>();
@@ -190,6 +197,7 @@ namespace TTTD_Builder.Managers
             LoadType<LibData.AnimationFrameDefinition, ModelData.AnimationFrameDefinition>(s_animationFrameDefinitions);
             LoadType<LibData.FontTextureDefinition, ModelData.FontTextureDefinition>(s_fontTextureDefinition);
             LoadType<LibData.Shader, ModelData.Shader>(s_shaders);
+            LoadType<LibData.TextureInformation, ModelData.TextureInformation>(s_textureInformation);
 
             LoadType<LibData.CollisionType, ModelData.CollisionType>(s_collisionTypes);
             LoadType<LibData.PhysType, ModelData.PhysType>(s_physTypes);
@@ -215,6 +223,7 @@ namespace TTTD_Builder.Managers
             SaveType<LibData.AnimationFrameDefinition, ModelData.AnimationFrameDefinition>(s_animationFrameDefinitions);
             SaveType<LibData.FontTextureDefinition, ModelData.FontTextureDefinition>(s_fontTextureDefinition);
             SaveType<LibData.Shader, ModelData.Shader>(s_shaders);
+            SaveType<LibData.TextureInformation, ModelData.TextureInformation>(s_textureInformation);
 
             SaveType<LibData.CollisionType, ModelData.CollisionType>(s_collisionTypes);
             SaveType<LibData.PhysType, ModelData.PhysType>(s_physTypes);

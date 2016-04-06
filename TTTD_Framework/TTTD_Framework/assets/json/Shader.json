@@ -1,1 +1,1 @@
-[{"id":0,"name":"Texture","shaderFile":"lib/shaders/shader-texture.js"}]
+[{"id":0,"name":"Texture","shaderFile":"lib/shaders/shader-texture.js"},{"id":1,"name":"Outline","shaderFile":"lib/shaders/shader-outline.js"}]

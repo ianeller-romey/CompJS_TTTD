@@ -139,7 +139,7 @@
         var mouseClicked = false;
         var mouseHeld = false;
         var mouseHeldCounter = null;
-        var mouseHeldThreshold = 500;
+        var mouseHeldThreshold = 250;
         var mousePosition = null;
 
         var updateFunction;

@@ -31,6 +31,7 @@ namespace TTTD_Sanitizer
         private static List<BData.AnimationFrameDefinition> s_animationFrameDefinitions = new List<BData.AnimationFrameDefinition>();
         private static List<BData.FontTextureDefinition> s_fontTextureDefinitions = new List<BData.FontTextureDefinition>();
         private static List<BData.Shader> s_shaders = new List<BData.Shader>();
+        private static List<BData.TextureInformation> s_textureInformation = new List<BData.TextureInformation>();
         
         private static List<BData.CollisionType> s_collisionTypes = new List<BData.CollisionType>();
         private static List<BData.PhysType> s_physTypes = new List<BData.PhysType>();
@@ -56,7 +57,7 @@ namespace TTTD_Sanitizer
         {
             Mapper.Initialize(cfg =>
             {
-                cfg.CreateMap<BData.PositionInformation, SData.PositionInformation>();
+                cfg.CreateMap<TTTD_Builder.Lib.Helpers.PositionInformation, TTTD_Sanitizer.Lib.Helpers.PositionInformation>();
 
                 cfg.CreateMap<BData.EntityInstanceDefinition, SData.EntityInstanceDefinition>();
 
@@ -74,6 +75,8 @@ namespace TTTD_Sanitizer
                 cfg.CreateMap<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>();
                 cfg.CreateMap<BData.Shader, SData.Shader>().
                     ForMember(dest => dest.ShaderFile, opt => opt.MapFrom(src => Path.Combine("lib/shaders/", Path.GetFileName(src.ShaderFile))));
+                cfg.CreateMap<BData.TextureInformation, SData.TextureInformation>().
+                    ForMember(dest => dest.Texture, opt => opt.MapFrom(src => Path.Combine("assets/textures/", Path.GetFileName(src.Texture))));
 
                 cfg.CreateMap<BData.CollisionType, SData.CollisionType>();
                 cfg.CreateMap<BData.PhysType, SData.PhysType>();
@@ -101,6 +104,7 @@ namespace TTTD_Sanitizer
             ReadBuilderData<BData.AnimationFrameDefinition>(s_animationFrameDefinitions);
             ReadBuilderData<BData.FontTextureDefinition>(s_fontTextureDefinitions);
             ReadBuilderData<BData.Shader>(s_shaders);
+            ReadBuilderData<BData.TextureInformation>(s_textureInformation);
         
             ReadBuilderData<BData.CollisionType>(s_collisionTypes);
             ReadBuilderData<BData.PhysType>(s_physTypes);
@@ -124,6 +128,7 @@ namespace TTTD_Sanitizer
             WriteSantizerData<SData.GraphicsAnimationInstanceDefinition>(SanitizeGraphicsAnimationInstanceDefinitions);
             WriteSantizerData<SData.GraphicsFontInstanceDefinition>(SanitizeGraphicsFontInstanceDefinitions);
             WriteSantizerData<SData.Shader>(SanitizeShaders);
+            WriteSantizerData<SData.TextureInformation>(SanitizeTextureInformation);
 
             WriteSantizerData<SData.CollisionType>(SanitizeCollisionTypes);
             WriteSantizerData<SData.PhysType>(SanitizePhysTypes);
@@ -231,6 +236,11 @@ namespace TTTD_Sanitizer
         static List<SData.Shader> SanitizeShaders()
         {
             return Mapper.Map<List<BData.Shader>, List<SData.Shader>>(s_shaders);
+        }
+
+        static List<SData.TextureInformation> SanitizeTextureInformation()
+        {
+            return Mapper.Map<List<BData.TextureInformation>, List<SData.TextureInformation>>(s_textureInformation);
         }
 
         static List<SData.CollisionType> SanitizeCollisionTypes()

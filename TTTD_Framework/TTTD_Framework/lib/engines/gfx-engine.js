@@ -419,7 +419,7 @@
     namespace.Comp.Inst = namespace.Comp.Inst || {};
     namespace.Comp.Inst.Gfx2DAnim = function (entity, gfxCompDefId, width, height) {
         this.instanceId = entity.instanceId;
-        this.entityTypeName = entity.typeName;
+        this.instanceDefinitionName = entity.instanceDefinitionName;
         this.transformation = entity.transformation;
         this.graphics = new namespace.Comp.Inst.Gfx2DAnim.Graphics(gfxCompDefId, width, height, this.transformation);
     };
@@ -509,7 +509,7 @@
     namespace.Comp.Inst = namespace.Comp.Inst || {};
     namespace.Comp.Inst.GfxFont = function (entity, gfxCompDefId, fontTextureDefinition, text) {
         this.instanceId = entity.instanceId;
-        this.entityTypeName = entity.typeName;
+        this.instanceDefinitionName = entity.instanceDefinitionName;
         this.transformation = entity.transformation;
         this.graphics = new namespace.Comp.Inst.GfxFont.Graphics(gfxCompDefId, fontTextureDefinition.startT, fontTextureDefinition.startL, fontTextureDefinition.characterWidth, fontTextureDefinition.characterHeight, fontTextureDefinition.textureWidth, text, this.transformation);
     };
@@ -730,13 +730,13 @@
         var messengerEngine = namespace.Globals.globalMessengerEngine;
         var dataEngine = namespace.Globals.globalDataEngine;
 
-        var textureDefinitions = {};
+        var textureInformation = {};
         var gfx2DAnimationDefinitions = [];
         var gfx2DAnimationInstances = [];
         var gfxFontDefinitions = [];
         var gfxFontInstances = [];
         var zOrders = [];
-        var renderPasses = [];
+        var renderPasses = [0, 1];
         var gfxCompTypeDefinitions = {};
         var gfxCompType2DAnimation = "2DAnimation";
         var gfxCompTypeFont = "Font";
@@ -787,10 +787,10 @@
             if (!zOrders.contains(zOrder)) {
                 zOrders.push(zOrder);
             }
-            if (gfx2DAnimationInstances[zOrder] == null) {
+            if (gfx2DAnimationInstances[zOrder] == null) { // intentional truthiness
                 gfx2DAnimationInstances[zOrder] = [];
             }
-            if (gfxFontInstances[zOrder] == null) {
+            if (gfxFontInstances[zOrder] == null) { // intentional truthiness
                 gfxFontInstances[zOrder] = [];
             }
             // this will add all render passes to the new zOrder
@@ -804,11 +804,13 @@
                 renderPasses.push(renderPass);
             }
             zOrders.forEach(function (zOrder) {
-                if (gfx2DAnimationInstances[zOrder][renderPass] == null) {
+                if (gfx2DAnimationInstances[zOrder][renderPass] == null) { // intentional truthiness
                     gfx2DAnimationInstances[zOrder][renderPass] = [];
+                    gfx2DAnimationInstances[zOrder][renderPass].duplicates = [];
                 }
-                if (gfxFontInstances[zOrder][renderPass] == null) {
+                if (gfxFontInstances[zOrder][renderPass] == null) { // intentional truthiness
                     gfxFontInstances[zOrder][renderPass] = [];
+                    gfxFontInstances[zOrder][renderPass].duplicates = [];
                 }
             });
         };
@@ -833,7 +835,7 @@
             });
         };
 
-        var buildTextureDefinitions = function (data) {
+        var buildTextureInformation = function (data) {
             var createWebGLTexture = function (image, webGLTexture) {
                 var promise = new Promise(function (resolve, reject) {
                     image.addEventListener("load", function () {
@@ -856,19 +858,23 @@
 
             var loadImagePromises = [];
             for (var i = 0; i < data.length; ++i) {
-                var texture = data[i];
-                if (textureDefinitions[texture] === undefined) {
+                var ti = data[i];
+                if (textureInformation[ti.texture] === undefined) {
                     var image = new Image();
                     var webGLTexture = webGL.createTexture();
-                    textureDefinitions[texture] = {
+                    textureInformation[ti.texture] = {
                         image: image,
-                        webGLTexture: webGLTexture
+                        webGLTexture: webGLTexture,
+                        width: ti.textureWidth,
+                        height: ti.textureHeight,
+                        stepX: ti.stepX,
+                        stepY: ti.stepY
                     };
 
                     var promise = createWebGLTexture(image, webGLTexture);
                     loadImagePromises.push(promise);
 
-                    image.src = texture;
+                    image.src = ti.texture;
                 }
             }
             return Promise.all(loadImagePromises);
@@ -895,43 +901,14 @@
             });
             var graphicsInstanceDefinitionsPromise = new Promise(function (resolve, reject) {
                 dataEngine.loadAllGraphicsInstanceDefinitions().then(function (data) {
-                    // Initialize animations first ...
-                    var textures2DAnimation = data.animations.select(function (x) {
-                        return x.animationStateDefinitions.select(function (y) {
-                            return y.animationFrameDefinitions.select(function (z) {
-                                return z.texture;
-                            }).distinct();
-                        }).aggregate(function (a, b) {
-                            return a.addRange(b);
-                        });
-                    }).aggregate(function (a, b) {
-                        return a.addRange(b);
-                    }).distinct();
-                    Promise.all([buildGraphicsAnimationInstanceDefinitions(data.animations), buildTextureDefinitions(textures2DAnimation)]).then(function () {
-                        // ... then fonts
-                        var texturesFonts = data.fonts.select(function (x) {
-                            return x.fontTextureDefinition.texture;
-                        }).distinct();
-                        Promise.all([buildGraphicsFontInstanceDefinitions(data.fonts), buildTextureDefinitions(texturesFonts)]).then(function () {
-
-                            for (var i = 0; i < renderPasses.length; ++i) {
-                                setShaderProgram("Texture", i);
-                            }
-                            resolve();
-                        }, function (reason) {
-                            var reasonPlus = "Failed to build font definitions";
-                            if (reason !== null) {
-                                reasonPlus = reasonPlus + "\r\n" + reason;
-                            }
-                            reject(reasonPlus);
-                        });
-                    }, function (reason) {
-                        var reasonPlus = "Failed to build 2D animation definitions";
-                        if (reason !== null) {
-                            reasonPlus = reasonPlus + "\r\n" + reason;
-                        }
-                        reject(reasonPlus);
-                    });
+                    buildGraphicsAnimationInstanceDefinitions(data.animations);
+                    buildGraphicsFontInstanceDefinitions(data.fonts);
+                    setShaderProgram("Texture", 0);
+                    setShaderProgram("Outline", 1);
+                    for (var i = 2; i < renderPasses.length; ++i) {
+                        setShaderProgram("Texture", i);
+                    }
+                    resolve();
                 }, function (reason) {
                     var reasonPlus = "Failed to load graphics definitions";
                     if (reason !== null) {
@@ -940,7 +917,19 @@
                     reject(reasonPlus);
                 });
             });
-            return Promise.all([webGLPromise, graphicsInstanceDefinitionsPromise]);
+            var textureInformationPromise = new Promise(function (resolve, reject) {
+                dataEngine.loadAllTextureInformation().then(function (data) {
+                    buildTextureInformation(data);
+                    resolve();
+                }, function (reason) {
+                    var reasonPlus = "Failed to load texture information";
+                    if (reason !== null) {
+                        reasonPlus = reasonPlus + "\r\n" + reason;
+                    }
+                    reject(reasonPlus);
+                });
+            });
+            return Promise.all([webGLPromise, graphicsInstanceDefinitionsPromise, textureInformationPromise]);
         };
 
         var getAnimationStateDefinition = function (gfxCompDefId, animationState) {
@@ -962,6 +951,9 @@
         var draw = function (vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, texture) {
             webGL.useProgram(webGLShaderProgram);
 
+            ////////
+            // VERTEX
+
             // vertex buffer
             webGL.bindBuffer(webGL.ARRAY_BUFFER, webGLSquareVerticesBuffer);
             webGL.bufferData(webGL.ARRAY_BUFFER, new Float32Array(vertexVerts), webGL.STATIC_DRAW);
@@ -979,14 +971,17 @@
             }
 
             if (webGLVertexShaderExtraStep != null) { // intentional truthiness
-                webGLVertexShaderExtraStep(webGL, webGLShaderProgram);
+                webGLVertexShaderExtraStep(webGL, webGLShaderProgram, textureInformation[texture]);
             }
 
-            // texture buffer
+            ////////
+            // FRAGMENT
+
+            // fragment buffer
             webGL.bindBuffer(webGL.ARRAY_BUFFER, webGLTexCoordBuffer);
             webGL.bufferData(webGL.ARRAY_BUFFER, new Float32Array(textureVerts), webGL.STATIC_DRAW);
 
-            // texture shader
+            // fragment shader
             var texCoordLocation = webGL.getAttribLocation(webGLShaderProgram, "a_texCoord");
             if (texCoordLocation > -1) {
                 webGL.enableVertexAttribArray(texCoordLocation);
@@ -994,13 +989,13 @@
             }
 
             if (webGLFragmentShaderExtraStep != null) { // intentional truthiness
-                webGLFragmentShaderExtraStep(webGL, webGLShaderProgram);
+                webGLFragmentShaderExtraStep(webGL, webGLShaderProgram, textureInformation[texture]);
             }
 
             // bind active texture
             if (texture !== activeTexture) {
                 webGL.activeTexture(webGL.TEXTURE0);
-                webGL.bindTexture(webGL.TEXTURE_2D, textureDefinitions[texture].webGLTexture);
+                webGL.bindTexture(webGL.TEXTURE_2D, textureInformation[texture].webGLTexture);
 
                 activeTexture = texture;
             }
@@ -1021,6 +1016,26 @@
             var vertexVerts = [];
             var textureVerts = [];
 
+            var gfxCompFunc = function (gfxComp, i) {
+                // vertex locations
+                gfxComp.vertices.forEach(function (vvv) {
+                    vertexVerts.push(vvv.x, vvv.y);
+                });
+
+                // texture coords
+                textureVerts.addRange(gfxComp.textureCoords);
+
+                // same texture? don't draw yet
+                var nextGfxComp = (gfx2DAnimationInstances[zOrder][renderPass].length > 0 && i !== gfx2DAnimationInstances[zOrder][renderPass].length - 1) ? gfx2DAnimationInstances[zOrder][renderPass][i + 1].graphics : null;
+                var nextAnimationFrame = (nextGfxComp !== null) ? getAnimationFrameDefinitionOfGraphicsComponentInstance(nextGfxComp) : null;
+                if (nextAnimationFrame === null || animationFrameDefinition.texture !== nextAnimationFrame.texture) {
+                    draw(vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, animationFrameDefinition.texture);
+
+                    vertexVerts = [];
+                    textureVerts = [];
+                }
+            };
+
             // draw 2d animation
             for (var i = 0; i < gfx2DAnimationInstances[zOrder][renderPass].length; ++i) {
                 var g = gfx2DAnimationInstances[zOrder][renderPass][i];
@@ -1037,23 +1052,14 @@
                     gfxComp.currentDuration = 0;
                 }
 
-                // vertex locations
-                gfxComp.vertices.forEach(function (vvv) {
-                    vertexVerts.push(vvv.x, vvv.y);
-                });
-
-                // texture coords
-                textureVerts.addRange(gfxComp.textureCoords);
-
-                // same texture? don't draw yet
-                var nextGfxComp = (i !== gfx2DAnimationInstances[zOrder][renderPass].length - 1) ? gfx2DAnimationInstances[zOrder][renderPass][i + 1].graphics : null;
-                var nextAnimationFrame = (nextGfxComp !== null) ? getAnimationFrameDefinitionOfGraphicsComponentInstance(nextGfxComp) : null;
-                if (nextAnimationFrame === null || animationFrameDefinition.texture !== nextAnimationFrame.texture) {
-                    draw(vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, animationFrameDefinition.texture);
-
-                    vertexVerts = [];
-                    textureVerts = [];
-                }
+                gfxCompFunc(gfxComp, i);
+            }
+            for (var i = 0; i < gfx2DAnimationInstances[zOrder][renderPass].duplicates.length; ++i) {
+                var gId = gfx2DAnimationInstances[zOrder][renderPass].duplicates[i];
+                var gfxComp = getGraphicsComponentInstance2DAnimation(gId).graphics;
+                var animationFrameDefinition = getAnimationFrameDefinitionOfGraphicsComponentInstance(gfxComp);
+                // we need the animationFrameDefinition for duplicates, but we should definitely not be animating anybody
+                gfxCompFunc(gfxComp, i, animationFrameDefinition);
             }
         };
 
@@ -1069,11 +1075,7 @@
             var vertexVerts = [];
             var textureVerts = [];
 
-            // draw 2d animation
-            for (var i = 0; i < gfxFontInstances[zOrder][renderPass].length; ++i) {
-                var g = gfxFontInstances[zOrder][renderPass][i];
-                var gfxComp = g.graphics;
-
+            var gfxCompFunc = function (gfxComp, i) {
                 // vertex locations
                 gfxComp.vertices.forEach(function (vv) {
                     vv.forEach(function (vvv) {
@@ -1091,13 +1093,25 @@
                 var currTexture = gfxFontDefinitions[gfxComp.id].fontTextureDefinition.texture;
 
                 // same texture? don't draw yet
-                var nextGfxComp = (i !== gfxFontInstances[zOrder][renderPass].length - 1) ? gfxFontInstances[zOrder][renderPass][i + 1].graphics : null;
+                var nextGfxComp = (gfxFontInstances[zOrder][renderPass].length > 0 && i !== gfxFontInstances[zOrder][renderPass].length - 1) ? gfxFontInstances[zOrder][renderPass][i + 1].graphics : null;
                 if (nextGfxComp == null || gfxFontDefinitions[nextGfxComp.id].fontTextureDefinition.texture !== currTexture) {
                     draw(vertexVerts, textureVerts, webGLShaderProgram, webGLVertexShaderExtraStep, webGLFragmentShaderExtraStep, currTexture);
 
                     vertexVerts = [];
                     textureVerts = [];
                 }
+            };
+
+            // draw fonts
+            for (var i = 0; i < gfxFontInstances[zOrder][renderPass].length; ++i) {
+                var g = gfxFontInstances[zOrder][renderPass][i];
+                var gfxComp = g.graphics;
+                gfxCompFunc(gfxComp, i);
+            }
+            for (var i = 0; i < gfxFontInstances[zOrder][renderPass].duplicates.length; ++i) {
+                var gId = gfxFontInstances[zOrder][renderPass].duplicates[i];
+                var gfxComp = getGraphicsComponentInstanceFont(gId).graphics;
+                gfxCompFunc(gfxComp, i);
             }
         };
 
@@ -1115,12 +1129,12 @@
         this.shutdown = function () {
             var that = this;
             return new Promise(function (resolve, reject) {
-                for (var texture in textureDefinitions) {
-                    if (textureDefinitions.hasOwnProperty(texture)) {
+                for (var texture in textureInformation) {
+                    if (textureInformation.hasOwnProperty(texture)) {
                         webGL.deleteTexture(texture.webGLTexture);
                     }
                 }
-                textureDefinitions = {};
+                textureInformation = {};
                 gfx2DAnimationDefinitions = [];
                 var gfxFontDefinitions = [];
                 while (renderPasses.length > 0) {
@@ -1241,6 +1255,41 @@
             gfxComp.currentDuration = 0;
         };
 
+        var setInstanceRenderPass = function (instanceId, animationFrame) {
+            throw "Not yet implemented.";
+        };
+
+        var addDuplicateInstanceZOrderRenderPass = function (instanceId, zOrder, renderPass) {
+            var instanceToDuplicate = getGraphicsComponentInstance2DAnimation(instanceId);
+            if (instanceToDuplicate !== null) {
+                gfx2DAnimationInstances[zOrder][renderPass].duplicates.push(instanceId);
+            } else {
+                instanceToDuplicate = getGraphicsComponentInstanceFont(instanceId);
+                if (instanceToDuplicate !== null) {
+                    gfxFontInstances[zOrder][renderPass].duplicates.push(instanceId);
+                }
+            }
+        };
+
+        var removeDuplicateInstanceZOrderRenderPass = function (instanceId) {
+            zOrders.forEach(function(zOrder) {
+                renderPasses.forEach(function(renderPass) {
+                    for(var i = 0, j = gfx2DAnimationInstances[zOrder][renderPass].duplicates.length; i < j; ++i) {
+                        if(gfx2DAnimationInstances[zOrder][renderPass].duplicates[i] === instanceId) {
+                            gfx2DAnimationInstances[zOrder][renderPass].duplicates.splice(i, 1);
+                            return;
+                        }
+                    }
+                    for (var i = 0, j = gfxFontInstances[zOrder][renderPass].duplicates.length; i < j; ++i) {
+                        if (gfxFontInstances[zOrder][renderPass].duplicates[i] === instanceId) {
+                            gfxFontInstances[zOrder][renderPass].duplicates.splice(i, 1);
+                            return;
+                        }
+                    }
+                });
+            });
+        };
+
         var setInstanceText = function (instanceId, text) {
             var gfxInstance = getGraphicsComponentInstanceFont(instanceId);
             if (gfxInstance !== null) {
@@ -1266,6 +1315,7 @@
                             if (gfx2DAnimationInstances[z][rp][k].instanceId === instanceId) {
                                 gfx2DAnimationInstances[z][rp][k].destroy(messengerEngine);
                                 gfx2DAnimationInstances[z][rp].splice(k, 1);
+                                removeDuplicateInstanceZOrderRenderPass(instanceId);
                                 return;
                             }
                         }
@@ -1276,6 +1326,7 @@
                             if (gfxFontInstances[z][rp][k].instanceId === instanceId) {
                                 gfxFontInstances[z][rp][k].destroy(messengerEngine);
                                 gfxFontInstances[z][rp].splice(k, 1);
+                                removeDuplicateInstanceZOrderRenderPass(instanceId);
                                 return;
                             }
                         }
@@ -1287,6 +1338,9 @@
         messengerEngine.register("setShaderProgram", this, setShaderProgram);
         messengerEngine.register("setInstanceAnimationState", this, setInstanceAnimationState);
         messengerEngine.register("setInstanceAnimationFrame", this, setInstanceAnimationFrame);
+        messengerEngine.register("setInstanceRenderPass", this, setInstanceRenderPass);
+        messengerEngine.register("addDuplicateInstanceZOrderRenderPass", this, addDuplicateInstanceZOrderRenderPass);
+        messengerEngine.register("removeDuplicateInstanceZOrderRenderPass", this, removeDuplicateInstanceZOrderRenderPass);
         messengerEngine.register("setInstanceText", this, setInstanceText);
         messengerEngine.register("clearInstanceText", this, setInstanceText);
         messengerEngine.register("getGraphicsComponentInstanceForEntityInstanceRequest", this, getGraphicsComponentInstanceForEntityInstance);

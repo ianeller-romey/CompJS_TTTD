@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace TTTD_Builder.Lib.Data
+namespace TTTD_Sanitizer.Lib.Helpers
 {
     public class PositionInformation
     {

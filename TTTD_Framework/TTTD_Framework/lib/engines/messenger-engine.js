@@ -136,6 +136,9 @@
         createMessageType("setShaderProgram");
         createMessageType("setInstanceAnimationState");
         createMessageType("setInstanceAnimationFrame");
+        createMessageType("setInstanceRenderPass");
+        createMessageType("addDuplicateInstanceZOrderRenderPass");
+        createMessageType("removeDuplicateInstanceZOrderRenderPass");
         createMessageType("setInstanceText");
         createMessageType("clearInstanceText");
 

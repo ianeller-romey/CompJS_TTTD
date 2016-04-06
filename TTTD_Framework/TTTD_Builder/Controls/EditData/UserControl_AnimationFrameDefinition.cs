@@ -512,6 +512,8 @@ namespace TTTD_Builder.EditData
 
             DataManager.AnimationFrameDefinitions.Add(m_animationFrameDefinition);
 
+            SaveTextureInformation(m_animationFrameDefinition.Texture);
+
             return m_animationFrameDefinition.Id;
         }
 
@@ -526,6 +528,8 @@ namespace TTTD_Builder.EditData
             m_animationFrameDefinition.TexCoordRight = m_doubleUpDown_texCoordRight.Value.Value;
             m_animationFrameDefinition.TexCoordBottom = m_doubleUpDown_texCoordBottom.Value.Value;
             m_animationFrameDefinition.TexCoordLeft = m_doubleUpDown_texCoordLeft.Value.Value;
+
+            SaveTextureInformation(m_animationFrameDefinition.Texture);
 
             return m_animationFrameDefinition.Id;
         }
@@ -555,6 +559,27 @@ namespace TTTD_Builder.EditData
             m_doubleUpDown_texCoordRight.Value = m_animationFrameDefinition.TexCoordRight;
             m_doubleUpDown_texCoordBottom.Value = m_animationFrameDefinition.TexCoordBottom;
             m_doubleUpDown_texCoordLeft.Value = m_animationFrameDefinition.TexCoordLeft;
+        }
+
+        private void SaveTextureInformation(string textureFile)
+        {
+            var bitmapImage = new BitmapImage(new Uri(textureFile));
+
+            TextureInformation textureInformation;
+            if (!DataManager.TextureInformation.Any(x => x.Texture == textureFile))
+            {
+                textureInformation = DataManager.Generate<TextureInformation>();
+                DataManager.TextureInformation.Add(textureInformation);
+            }
+            else
+                textureInformation = DataManager.TextureInformation.First(x => x.Texture == textureFile);
+
+            textureInformation.Name = System.IO.Path.GetFileNameWithoutExtension(textureFile);
+            textureInformation.Texture = textureFile;
+            textureInformation.TextureWidth = bitmapImage.PixelWidth;
+            textureInformation.TextureHeight = bitmapImage.PixelHeight;
+            textureInformation.StepX = 1.0 / textureInformation.TextureWidth;
+            textureInformation.StepY = 1.0 / textureInformation.TextureHeight;
         }
 
         private void CreateCanvasControls()

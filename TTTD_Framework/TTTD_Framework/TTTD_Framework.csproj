@@ -70,6 +70,7 @@
     <Content Include="lib\engines\messenger-engine.js" />
     <Content Include="lib\engines\phys-engine.js" />
     <Content Include="lib\math\vector-2d.js" />
+    <Content Include="lib\shaders\shader-outline.js" />
     <Content Include="lib\shaders\shader-texture.js" />
     <Content Include="lib\utilities.js" />
   </ItemGroup>
