@@ -72,7 +72,8 @@ namespace TTTD_Sanitizer
                 cfg.CreateMap<BData.AnimationFrameDefinition, SData.GraphicsAnimationInstanceDefinition.AnimationStateDefinition.AnimationFrameDefinition>().
                     ForMember(dest => dest.Texture, opt => opt.MapFrom(src => Path.Combine("assets/textures/", Path.GetFileName(src.Texture))));
                 cfg.CreateMap<BData.GraphicsInstanceDefinition, SData.GraphicsFontInstanceDefinition>();
-                cfg.CreateMap<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>();
+                cfg.CreateMap<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>().
+                    ForMember(dest => dest.Texture, opt => opt.MapFrom(src => Path.Combine("assets/textures/", Path.GetFileName(src.Texture))));
                 cfg.CreateMap<BData.Shader, SData.Shader>().
                     ForMember(dest => dest.ShaderFile, opt => opt.MapFrom(src => Path.Combine("lib/shaders/", Path.GetFileName(src.ShaderFile))));
                 cfg.CreateMap<BData.TextureInformation, SData.TextureInformation>().
@@ -227,7 +228,7 @@ namespace TTTD_Sanitizer
 
             foreach (var x in list)
             {
-                x.Font = Mapper.Map<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>(s_fontTextureDefinitions.First(y => y.GraphicsInstanceDefinitionId == x.Id));
+                x.SingleFontTextureDefinition = Mapper.Map<BData.FontTextureDefinition, SData.GraphicsFontInstanceDefinition.FontTextureDefinition>(s_fontTextureDefinitions.First(y => y.GraphicsInstanceDefinitionId == x.Id));
             }
 
             return list;

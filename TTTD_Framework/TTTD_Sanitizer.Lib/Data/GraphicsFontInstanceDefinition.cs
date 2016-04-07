@@ -26,6 +26,6 @@ namespace TTTD_Sanitizer.Lib.Data
         public int EntityInstanceDefinitionId { get; set; }
         public int ZOrder { get; set; }
         public int RenderPass { get; set; }
-        public FontTextureDefinition Font { get; set; }
+        public FontTextureDefinition SingleFontTextureDefinition { get; set; }
     }
 }

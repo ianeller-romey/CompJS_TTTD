@@ -282,8 +282,8 @@
         
         messengerEngine.register("setInstanceAndBoundingDataPosition", this, setInstanceAndBoundingDataPosition);
         messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
-        messengerEngine.register("setMouseClickCollider", this, setMouseClickCollider);
-        messengerEngine.register("setMouseHeldCollider", this, setMouseHeldCollider);
+        messengerEngine.register("setMouseClickColliderRequest", this, setMouseClickCollider);
+        messengerEngine.register("setMouseHeldColliderRequest", this, setMouseHeldCollider);
     };
         
     var Phys = namespace.Engines.PhysEngine;

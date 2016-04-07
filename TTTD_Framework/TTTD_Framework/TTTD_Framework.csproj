@@ -63,6 +63,8 @@
     <Content Include="lib\driver.js" />
     <Content Include="lib\engines\aud-engine.js" />
     <Content Include="lib\engines\bhv-engine.js" />
+    <Content Include="lib\engines\game-state-engine.js" />
+    <Content Include="lib\engines\timer-engine.js" />
     <Content Include="lib\engines\data-engine.js" />
     <Content Include="lib\engines\entity-engine.js" />
     <Content Include="lib\engines\gfx-engine.js" />

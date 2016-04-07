@@ -27,13 +27,37 @@
                 if (that.loadLevelId !== null && that.loadLevelPriority !== null) {
                     return [that.state_update];
                 } else {
-                    if (namespace.DebugEnabled) { // intentional truthiness
+                    if (namespace.DebugEnabled === true) {
                         throw "BehaviorDoor was not initialized with correct data.";
                     }
                 }
             };
 
             this.state_update = function (delta) {
+                var forReturn = false;
+                if (that.physics.physical.colliders) { // intentional truthiness
+                    that.physics.physical.colliders.forEach(function (x) {
+                        if (x.instanceDefinitionName === "MouseHeld") {
+                            forReturn = [that.state_enterActive];
+                        }
+                    });
+                }
+                return forReturn;
+            };
+
+            this.state_enterActive = function (delta) {
+                messengerEngine.queueForPosting("addDuplicateInstanceZOrderRenderPass", that.instanceId, 1, 1);
+                messengerEngine.queueForPosting("createEntityInstance", "Text", 1, {
+                    position: {
+                        x: 100,
+                        y: 100
+                    },
+                    fontText: "YAY!"
+                });
+                return [that.state_active];
+            };
+
+            this.state_active = function (delta) {
                 if (that.physics.physical.colliders) { // intentional truthiness
                     that.physics.physical.colliders.forEach(function (x) {
                         if (x.instanceDefinitionName === "Player") {

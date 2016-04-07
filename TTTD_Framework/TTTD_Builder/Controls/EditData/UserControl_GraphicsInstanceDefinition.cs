@@ -94,6 +94,11 @@ namespace TTTD_Builder.EditData
                 m_textBox_name.Text = m_graphicsInstanceDefinition.Name;
                 m_integerUpDown_zOrder.Value = m_graphicsInstanceDefinition.ZOrder;
                 m_integerUpDown_renderPass.Value = m_graphicsInstanceDefinition.RenderPass;
+
+                if (DataManager.AnimationStateDefinitions.Any(x => x.GraphicsInstanceDefinition == m_graphicsInstanceDefinition))
+                    m_radioButton_animation.IsChecked = true;
+                else if (DataManager.FontTextureDefinitions.Any(x => x.GraphicsInstanceDefinition == m_graphicsInstanceDefinition))
+                    m_radioButton_font.IsChecked = true;
             }
         }
 

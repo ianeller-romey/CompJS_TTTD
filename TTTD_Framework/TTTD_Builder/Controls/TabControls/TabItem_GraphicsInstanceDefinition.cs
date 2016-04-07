@@ -28,7 +28,7 @@ namespace TTTD_Builder.Controls.TabControls
         UserControl_NewAndSelect<AnimationFrameDefinition> m_comboBox_animationFrameDefinition;
         UserControl_AnimationFrameDefinition m_userControl_animationFrameDefinition;
         UserControl_NewAndSelect<FontTextureDefinition> m_comboBox_fontTextureDefinition;
-        //UserControl_FontTextureDefinition m_userControl_fontTextureDefinition;
+        UserControl_FontTextureDefinition m_userControl_fontTextureDefinition;
 
         GraphicsInstanceDefinition_Ex m_selectedGraphicsInstanceDefinition;
         AnimationStateDefinition_WithAnimationFrameDefinitions m_selectedAnimationStateDefinition;
@@ -108,7 +108,9 @@ namespace TTTD_Builder.Controls.TabControls
 
             RemoveFontTextureControls(true);
 
-            // TODO
+            var g = m_selectedGraphicsInstanceDefinition as GraphicsInstanceDefinition_WithFontTextureDefinitions;
+            m_comboBox_fontTextureDefinition = new UserControl_NewAndSelect<FontTextureDefinition>(g.FontTextures, NewFontTextureDefinition, SelectFontTextureDefinition);
+            m_grid_main.SetRowColumn(m_comboBox_fontTextureDefinition, 0, 1);
         }
 
         private void RemoveUserControls()
@@ -162,9 +164,9 @@ namespace TTTD_Builder.Controls.TabControls
 
         private void RemoveFontTextureControls(bool removeComboBox)
         {
-            //if (m_userControl_fontTextureDefintion != null)
-            //    m_grid_main.Children.Remove(m_userControl_fontTextureDefinition);
-            //m_userControl_fontTextureDefinition = null;
+            if (m_userControl_fontTextureDefinition != null)
+                m_grid_main.Children.Remove(m_userControl_fontTextureDefinition);
+            m_userControl_fontTextureDefinition = null;
 
             if (removeComboBox)
             {
@@ -244,6 +246,24 @@ namespace TTTD_Builder.Controls.TabControls
             m_grid_main.SetRowColumn(m_userControl_animationFrameDefinition, 1, 1);
         }
 
+        private void NewFontTextureDefinition()
+        {
+            RemoveFontTextureControls(false);
+            m_userControl_fontTextureDefinition = new UserControl_FontTextureDefinition(null);
+            m_userControl_fontTextureDefinition.NewDataAddedEvent += UserControl_FontTextureDefinition_NewDataAdded;
+            m_userControl_fontTextureDefinition.ExistingDataUpdatedEvent += UserControl_FontTextureDefinition_ExistingDataUpdated;
+            m_grid_main.SetRowColumn(m_userControl_fontTextureDefinition, 1, 1);
+        }
+
+        private void SelectFontTextureDefinition(FontTextureDefinition fontTextureDefinition)
+        {
+            RemoveFontTextureControls(false);
+            m_userControl_fontTextureDefinition = new UserControl_FontTextureDefinition(fontTextureDefinition);
+            m_userControl_fontTextureDefinition.NewDataAddedEvent += UserControl_FontTextureDefinition_NewDataAdded;
+            m_userControl_fontTextureDefinition.ExistingDataUpdatedEvent += UserControl_FontTextureDefinition_ExistingDataUpdated;
+            m_grid_main.SetRowColumn(m_userControl_fontTextureDefinition, 1, 1);
+        }
+
         private void UserControl_AnimationStateDefinition_NewDataAdded(int id)
         {
             var newAnimationStateDefinition = DataManager.AnimationStateDefinitions.FirstOrDefault(x => x.Id == id);
@@ -278,6 +298,24 @@ namespace TTTD_Builder.Controls.TabControls
         {
             if (m_selectedAnimationStateDefinition != null)
                 m_selectedAnimationStateDefinition.Refresh();
+        }
+
+        private void UserControl_FontTextureDefinition_NewDataAdded(int id)
+        {
+            var newFontTextureDefinition = DataManager.FontTextureDefinitions.FirstOrDefault(x => x.Id == id);
+            if (newFontTextureDefinition != null)
+            {
+                newFontTextureDefinition.GraphicsInstanceDefinition = m_selectedGraphicsInstanceDefinition.GraphicsInstanceDefinition;
+            }
+
+            if (m_selectedGraphicsInstanceDefinition != null)
+                m_selectedGraphicsInstanceDefinition.Refresh();
+        }
+
+        private void UserControl_FontTextureDefinition_ExistingDataUpdated(int id)
+        {
+            if (m_selectedGraphicsInstanceDefinition != null)
+                m_selectedGraphicsInstanceDefinition.Refresh();
         }
 
         private void ComboBox_AnimationStateDefinition_SelectionChanged(object sender, SelectionChangedEventArgs e)

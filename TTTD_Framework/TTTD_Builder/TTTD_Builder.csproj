@@ -87,6 +87,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
+    <Compile Include="Controls\EditData\UserControl_FontTextureDefinition.cs" />
     <Compile Include="Controls\EditData\UserControl_LevelLayoutDataEditor.cs" />
     <Compile Include="Controls\EditData\UserControl_LevelEditor.cs" />
     <Compile Include="Controls\EditData\UserControl_PhysicsInstanceDefinition.cs" />

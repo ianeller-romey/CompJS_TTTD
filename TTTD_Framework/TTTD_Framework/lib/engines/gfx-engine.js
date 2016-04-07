@@ -511,16 +511,16 @@
         this.instanceId = entity.instanceId;
         this.instanceDefinitionName = entity.instanceDefinitionName;
         this.transformation = entity.transformation;
-        this.graphics = new namespace.Comp.Inst.GfxFont.Graphics(gfxCompDefId, fontTextureDefinition.startT, fontTextureDefinition.startL, fontTextureDefinition.characterWidth, fontTextureDefinition.characterHeight, fontTextureDefinition.textureWidth, text, this.transformation);
+        this.graphics = new namespace.Comp.Inst.GfxFont.Graphics(gfxCompDefId, fontTextureDefinition.startTop, fontTextureDefinition.startLeft, fontTextureDefinition.characterWidth, fontTextureDefinition.characterHeight, fontTextureDefinition.textureWidth, text, this.transformation);
     };
 
     namespace.Comp.Inst.GfxFont.prototype = new namespace.Comp.Inst.Component();
 
-    namespace.Comp.Inst.GfxFont.Graphics = function (gfxCompDefId, startT, startL, characterWidth, characterHeight, textureWidth, text, transformation) {
+    namespace.Comp.Inst.GfxFont.Graphics = function (gfxCompDefId, startTop, startLeft, characterWidth, characterHeight, textureWidth, text, transformation) {
         this.id = gfxCompDefId;
         this.textureWidth = textureWidth;
-        this.startT = startT;
-        this.startL = startL;
+        this.startTop = startTop;
+        this.startLeft = startLeft;
         this.characterWidth = characterWidth;
         this.characterHeight = characterHeight;
         this.vertices = [];
@@ -579,8 +579,8 @@
                     if (letter === "\n") {
                         letter = " ";
                     }
-                    var xOff = that.startL + (fonts[letter].column * that.characterWidth);
-                    var yOff = that.startT + (fonts[letter].row * that.characterHeight);
+                    var xOff = that.startLeft + (fonts[letter].column * that.characterWidth);
+                    var yOff = that.startTop + (fonts[letter].row * that.characterHeight);
 
                     /*var texturePixelVerts = [lft, top,
                                                rgt, top,
@@ -704,8 +704,8 @@
         this.id = def.id;
         this.texture = def.texture;
         this.textureWidth = def.textureWidth;
-        this.startT = def.startT;
-        this.startL = def.startL;
+        this.startTop = def.startTop;
+        this.startLeft = def.startLeft;
         this.characterWidth = def.characterWidth;
         this.characterHeight = def.characterHeight;
     };
@@ -717,7 +717,7 @@
 
         this.zOrder = def.zOrder;
         this.renderPass = def.renderPass;
-        this.fontTextureDefinition = new Def.GraphicsFontTexture(def.fontTextureDefinition);
+        this.fontTextureDefinition = new Def.GraphicsFontTexture(def.singleFontTextureDefinition);
     };
 
     ////////
@@ -1172,11 +1172,11 @@
             gfx2DAnimationInstances[zOrder][renderPass].push(instance);
         };
 
-        var createGraphicsFontInstance = function (entity, gfxCompDefId) {
+        var createGraphicsFontInstance = function (entity, gfxCompDefId, fontText) {
             var fontDefinition = gfxFontDefinitions[gfxCompDefId];
-            var instance = new Inst.GfxFont(entity, gfxCompDefId, fontDefinition.fontTextureDefinition, "");
+            var instance = new Inst.GfxFont(entity, gfxCompDefId, fontDefinition.fontTextureDefinition, (fontText) /* intentional truthiness */ ? fontText : "");
 
-            var zOrder = gfx2DAnimationDefinitions[gfxCompDefId].zOrder;
+            var zOrder = fontDefinition.zOrder;
             var renderPass = fontDefinition.renderPass;
             gfxFontInstances[zOrder][renderPass].push(instance);
         };
@@ -1185,12 +1185,16 @@
             switch (gfxCompTypeDefinitions[gfxCompDefId]) {
                 case gfxCompType2DAnimation:
                     createGraphicsAnimationInstance(entity, gfxCompDefId);
-                    break;
+                    break;1
 
                 case gfxCompTypeFont:
                     createGraphicsFontInstance(entity, gfxCompDefId);
                     break;
             }
+        };
+
+        this.createGraphicsComponentInstanceForFont = function (entity, gfxCompDefId, fontText) {
+            createGraphicsFontInstance(entity, gfxCompDefId, fontText);
         };
 
         var setShaderProgram = function (programName, renderPass) {

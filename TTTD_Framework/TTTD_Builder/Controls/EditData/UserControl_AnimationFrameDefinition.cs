@@ -240,13 +240,13 @@ namespace TTTD_Builder.EditData
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
                 m_textBox_texture.Text = string.Empty;
-                m_doubleUpDown_duration.Value = 0.0;
-                m_doubleUpDown_width.Value = 0.0;
-                m_doubleUpDown_height.Value = 0.0;
-                m_doubleUpDown_texCoordTop.Value = 0.0;
-                m_doubleUpDown_texCoordLeft.Value = 0.0;
-                m_doubleUpDown_texCoordRight.Value = 0.0;
-                m_doubleUpDown_texCoordBottom.Value = 0.0;
+                m_doubleUpDown_duration.Value = null;
+                m_doubleUpDown_width.Value = null;
+                m_doubleUpDown_height.Value = null;
+                m_doubleUpDown_texCoordTop.Value = null;
+                m_doubleUpDown_texCoordLeft.Value = null;
+                m_doubleUpDown_texCoordRight.Value = null;
+                m_doubleUpDown_texCoordBottom.Value = null;
             }
             else
             {
@@ -341,12 +341,11 @@ namespace TTTD_Builder.EditData
             ////////
             // Duration
             m_doubleUpDown_duration = new DoubleUpDown() { VerticalAlignment = VerticalAlignment.Center };
-            ValidatorPanel validator_duration = new ValidatorPanel(m_doubleUpDown_duration, IntegerUpDown.ValueProperty, new Validate_NotNull());
             Label label_duration = new Label() { Content = "Duration: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
             Grid grid_duration = new Grid();
             grid_duration.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_duration.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-            grid_duration.SetRowColumn(validator_duration, 1, 0);
+            grid_duration.SetRowColumn(m_doubleUpDown_duration, 1, 0);
             grid_duration.SetRowColumn(label_duration, 0, 0);
             grid_left.SetRowColumn(grid_duration, 0, 0);
 
@@ -482,7 +481,6 @@ namespace TTTD_Builder.EditData
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
                 validator_name,
                 validator_texture,
-                validator_duration,
                 validator_width,
                 validator_height,
                 validator_texCoordTop,
@@ -538,13 +536,13 @@ namespace TTTD_Builder.EditData
         {
             m_textBox_name.Text = string.Empty;
             m_textBox_texture.Text = string.Empty;
-            m_doubleUpDown_duration.Value = 0.0;
-            m_doubleUpDown_width.Value = 0.0;
-            m_doubleUpDown_height.Value = 0.0;
-            m_doubleUpDown_texCoordTop.Value = 0.0;
-            m_doubleUpDown_texCoordRight.Value = 0.0;
-            m_doubleUpDown_texCoordBottom.Value = 0.0;
-            m_doubleUpDown_texCoordLeft.Value = 0.0;
+            m_doubleUpDown_duration.Value = null;
+            m_doubleUpDown_width.Value = null;
+            m_doubleUpDown_height.Value = null;
+            m_doubleUpDown_texCoordTop.Value = null;
+            m_doubleUpDown_texCoordRight.Value = null;
+            m_doubleUpDown_texCoordBottom.Value = null;
+            m_doubleUpDown_texCoordLeft.Value = null;
         }
 
         protected override void RevertExistingData()
@@ -644,16 +642,7 @@ namespace TTTD_Builder.EditData
             if (window.Accepted)
             {
                 m_textBox_texture.Text = window.FileName;
-                ParseTextureInformationFromFile(window.FileName);
                 CreateCanvasControls();
-            }
-        }
-
-        private void ParseTextureInformationFromFile(string behaviorFile)
-        {
-            if (File.Exists(behaviorFile))
-            {
-                //throw new NotImplementedException();
             }
         }
 

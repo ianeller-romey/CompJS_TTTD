@@ -5,6 +5,8 @@
     namespace.Engines.InputManager = function () {
         var messengerEngine = namespace.Globals.globalMessengerEngine;
 
+        var that = this;
+
         this.keys = {
             arrowLeft: 37,
             arrowUp: 38,
@@ -250,7 +252,6 @@
         };
 
         this.shutdown = function (canvas) {
-            var that = this;
             return new Promise(function (resolve, reject) {
                 if (window.removeEventListener != null) {
                     window.removeEventListener("keydown", keydownEvent);
@@ -292,7 +293,7 @@
                 }
             }
             if (mouseHeld === true) {
-                messengerEngine.request("setMouseHeldCollider", getMousePosition());
+                messengerEngine.request("setMouseHeldCollider", false, that.getMousePosition());
             }
 
             // check for initial click AFTER checking to update the held counter
@@ -300,7 +301,7 @@
                 mouseClickedTemp = false;
                 mouseClicked = true;
                 mouseHeldCounter = 1;
-                messengerEngine.request("setMouseClickCollider", getMousePosition());
+                messengerEngine.request("setMouseClickCollider", false, that.getMousePosition());
             } else if (mouseClicked === true) {
                 // we've been true for a frame, so it's back to false until we click again
                 mouseClicked = true;

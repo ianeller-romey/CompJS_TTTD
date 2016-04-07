@@ -1,10 +1,40 @@
 ﻿(function (namespace, undefined) {
     "use strict";
 
+    ////////
+    // MessageDataCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.MessageDefinition = function (name, valueNames, deliveryFunction) {
+        this.name = name;
+        this.valueNames = valueNames;
+        this.values = {};
+        this.deliveryFunction = deliveryFunction;
+    };
+
+    namespace.Comp.Def.MessageDefinition.prototype.assignValues = function (values) {
+        var that = this;
+        this.valueNames.forEach(function (valueName) {
+            if (namespace.DebugEnabled === true && values[valueName] === undefined) {
+                throw "For message " + that.messageName + ": value \"" + valueName + "\" not present in list of provided values.";
+            }
+            that.values[valueName] = values[valueName];
+        });
+    };
+
+    ////////
+    // MessageCompInst
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Inst = namespace.Comp.Inst || {};
+    namespace.Comp.Inst.Message = function (name, values) {
+        this.name = name;
+        this.values = values;
+    };
+
     namespace.Engines = namespace.Engines || {};
     namespace.Engines.MessengerEngine = function () {
         var requestStr = "Request";
-        var messageTypes = [];
+        var messageDefinitions = [];
         var messageRegistration = {};
         var messages = [];
 
@@ -13,14 +43,14 @@
         };
 
         var validMessageType = function (messageType) {
-            return messageTypes.any(function (x) {
+            return messageDefinitions.any(function (x) {
                 return x === messageType;
             });
         }
 
         var createMessageType = function (messageType) {
             if (!validMessageType(messageType)) {
-                messageTypes.push(messageType);
+                messageDefinitions.push(messageType);
 
                 if (messageRegistration[messageType] === undefined) {
                     messageRegistration[messageType] = [];
@@ -65,7 +95,7 @@
         };
 
         this.unregisterAll = function (object) {
-            messageTypes.forEach(function (messageType) {
+            messageDefinitions.forEach(function (messageType) {
                 var messageRegisterer = null;
                 var i = 0;
                 while (i < messageRegistration[messageType].length) {
@@ -98,11 +128,15 @@
                 throw "Cannot request " + requestType + ", as this messageType does not exist.";
             }
 
-            if (typeof (callback) !== "function") {
-                throw "No callback function provided for request.";
+            if (callback === false) { // false means that we don't care about a callback
+                post(requestType, Array.prototype.slice.call(arguments, 2));
+            } else {
+                if (typeof (callback) !== "function") {
+                    throw "No callback function provided for request.";
+                }
+                post(requestType, Array.prototype.slice.call(arguments, 1));
             }
 
-            post(requestType, Array.prototype.slice.call(arguments, 1));
         };
 
         var post = function (messageType, messageData) {
@@ -125,47 +159,55 @@
 
 
         // behavior messages/requests
-        createMessageType("setInstanceData");
-        createMessageType("setBehaviorConstructor");
-        createMessageType("setBehaviorInstanceData");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceData", ["instanceId", "data"], function(values) {
+            return [values.instanceId, values.data];
+        }));
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setBehaviorConstructor");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setBehaviorInstanceData");
 
-        createRequestType("getBehaviorComponentInstanceForEntityInstance");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("getBehaviorComponentInstanceForEntityInstance");
 
 
         // graphics messages/requests
-        createMessageType("setShaderProgram");
-        createMessageType("setInstanceAnimationState");
-        createMessageType("setInstanceAnimationFrame");
-        createMessageType("setInstanceRenderPass");
-        createMessageType("addDuplicateInstanceZOrderRenderPass");
-        createMessageType("removeDuplicateInstanceZOrderRenderPass");
-        createMessageType("setInstanceText");
-        createMessageType("clearInstanceText");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setShaderProgram");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationState");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationFrame");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceRenderPass");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("addDuplicateInstanceZOrderRenderPass");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("removeDuplicateInstanceZOrderRenderPass");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceText");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("clearInstanceText");
 
-        createRequestType("getGraphicsComponentInstanceForEntityInstance");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("getGraphicsComponentInstanceForEntityInstance");
 
 
         // physics messages/requests
-        createMessageType("setInstanceAndBoundingDataPosition");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAndBoundingDataPosition");
 
-        createRequestType("getPhysicsComponentInstanceForEntityInstance");
-        createRequestType("setMouseClickCollider");
-        createRequestType("setMouseHeldCollider");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("getPhysicsComponentInstanceForEntityInstance");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("setMouseClickCollider");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("setMouseHeldCollider");
 
         // entity messages/requests
-        createMessageType("createAndPositionPlayerEntityInstance");
-        createMessageType("createEntityInstance");
-        createMessageType("removeEntityInstance");
-        createMessageType("removeEntityInstancesByPriority");
-        createMessageType("setInstancePriority");
-        createMessageType("setInstancePosition");
-        createMessageType("setInstanceScale");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("createAndPositionPlayerEntityInstance");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("createEntityInstance");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("removeEntityInstance");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("removeEntityInstancesByPriority");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstancePriority");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstancePosition");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceScale");
 
-        createRequestType("getTransformationForEntityInstance");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("getTransformationForEntityInstance");
+
+
+        // input messages/requests
+
+        createRequestType(new namespace.Comp.Def.MessageDefinition("mouseClicked");
+        createRequestType(new namespace.Comp.Def.MessageDefinition("mouseHeld");
 
 
         // data messages/requests
-        createMessageType("loadLevel");
+        createMessageType(new namespace.Comp.Def.MessageDefinition("loadLevel");
     };
 
     namespace.Globals = namespace.Globals || {};

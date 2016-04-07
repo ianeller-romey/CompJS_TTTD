@@ -209,7 +209,7 @@
             });
         };
 
-        var createEntityInstance = function (xEntityType, priority, data, callback) {
+        var createEntityInstance = function (xEntityType, priority, additional, callback) {
             var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, priority, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
             entityInstances.push(entity);
 
@@ -220,12 +220,16 @@
             var entityDefinition = entityInstanceDefinitions[entity.instanceDefinitionId];
             if (entityHasBehavior(entityDefinition)) {
                 behaviorEngine.createBehaviorComponentInstance(entity, entityDefinition.behavior);
-                if (data !== undefined && data !== null) {
-                    behaviorEngine.setBehaviorComponentInstanceData(entity.instanceId, data);
+                if (additional != null && additional.data != null) { // intentional truthiness
+                    behaviorEngine.setBehaviorComponentInstanceData(entity.instanceId, additional.data);
                 }
             }
             if (entityHasGraphics(entityDefinition)) {
-                graphicsEngine.createGraphicsComponentInstance(entity, entityDefinition.graphics);
+                if (additional != null && additional.fontText != null) { // intentional truthiness
+                    graphicsEngine.createGraphicsComponentInstanceForFont(entity, entityDefinition.graphics, additional.fontText);
+                } else {
+                    graphicsEngine.createGraphicsComponentInstance(entity, entityDefinition.graphics);
+                }
             }
             if (entityHasPhysics(entityDefinition)) {
                 physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics);
@@ -240,7 +244,7 @@
         };
 
         var createAndPositionPlayerEntityInstance = function (additional, callback) {
-            if (namespace.DebugEnabled) { // intentional truthiness
+            if (namespace.DebugEnabled === true) {
                 if (additional.position == null) { // intentional truthiness
                     throw "createAndPositionPlayerEntityInstance called without providing position data.";
                 }
@@ -293,7 +297,7 @@
                             y: additional.velocity.y
                         };
                     }
-                    createEntityInstance(xEntityType, priority, additional.data, callback);
+                    createEntityInstance(xEntityType, priority, additional, callback);
                 } else {
                     createEntityInstance(xEntityType, priority, null, callback);
                 }

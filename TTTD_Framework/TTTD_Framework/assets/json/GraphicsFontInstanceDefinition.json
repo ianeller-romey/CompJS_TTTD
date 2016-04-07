@@ -1,1 +1,1 @@
-[]
+[{"id":3,"name":"Text","entityInstanceDefinitionId":3,"zOrder":0,"renderPass":0,"singleFontTextureDefinition":{"id":0,"name":"Text","texture":"assets/textures/fonts.png","textureWidth":512.0,"startTop":0.0,"startLeft":0.0,"characterWidth":12.0,"characterHeight":16.0}}]
