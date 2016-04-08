@@ -1157,7 +1157,7 @@
                 webGLFragmentShaderExtraSteps = [];
                 webGLSquareVerticesBuffer = null;
                 webGLTexCoordBuffer = null;
-                messengerEngine.unregisterAll(that);
+                messengerEngine.unregisterObject(that);
                 resolve();
             });
         };
@@ -1339,15 +1339,15 @@
             }
         };
 
-        messengerEngine.register("setShaderProgram", this, setShaderProgram);
-        messengerEngine.register("setInstanceAnimationState", this, setInstanceAnimationState);
-        messengerEngine.register("setInstanceAnimationFrame", this, setInstanceAnimationFrame);
-        messengerEngine.register("setInstanceRenderPass", this, setInstanceRenderPass);
-        messengerEngine.register("addDuplicateInstanceZOrderRenderPass", this, addDuplicateInstanceZOrderRenderPass);
-        messengerEngine.register("removeDuplicateInstanceZOrderRenderPass", this, removeDuplicateInstanceZOrderRenderPass);
-        messengerEngine.register("setInstanceText", this, setInstanceText);
-        messengerEngine.register("clearInstanceText", this, setInstanceText);
-        messengerEngine.register("getGraphicsComponentInstanceForEntityInstanceRequest", this, getGraphicsComponentInstanceForEntityInstance);
+        messengerEngine.registerForMessage("setShaderProgram", this, setShaderProgram);
+        messengerEngine.registerForMessage("setInstanceAnimationState", this, setInstanceAnimationState);
+        messengerEngine.registerForMessage("setInstanceAnimationFrame", this, setInstanceAnimationFrame);
+        messengerEngine.registerForMessage("setInstanceRenderPass", this, setInstanceRenderPass);
+        messengerEngine.registerForMessage("addDuplicateInstanceZOrderRenderPass", this, addDuplicateInstanceZOrderRenderPass);
+        messengerEngine.registerForMessage("removeDuplicateInstanceZOrderRenderPass", this, removeDuplicateInstanceZOrderRenderPass);
+        messengerEngine.registerForMessage("setInstanceText", this, setInstanceText);
+        messengerEngine.registerForMessage("clearInstanceText", this, setInstanceText);
+        messengerEngine.registerForRequest("getGraphicsComponentInstanceForEntityInstance", this, getGraphicsComponentInstanceForEntityInstance);
     };
 
     namespace.Engines.GfxEngine.getShader = function (gl, id) {

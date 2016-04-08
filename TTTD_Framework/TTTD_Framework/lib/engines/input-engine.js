@@ -258,7 +258,7 @@
                     window.removeEventListener("keyup", keyupEvent);
                     canvas.onmousedown = null;
                     canvas.onmouseup = null;
-                    messengerEngine.unregisterAll(that);
+                    messengerEngine.unregisterObject(that);
                     resolve();
                 } else {
                     reject("Browser does not support window.removeEventListener");
@@ -293,7 +293,9 @@
                 }
             }
             if (mouseHeld === true) {
-                messengerEngine.request("setMouseHeldCollider", false, that.getMousePosition());
+                messengerEngine.postNotice("setMouseHeldCollider", {
+                    point: that.getMousePosition()
+                });
             }
 
             // check for initial click AFTER checking to update the held counter
@@ -301,7 +303,9 @@
                 mouseClickedTemp = false;
                 mouseClicked = true;
                 mouseHeldCounter = 1;
-                messengerEngine.request("setMouseClickCollider", false, that.getMousePosition());
+                messengerEngine.postNotice("setMouseClickCollider", {
+                    point: that.getMousePosition()
+                });
             } else if (mouseClicked === true) {
                 // we've been true for a frame, so it's back to false until we click again
                 mouseClicked = true;

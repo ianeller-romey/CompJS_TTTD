@@ -45,7 +45,7 @@
 
     namespace.Comp.Inst.Aud.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
-            messengerEngine.unregisterAll(this);
+            messengerEngine.unregisterObject(this);
             if (this.audio !== null) {
                 audio.parentElement.removeChild(audio);
             }
@@ -128,7 +128,7 @@
             return new Promise(function (resolve, reject) {
                 audCompDefinitions = {};
                 audioContext.close();
-                messengerEngine.unregisterAll(that);
+                messengerEngine.unregisterObject(that);
                 resolve();
             });
         };
@@ -190,7 +190,7 @@
             }
         };
 
-        messengerEngine.register("playAudio", this, playAudio);
-        messengerEngine.register("stopAudio", this, stopAudio);
+        messengerEngine.registerForMessage("playAudio", this, playAudio);
+        messengerEngine.registerForMessage("stopAudio", this, stopAudio);
     };
 }(window.TTTD = window.TTTD || {}));

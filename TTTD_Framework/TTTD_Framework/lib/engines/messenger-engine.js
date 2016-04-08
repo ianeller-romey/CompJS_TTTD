@@ -2,23 +2,109 @@
     "use strict";
 
     ////////
-    // MessageDataCompDef
+    // RegistrationCompDef
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Def = namespace.Comp.Def || {};
-    namespace.Comp.Def.MessageDefinition = function (name, valueNames, deliveryFunction) {
-        this.name = name;
-        this.valueNames = valueNames;
-        this.values = {};
-        this.deliveryFunction = deliveryFunction;
+    namespace.Comp.Def.RegistrationDefinition = function (caller, toCall) {
+        this.caller = caller;
+        this.toCall = toCall;
     };
 
-    namespace.Comp.Def.MessageDefinition.prototype.assignValues = function (values) {
+    namespace.Comp.Def.RegistrationDefinition.prototype.invoke = function (data) {
+        this.toCall.apply(this.caller, data)
+    };
+
+    ////////
+    // MailCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.MailDefinition = function () {
+        this.name = "";
+        this.valueNames = [];
+        this.values = {};
+        this.deliveryFunction = function () {
+            return [];
+        };
+        this.registered = [];
+    };
+
+    namespace.Comp.Def.MailDefinition.prototype.assignValues = function (values) {
         var that = this;
         this.valueNames.forEach(function (valueName) {
             if (namespace.DebugEnabled === true && values[valueName] === undefined) {
-                throw "For message " + that.messageName + ": value \"" + valueName + "\" not present in list of provided values.";
+                throw "For mail \"" + that.name + "\": value \"" + valueName + "\" not present in list of provided values.";
             }
             that.values[valueName] = values[valueName];
+        });
+    };
+
+    namespace.Comp.Def.MailDefinition.prototype.invoke = function (values) {
+        this.assignValues(values);
+        var orderedValues = this.deliveryFunction(this.values);
+        this.registered.forEach(function (x) {
+            x.invoke(orderedValues);
+        });
+    };
+
+    ////////
+    // MessageCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.MessageDefinition = function (name, valueNames, deliveryFunction) {
+        this.name = name + namespace.Comp.Def.MessageDefinition.nameAddendum;
+        this.valueNames = valueNames;
+        this.values = {};
+        this.deliveryFunction = deliveryFunction;
+        this.registered = [];
+    };
+
+    namespace.Comp.Def.MessageDefinition.prototype = new namespace.Comp.Def.MailDefinition();
+
+    namespace.Comp.Def.MessageDefinition.nameAddendum = "Message";
+
+    ////////
+    // NoticeCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.NoticeDefinition = function (name, valueNames, deliveryFunction) {
+        this.name = name + namespace.Comp.Def.NoticeDefinition.nameAddendum;
+        this.valueNames = valueNames;
+        this.values = {};
+        this.deliveryFunction = deliveryFunction;
+        this.registered = [];
+    };
+
+    namespace.Comp.Def.NoticeDefinition.prototype = new namespace.Comp.Def.MailDefinition();
+
+    namespace.Comp.Def.NoticeDefinition.nameAddendum = "Notice";
+
+    ////////
+    // RequestCompDef
+    namespace.Comp = namespace.Comp || {};
+    namespace.Comp.Def = namespace.Comp.Def || {};
+    namespace.Comp.Def.RequestDefinition = function (name, valueNames, deliveryFunction) {
+        this.name = name + namespace.Comp.Def.RequestDefinition.nameAddendum;
+        this.valueNames = valueNames;
+        this.values = {};
+        this.callback = null;
+        this.deliveryFunction = deliveryFunction;
+        this.registered = [];
+    };
+
+    namespace.Comp.Def.RequestDefinition.prototype = new namespace.Comp.Def.MailDefinition();
+
+    namespace.Comp.Def.RequestDefinition.nameAddendum = "Request";
+
+    namespace.Comp.Def.RequestDefinition.prototype.invoke = function (callback, values) {
+        if (namespace.DebugEnabled === true && (!callback /* intentional truthiness */ || typeof(callback) !== "function")) {
+            throw "For request " + that.name + ": callback must be a function.";
+        }
+
+        this.assignValues(values);
+        var orderedValues = this.deliveryFunction(this.values);
+        orderedValues.unshift(callback);
+        this.registered.forEach(function (x) {
+            x.invoke(orderedValues);
         });
     };
 
@@ -33,181 +119,320 @@
 
     namespace.Engines = namespace.Engines || {};
     namespace.Engines.MessengerEngine = function () {
-        var requestStr = "Request";
-        var messageDefinitions = [];
-        var messageRegistration = {};
+        var messageDefinitions = {};
+        var noticeDefinitions = {};
+        var requestDefinitions = {};
         var messages = [];
 
-        var requestTypeName = function(messageType) {
-            return messageType + requestStr;
+        var validDefinition = function (definitions, definitionName) {
+            return definitions[definitionName] != null; // intentional truthiness
         };
 
-        var validMessageType = function (messageType) {
-            return messageDefinitions.any(function (x) {
-                return x === messageType;
-            });
-        }
-
-        var createMessageType = function (messageType) {
-            if (!validMessageType(messageType)) {
-                messageDefinitions.push(messageType);
-
-                if (messageRegistration[messageType] === undefined) {
-                    messageRegistration[messageType] = [];
+        var createDefinition = function (definitions, definition) {
+            if (!definitions[definition.name]) { // intentional truthiness
+                definitions[definition.name] = definition;
+            } else {
+                if (namespace.DebugEnabled === true) {
+                    throw "A definition with name " + definition.name + " already exists.";
                 }
             }
         };
 
-        var createRequestType = function (messageType) {
-            createMessageType(requestTypeName(messageType));
+        var createMessageDefinition = function (definition) {
+            if (namespace.DebugEnabled === true && !(definition instanceof namespace.Comp.Def.MessageDefinition)) {
+                throw "Message definitions must be provided as an instance of the namespace.Comp.Def.MessageDefinition class.";
+            }
+
+            createDefinition(messageDefinitions, definition);
         };
 
-        this.register = function (messageType, object, funct) {
-            if (!validMessageType(messageType)) {
-                throw "Cannot register for " + messageType + ", a messageType that does not exist.";
+        var createNoticeDefinition = function (definition) {
+            if (namespace.DebugEnabled === true && !(definition instanceof namespace.Comp.Def.NoticeDefinition)) {
+                throw "Notice definitions must be provided as an instance of the namespace.Comp.Def.NoticeDefinition class.";
             }
 
-            if (messageRegistration[messageType] === undefined) {
-                messageRegistration[messageType] = [];
-            }
-
-            messageRegistration[messageType].push({
-                caller: object,
-                toCall: funct
-            });
+            createDefinition(noticeDefinitions, definition);
         };
 
-        this.unregister = function (messageType, funct) {
-            if (!validMessageType(messageType)) {
-                throw "Cannot unregister from " + messageType + ", a messageType that does not exist.";
+        var createRequestDefinition = function (definition) {
+            if (namespace.DebugEnabled === true && !(definition instanceof namespace.Comp.Def.RequestDefinition)) {
+                throw "Request definitions must be provided as an instance of the namespace.Comp.Def.RequestDefinition class.";
             }
 
-            var messageTypeRegistration = messageRegistration[messageType];
-            var messageRegisterer = messageTypeRegistration.firstOrNull(function (x) {
-                return x.toCall === funct;
-            });
-            if (messageRegisterer) { // intentional truthiness
-                var index = messageTypeRegistration.indexOf(messageRegisterer);
-                if (index > -1) {
-                    messageTypeRegistration.splice(index, 1);
+            createDefinition(requestDefinitions, definition);
+        };
+
+        var register = function (definitions, definitionName, object, funct) {
+            definitions[definitionName].registered.push(new namespace.Comp.Def.RegistrationDefinition(object, funct));
+        };
+
+        this.registerForMessage = function (name, object, funct) {
+            name = name + namespace.Comp.Def.MessageDefinition.nameAddendum;
+            if (!validDefinition(messageDefinitions, name)) {
+                throw "Cannot register for \"" + name + "\", a message definition that does not exist.";
+            }
+
+            register(messageDefinitions, name, object, funct);
+        };
+
+        this.registerForNotice = function (name, object, funct) {
+            name = name + namespace.Comp.Def.NoticeDefinition.nameAddendum;
+            if (!validDefinition(noticeDefinitions, name)) {
+                throw "Cannot register for \"" + name + "\", a notice definition that does not exist.";
+            }
+
+            register(noticeDefinitions, name, object, funct);
+        };
+
+        this.registerForRequest = function (name, object, funct) {
+            name = name + namespace.Comp.Def.RequestDefinition.nameAddendum;
+            if (!validDefinition(requestDefinitions, name)) {
+                throw "Cannot register for \"" + name + "\", a request definition that does not exist.";
+            }
+
+            register(requestDefinitions, name, object, funct);
+        };
+
+        var unregister = function (definitions, definitionName, funct) {
+            for (var i = 0; i < definitions[definitionName].registered.length; ++i) {
+                if (definitions[definitionName].registered[i].toCall === funct) {
+                    definitions[definitionName].registered.splice(i, 1);
+                    return;
                 }
             }
         };
 
-        this.unregisterAll = function (object) {
-            messageDefinitions.forEach(function (messageType) {
-                var messageRegisterer = null;
-                var i = 0;
-                while (i < messageRegistration[messageType].length) {
-                    messageRegisterer = messageRegistration[messageType][i];
-                    if (messageRegisterer.caller === object) {
-                        messageRegistration[messageType].splice(i, 1);
-                    } else {
-                        ++i;
+        this.unregisterForMessage = function (name, funct) {
+            name = name + namespace.Comp.Def.MessageDefinition.nameAddendum;
+            if (!validDefinition(messageDefinitions, name)) {
+                throw "Cannot unregister for \"" + name + "\", a message definition that does not exist.";
+            }
+
+            unregister(messageDefinitions, name, funct);
+        };
+
+        this.unregisterForNotice = function (name, funct) {
+            name = name + namespace.Comp.Def.NoticeDefinition.nameAddendum;
+            if (!validDefinition(noticeDefinitions, name)) {
+                throw "Cannot unregister for \"" + name + "\", a notice definition that does not exist.";
+            }
+
+            unregister(noticeDefinitions, name, funct);
+        };
+
+        this.unregisterForRequest = function (name, funct) {
+            name = name + namespace.Comp.Def.RequestDefinition.nameAddendum;
+            if (!validDefinition(requestDefinitions, name)) {
+                throw "Cannot unregister for \"" + name + "\", a request definition that does not exist.";
+            }
+
+            unregister(requestDefinitions, name, funct);
+        };
+
+        var unregisterAll = function (definitions, object) {
+            for (var definitionName in definitions) {
+                if (definitions.hasOwnProperty(definitionName) && definitions[definitionName] != null /* intentional truthiness */) {
+                    var i = 0;
+                    while (i < definitions[definitionName].registered.length) {
+                        if (definitions[definitionName].registered[i].caller === object) {
+                            definitions[definitionName].registered[i].splice(i, 1);
+                        } else {
+                            ++i;
+                        }
                     }
                 }
-            });
+            }
         };
 
-        this.queueForPosting = function (messageType) {
-            if (!validMessageType(messageType)) {
-                throw "Cannot queue " + messageType + " for posting, as this messageType does not exist.";
-            }
-
-            var params = Array.prototype.slice.call(arguments, 1);
-
-            messages.push({
-                messageType: messageType,
-                data: params
-            });
+        this.unregisterAllMessages = function (object) {
+            unregisterAll(messageDefinitions, object);
         };
 
-        this.request = function (messageType, callback) {
-            var requestType = requestTypeName(messageType);
-            if (!validMessageType(requestType)) {
-                throw "Cannot request " + requestType + ", as this messageType does not exist.";
-            }
-
-            if (callback === false) { // false means that we don't care about a callback
-                post(requestType, Array.prototype.slice.call(arguments, 2));
-            } else {
-                if (typeof (callback) !== "function") {
-                    throw "No callback function provided for request.";
-                }
-                post(requestType, Array.prototype.slice.call(arguments, 1));
-            }
-
+        this.unregisterAllNotices = function (object) {
+            unregisterAll(noticeDefinitions, object);
         };
 
-        var post = function (messageType, messageData) {
-            var messageTypeRegistration = messageRegistration[messageType];
-            messageTypeRegistration.forEach(function (x) {
-                x.toCall.apply(x.caller, messageData);
-            });
+        this.unregisterAllRequests = function (object) {
+            unregisterAll(requestDefinitions, object);
+        };
+
+        this.unregisterObject = function(object) {
+            this.unregisterAllMessages(object);
+            this.unregisterAllNotices(object);
+            this.unregisterAllRequests(object);
+        };
+
+        var postMessage = function (message) {
+            messageDefinitions[message.name].invoke(message.values);
+        };
+
+        this.queueMessage = function (name) {
+            name = name + namespace.Comp.Def.MessageDefinition.nameAddendum;
+            if (!validDefinition(messageDefinitions, name)) {
+                throw "Cannot queue \"" + name + "\", as this definition does not exist.";
+            }
+
+            var values = arguments[1];
+            messages.push(new namespace.Comp.Inst.Message(name, values));
+        };
+
+        this.postNotice = function (name) {
+            name = name + namespace.Comp.Def.NoticeDefinition.nameAddendum;
+            if (!validDefinition(noticeDefinitions, name)) {
+                throw "Cannot post \"" + name + "\", as this definition does not exist.";
+            }
+            
+            var values = arguments[1];
+            noticeDefinitions[name].invoke(values);
+        };
+
+        this.sendRequest = function (name) {
+            name = name + namespace.Comp.Def.RequestDefinition.nameAddendum;
+            if (!validDefinition(requestDefinitions, name)) {
+                throw "Cannot send \"" + name + "\", as this definition does not exist.";
+            }
+
+            var callback = arguments[1];
+            var values = arguments[2];
+            requestDefinitions[name].invoke(callback, values);
         };
 
         this.update = function () {
             for (var i = 0; i < messages.length; ++i) {
-                post(messages[i].messageType, messages[i].data);
+                postMessage(messages[i]);
             }
             messages = [];
         };
 
-        // audio messages/requests
-        createMessageType("playAudio");
-        createMessageType("stopAudio");
+
+        ////////
+        // audio messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("playAudio", ["audio"], function (values) {
+            return [values.audio];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("stopAudio", ["audio"], function (values) {
+            return [values.audio];
+        }));
 
 
-        // behavior messages/requests
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceData", ["instanceId", "data"], function(values) {
+        ////////
+        // behavior messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceData", ["instanceId", "data"], function(values) {
             return [values.instanceId, values.data];
         }));
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setBehaviorConstructor");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setBehaviorInstanceData");
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setBehaviorConstructor", ["constructorName", "constructorFunction"], function(values) {
+            return [values.constructorName, values.constructorFunction];
+        }));
 
-        createRequestType(new namespace.Comp.Def.MessageDefinition("getBehaviorComponentInstanceForEntityInstance");
-
-
-        // graphics messages/requests
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setShaderProgram");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationState");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationFrame");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceRenderPass");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("addDuplicateInstanceZOrderRenderPass");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("removeDuplicateInstanceZOrderRenderPass");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceText");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("clearInstanceText");
-
-        createRequestType(new namespace.Comp.Def.MessageDefinition("getGraphicsComponentInstanceForEntityInstance");
+        ////////
+        // behavior requests
+        createRequestDefinition(new namespace.Comp.Def.RequestDefinition("getBehaviorComponentInstanceForEntityInstance", ["instanceId"], function (callback, values) {
+            return [callback, values.instanceId];
+        }));
 
 
-        // physics messages/requests
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceAndBoundingDataPosition");
+        ////////
+        // graphics messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setShaderProgram", ["programName", "renderPass"], function(values) {
+            return [values.programName, values.renderPass];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationState", ["instanceId", "animationState"], function (values) {
+            return [values.instanceId, values.animationState];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceAnimationFrame", ["instanceId", "animationFrame"], function(values) {
+            return [values.instanceId, values.animationFrame];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceRenderPass", ["instanceId", "renderPass"], function(values) {
+            return [values.instanceId, values.renderPass];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("addDuplicateInstanceZOrderRenderPass", ["instanceId", "zOrder", "renderPass"], function(values) {
+            return [values.instanceId, values.zOrder, values.renderPass];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("removeDuplicateInstanceZOrderRenderPass", ["instanceId"], function(values) {
+            return [values.instanceId];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceText", ["instanceId", "text"], function(values) {
+            return [values.instanceId, values.text];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("clearInstanceText", ["instanceId"], function (values) {
+            return [values.instanceId];
+        }));
 
-        createRequestType(new namespace.Comp.Def.MessageDefinition("getPhysicsComponentInstanceForEntityInstance");
-        createRequestType(new namespace.Comp.Def.MessageDefinition("setMouseClickCollider");
-        createRequestType(new namespace.Comp.Def.MessageDefinition("setMouseHeldCollider");
-
-        // entity messages/requests
-        createMessageType(new namespace.Comp.Def.MessageDefinition("createAndPositionPlayerEntityInstance");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("createEntityInstance");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("removeEntityInstance");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("removeEntityInstancesByPriority");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstancePriority");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstancePosition");
-        createMessageType(new namespace.Comp.Def.MessageDefinition("setInstanceScale");
-
-        createRequestType(new namespace.Comp.Def.MessageDefinition("getTransformationForEntityInstance");
+        ////////
+        // graphics requests
+        createRequestDefinition(new namespace.Comp.Def.RequestDefinition("getGraphicsComponentInstanceForEntityInstance", ["instanceId"], function (values) {
+            return [values.instanceId];
+        }));
 
 
-        // input messages/requests
+        ////////
+        // physics messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceAndBoundingDataPosition", ["instanceId", "position"], function(values) {
+            return [values.instanceId, values.position];
+        }));
 
-        createRequestType(new namespace.Comp.Def.MessageDefinition("mouseClicked");
-        createRequestType(new namespace.Comp.Def.MessageDefinition("mouseHeld");
+        ////////
+        // physics requests
+        createRequestDefinition(new namespace.Comp.Def.RequestDefinition("getPhysicsComponentInstanceForEntityInstance", ["instanceId"], function (values) {
+            return [values.instanceId];
+        }));
+
+        ////////
+        // physics notices
+        createNoticeDefinition(new namespace.Comp.Def.NoticeDefinition("setMouseClickCollider", ["point"], function (values) {
+            return [values.point];
+        }));
+        createNoticeDefinition(new namespace.Comp.Def.NoticeDefinition("setMouseHeldCollider", ["point"], function (values) {
+            return [values.point];
+        }));
 
 
-        // data messages/requests
-        createMessageType(new namespace.Comp.Def.MessageDefinition("loadLevel");
+        ////////
+        // entity messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("createAndPositionPlayerEntityInstance", ["additional", "callback"], function(values) {
+            return [values.additional, values.callback];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("createEntityInstance", ["identifier", "priority", "additional", "callback"], function(values) {
+            return [values.identifier, values.priority, values.additional, values.callback];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("removeEntityInstance", ["instanceId"], function(values) {
+            return [values.instanceId];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("removeEntityInstancesByPriority", ["priority"], function(values) {
+            return [values.priority];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstancePriority", ["instanceId", "priority"], function(values) {
+            return [values.instanceId, values.priority];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstancePosition", ["instanceId", "position"], function(values) {
+            return [values.instanceId, values.position];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceScale", ["instanceId", "scale"], function (values) {
+            return [values.instanceId, values.scale];
+        }));
+
+        ////////
+        // entity requests
+        createRequestDefinition(new namespace.Comp.Def.RequestDefinition("getTransformationForEntityInstance", ["instanceId"], function (values) {
+            return [values.instanceId];
+        }));
+
+
+        ////////
+        // input notices
+        createNoticeDefinition(new namespace.Comp.Def.NoticeDefinition("mouseClicked", ["clicked"], function (values) {
+            return [values.clicked];
+        }));
+        createNoticeDefinition(new namespace.Comp.Def.NoticeDefinition("mouseHeld", ["held"], function (values) {
+            return [values.held];
+        }));
+
+
+        ////////
+        // data messages
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("loadLevel", ["levelId", "priority"], function(values) {
+            return [values.levelId, values.priority];
+        }));
     };
 
     namespace.Globals = namespace.Globals || {};

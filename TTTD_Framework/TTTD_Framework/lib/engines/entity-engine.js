@@ -10,7 +10,7 @@
 
     namespace.Comp.Inst.Component.prototype.destroy = function (messengerEngine) {
         if (messengerEngine) { // intentional truthiness
-            messengerEngine.unregisterAll(this);
+            messengerEngine.unregisterObject(this);
         }
     };
 
@@ -204,7 +204,7 @@
                 entityInstanceDefinitions = [];
                 entityInstanceDefinitionNamedIds = [];
                 entityInstances = [];
-                messengerEngine.unregisterAll(that);
+                messengerEngine.unregisterObject(that);
                 resolve();
             });
         };
@@ -253,7 +253,7 @@
             if (playerEntityInstance === null) {
                 createEntityInstanceFromMessage(playerEntityInstanceDefinitionName, playerEntityInstanceDefaultPriority, additional, callback);
             } else {
-                messengerEngine.queueForPosting("setInstanceAndBoundingDataPosition", playerEntityInstance.instanceId, new namespace.Math.Vector2D(additional.position.x, additional.position.y));
+                physEng.setInstanceAndBoundingDataPosition(playerEntityInstance.instanceId, new namespace.Math.Vector2D(additional.position.x, additional.position.y));
             }
         };
 
@@ -393,12 +393,12 @@
             }
         };
 
-        messengerEngine.register("createAndPositionPlayerEntityInstance", this, createAndPositionPlayerEntityInstance);
-        messengerEngine.register("createEntityInstance", this, createEntityInstanceFromMessage);
-        messengerEngine.register("removeEntityInstance", this, removeEntityInstanceFromMessage);
-        messengerEngine.register("removeEntityInstancesByPriority", this, removeEntityInstancesByPriority);
-        messengerEngine.register("setInstancePosition", this, setInstancePosition);
-        messengerEngine.register("setInstanceScale", this, setInstanceScale);
-        messengerEngine.register("getTransformationForEntityInstanceRequest", this, getTransformationForEntityInstance);
+        messengerEngine.registerForMessage("createAndPositionPlayerEntityInstance", this, createAndPositionPlayerEntityInstance);
+        messengerEngine.registerForMessage("createEntityInstance", this, createEntityInstanceFromMessage);
+        messengerEngine.registerForMessage("removeEntityInstance", this, removeEntityInstanceFromMessage);
+        messengerEngine.registerForMessage("removeEntityInstancesByPriority", this, removeEntityInstancesByPriority);
+        messengerEngine.registerForMessage("setInstancePosition", this, setInstancePosition);
+        messengerEngine.registerForMessage("setInstanceScale", this, setInstanceScale);
+        messengerEngine.registerForRequest("getTransformationForEntityInstance", this, getTransformationForEntityInstance);
     };
 }(window.TTTD = window.TTTD || {}));

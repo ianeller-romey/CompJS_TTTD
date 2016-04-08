@@ -16,9 +16,9 @@
 
     namespace.Comp.Inst.Physics.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
-            messengerEngine.unregisterAll(this);
+            messengerEngine.unregisterObject(this);
             if (this.physical !== null) {
-                messengerEngine.unregisterAll(this.physical);
+                messengerEngine.unregisterObject(this.physical);
             }
         }
     };
@@ -206,7 +206,7 @@
                     physCompInstances[0].destroy();
                     physCompInstances.shift();
                 }
-                messengerEngine.unregisterAll(that);
+                messengerEngine.unregisterObject(that);
                 resolve();
             });
         };
@@ -226,7 +226,7 @@
             }
         };
 
-        var setInstanceAndBoundingDataPosition = function (instanceId, position) {
+        this.setInstanceAndBoundingDataPosition = function (instanceId, position) {
             var instance = physCompInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
             });
@@ -280,10 +280,10 @@
             }
         };
         
-        messengerEngine.register("setInstanceAndBoundingDataPosition", this, setInstanceAndBoundingDataPosition);
-        messengerEngine.register("getPhysicsComponentInstanceForEntityInstanceRequest", this, getPhysicsComponentInstanceForEntityInstance);
-        messengerEngine.register("setMouseClickColliderRequest", this, setMouseClickCollider);
-        messengerEngine.register("setMouseHeldColliderRequest", this, setMouseHeldCollider);
+        messengerEngine.registerForMessage("setInstanceAndBoundingDataPosition", this, this.setInstanceAndBoundingDataPosition);
+        messengerEngine.registerForRequest("getPhysicsComponentInstanceForEntityInstance", this, getPhysicsComponentInstanceForEntityInstance);
+        messengerEngine.registerForNotice("setMouseClickCollider", this, setMouseClickCollider);
+        messengerEngine.registerForNotice("setMouseHeldCollider", this, setMouseHeldCollider);
     };
         
     var Phys = namespace.Engines.PhysEngine;

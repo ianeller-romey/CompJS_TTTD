@@ -151,25 +151,33 @@
         var loadLevelLayout = function (levelId) {
             var levelLayoutToLoad = levelLayouts[levelId];
             if (levelLayoutToLoad.playerPosition) { // intentional truthiness
-                messengerEngine.queueForPosting("createAndPositionPlayerEntityInstance", {
-                    position: {
-                        x: levelLayoutToLoad.playerPosition.x,
-                        y: levelLayoutToLoad.playerPosition.y
-                    }
+                messengerEngine.queueMessage("createAndPositionPlayerEntityInstance", {
+                    additional: {
+                        position: {
+                            x: levelLayoutToLoad.playerPosition.x,
+                            y: levelLayoutToLoad.playerPosition.y
+                        }
+                    }, callback: null
                 });
             }
             levelLayouts[levelId].layout.forEach(function (ll) {
-                messengerEngine.queueForPosting("createEntityInstance", ll.entityInstanceDefinitionId, ll.priority, {
-                    position: {
-                        x: ll.x,
-                        y: ll.y
-                    }, data: ll.data
+                messengerEngine.queueMessage("createEntityInstance", {
+                    identifier: ll.entityInstanceDefinitionId,
+                    priority: ll.priority,
+                    additional: {
+                        position: {
+                            x: ll.x,
+                            y: ll.y
+                        }, data: ll.data
+                    }, callback: null
                 });
             });
         };
 
         this.loadLevel = function (levelId, priority) {
-            messengerEngine.queueForPosting("removeEntityInstancesByPriority", priority);
+            messengerEngine.queueMessage("removeEntityInstancesByPriority", {
+                priority: priority
+            });
             // TODO: Caching?
             if (levelLayouts[levelId] == null) { // intentional truthiness
                 readLevelLayout(levelId).then(function (data) {
@@ -183,7 +191,7 @@
 
         setupLevelCache();
 
-        messengerEngine.register("loadLevel", this, this.loadLevel);
+        messengerEngine.registerForMessage("loadLevel", this, this.loadLevel);
     };
 
     namespace.Globals = namespace.Globals || {};

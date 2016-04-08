@@ -40,9 +40,9 @@
 
     namespace.Comp.Inst.Behavior.prototype.destroy = function (messengerEngine) {
         if (messengerEngine !== null) {
-            messengerEngine.unregisterAll(this);
+            messengerEngine.unregisterObject(this);
             if (this.behavior !== null) {
-                messengerEngine.unregisterAll(this.behavior);
+                messengerEngine.unregisterObject(this.behavior);
             }
         }
     };
@@ -105,7 +105,7 @@
                     bhvCompInstances[0].destroy(messengerEngine);
                     bhvCompInstances.shift();
                 }
-                messengerEngine.unregisterAll(that);
+                messengerEngine.unregisterObject(that);
                 resolve();
             });
         };
@@ -148,8 +148,8 @@
             }
         };
 
-        messengerEngine.register("setInstanceData", this, this.setBehaviorComponentInstanceData);
-        messengerEngine.register("getBehaviorComponentInstanceForEntityInstanceRequest", this, getBehaviorComponentInstanceForEntityInstance);
+        messengerEngine.registerForMessage("setInstanceData", this, this.setBehaviorComponentInstanceData);
+        messengerEngine.registerForRequest("getBehaviorComponentInstanceForEntityInstance", this, getBehaviorComponentInstanceForEntityInstance);
     };
 
     namespace.Engines.BhvEngine.setBehaviorConstructor = function (constructorName, constructorFunction) {
@@ -159,7 +159,7 @@
         }
     };
 
-    namespace.Globals.globalMessengerEngine.register("setBehaviorConstructor", namespace.Engines.BhvEngine, namespace.Engines.BhvEngine.setBehaviorConstructor);
+    namespace.Globals.globalMessengerEngine.registerForMessage("setBehaviorConstructor", namespace.Engines.BhvEngine, namespace.Engines.BhvEngine.setBehaviorConstructor);
 
     namespace.Engines.BhvEngine.loadBehaviorScripts = function (data, headElem) {
         namespace.Engines.BhvEngine.bhvConstructors = {};

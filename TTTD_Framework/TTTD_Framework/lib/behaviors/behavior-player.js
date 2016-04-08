@@ -47,7 +47,10 @@
             this.state_enterIdle = function (delta) {
                 that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(0);
                 that.transformation.velocity.x = that.transformation.velocity.y.setAndNotify(0);
-                messengerEngine.queueForPosting("setInstanceAnimationState", that.instanceId, 0);
+                messengerEngine.queueMessage("setInstanceAnimationState", {
+                    instanceId: that.instanceId,
+                    animationState: 0
+                });
                 return true;
             };
 
@@ -66,7 +69,10 @@
             this.state_enterMoving = function (delta) {
                 var velocity = (destination.x > that.transformation.position.x) ? playerSpeed : -playerSpeed;
                 that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(velocity);
-                //messengerEngine.queueForPosting("setInstanceAnimationState", that.instanceId, (playerSpeed > 0) ? 1 : 2);
+                //messengerEngine.queueMessage("setInstanceAnimationState", {
+                //    instanceId: that.instanceId, 
+                //    animationState: (playerSpeed > 0) ? 1 : 2
+                //});
                 return true;
             };
 
@@ -92,6 +98,9 @@
             };
         };
 
-        namespace.Globals.globalMessengerEngine.queueForPosting("setBehaviorConstructor", "BehaviorPlayer", namespace.BehaviorPlayer);
+        namespace.Globals.globalMessengerEngine.queueMessage("setBehaviorConstructor", {
+            constructorName: "BehaviorPlayer",
+            constructorFunction: namespace.BehaviorPlayer
+        });
     }
 }(window.TTTD = window.TTTD || {}));

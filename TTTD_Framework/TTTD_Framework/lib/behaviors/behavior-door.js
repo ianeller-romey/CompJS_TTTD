@@ -21,9 +21,11 @@
                 if (that.data["loadLevelPriority"] != null) { // intentional truthiness
                     that.loadLevelPriority = that.data["loadLevelPriority"];
                 }
-                messengerEngine.request("getPhysicsComponentInstanceForEntityInstance", function (instance) {
+                messengerEngine.sendRequest("getPhysicsComponentInstanceForEntityInstance", function (instance) {
                     that.physics = instance;
-                }, that.instanceId);
+                }, {
+                    instanceId: that.instanceId
+                });
                 if (that.loadLevelId !== null && that.loadLevelPriority !== null) {
                     return [that.state_update];
                 } else {
@@ -46,13 +48,22 @@
             };
 
             this.state_enterActive = function (delta) {
-                messengerEngine.queueForPosting("addDuplicateInstanceZOrderRenderPass", that.instanceId, 1, 1);
-                messengerEngine.queueForPosting("createEntityInstance", "Text", 1, {
-                    position: {
-                        x: 100,
-                        y: 100
+                messengerEngine.queueMessage("addDuplicateInstanceZOrderRenderPass", {
+                    instanceId: that.instanceId,
+                    zOrder: 1,
+                    renderPass: 1
+                });
+                messengerEngine.queueMessage("createEntityInstance", {
+                    identifier: "Text",
+                    priority: 1,
+                    additional: {
+                        position: {
+                            x: 100,
+                            y: 100
+                        },
+                        fontText: "YAY!"
                     },
-                    fontText: "YAY!"
+                    callback: null
                 });
                 return [that.state_active];
             };
@@ -61,7 +72,10 @@
                 if (that.physics.physical.colliders) { // intentional truthiness
                     that.physics.physical.colliders.forEach(function (x) {
                         if (x.instanceDefinitionName === "Player") {
-                            messengerEngine.queueForPosting("loadLevel", that.loadLevelId, that.loadLevelPriority);
+                            messengerEngine.queueMessage("loadLevel", {
+                                levelId: that.loadLevelId,
+                                priority: that.loadLevelPriority
+                            });
                         }
                     });
                 }
@@ -71,6 +85,9 @@
             this.firstBehavior = this.state_init;
         };
 
-        namespace.Globals.globalMessengerEngine.queueForPosting("setBehaviorConstructor", "BehaviorDoor", namespace.BehaviorDoor);
+        namespace.Globals.globalMessengerEngine.queueMessage("setBehaviorConstructor", {
+            constructorName: "BehaviorDoor",
+            constructorFunction: namespace.BehaviorDoor
+        });
     }
 }(window.TTTD = window.TTTD || {}));
