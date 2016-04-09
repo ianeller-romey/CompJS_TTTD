@@ -182,21 +182,21 @@
         };
 
         this.isAnyPressed = function () {
-            for (var keyCode in pressedArray) {
-                if (pressedArray.hasOwnProperty(keyCode) && pressedArray[keyCode] === true) {
+            var is = pressedArray.forOwnProperties(function (key, value) {
+                if (value === true) {
                     return true;
                 }
-            }
-            return false;
+            });
+            return (is !== undefined) ? is : false;
         };
 
         this.isAnyTriggered = function () {
-            for (var keyCode in triggeredArray) {
-                if (triggeredArray.hasOwnProperty(keyCode) && triggeredArray[keyCode] === true) {
+            var is = triggeredArray.forOwnProperties(function (key, value) {
+                if (value === true) {
                     return true;
                 }
-            }
-            return false;
+            });
+            return (is !== undefined) ? is : false;
         };
 
         this.isAnyPressedOrTriggered = function () {
@@ -204,12 +204,13 @@
         };
 
         this.getFirstTriggered = function () {
-            for (var keyCode in triggeredArray) {
-                if (triggeredArray.hasOwnProperty(keyCode) && triggeredArray[keyCode] === true) {
-                    return keyCode;
+            var first = triggeredArray.forOwnProperties(function (key, value) {
+                if (value === true) {
+                    return key;
                 }
-            }
-            return null;
+            });
+            
+            return (first !== undefined) ? first : null;
         };
 
         this.isMouseClicked = function () {

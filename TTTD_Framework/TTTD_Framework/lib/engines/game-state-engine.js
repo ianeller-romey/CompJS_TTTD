@@ -5,7 +5,7 @@
     // GameStateEngine
     namespace.Engines = namespace.Engines || {};
     namespace.Engines.GameStateEngine = function () {
-        var gameStates = ["default"];
+        var gameStates = [namespace.Engines.GameStateEngine.defaultGameState];
         var activeAudGameStates = [];
         var activeBhvGameStates = [];
         var activeGfxGameStates = [];
@@ -103,7 +103,11 @@
                 that.addPhysGameState(gameState);
             }
         };
+
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.defaultGameState, true, true, true, true);
     };
+
+    namespace.Engines.GameStateEngine.defaultGameState = "default";
 
     namespace.Globals = namespace.Globals || {};
     namespace.Globals.globalGameStateEngine = new namespace.Engines.GameStateEngine();

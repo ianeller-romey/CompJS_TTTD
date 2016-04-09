@@ -230,18 +230,18 @@
         };
 
         var unregisterAll = function (definitions, object) {
-            for (var definitionName in definitions) {
-                if (definitions.hasOwnProperty(definitionName) && definitions[definitionName] != null /* intentional truthiness */) {
+            definitions.forOwnProperties(function (key, value) {
+                if (value != null) { // intentional truthiness
                     var i = 0;
-                    while (i < definitions[definitionName].registered.length) {
-                        if (definitions[definitionName].registered[i].caller === object) {
-                            definitions[definitionName].registered[i].splice(i, 1);
+                    while (i < value.registered.length) {
+                        if (value.registered[i].caller === object) {
+                            value.registered[i].splice(i, 1);
                         } else {
                             ++i;
                         }
                     }
                 }
-            }
+            });
         };
 
         this.unregisterAllMessages = function (object) {
@@ -345,7 +345,7 @@
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceRenderPass", ["instanceId", "renderPass"], function(values) {
             return [values.instanceId, values.renderPass];
         }));
-        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("addDuplicateInstanceZOrderRenderPass", ["instanceId", "zOrder", "renderPass"], function(values) {
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("addDuplicateInstanceZOrderRenderPass", ["instanceId", "zOrder", "renderPass", "gameState"], function(values) {
             return [values.instanceId, values.zOrder, values.renderPass];
         }));
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("removeDuplicateInstanceZOrderRenderPass", ["instanceId"], function(values) {
@@ -392,7 +392,7 @@
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("createAndPositionPlayerEntityInstance", ["additional", "callback"], function(values) {
             return [values.additional, values.callback];
         }));
-        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("createEntityInstance", ["identifier", "priority", "additional", "callback"], function(values) {
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("createEntityInstance", ["identifier", "priority", "gameState", "additional", "callback"], function(values) {
             return [values.identifier, values.priority, values.additional, values.callback];
         }));
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("removeEntityInstance", ["instanceId"], function(values) {

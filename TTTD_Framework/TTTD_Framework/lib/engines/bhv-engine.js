@@ -65,10 +65,11 @@
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
         var dataEngine = namespace.Globals.globalDataEngine;
+        var gameStateEngine = namespace.Globals.globalGameStateEngine;
 
         var bhvConstructors = namespace.Engines.BhvEngine.bhvConstructors;
         var bhvCompDefinitions = [];
-        var bhvCompInstances = [];
+        var bhvGameStates = {};
 
         var buildBehaviorComponentInstanceDefinitions = function (data) {
             data.forEach(function (x) {
@@ -77,6 +78,11 @@
         };
 
         this.init = function () {
+            var that = this;
+            gameStateEngine.getActiveBhvGameStates().forEach(function (gameState) {
+                that.addGameState(gameState);
+            });
+
             return new Promise(function (resolve, reject) {
                 dataEngine.loadAllBehaviorInstanceDefinitions().then(function (data) {
                     buildBehaviorComponentInstanceDefinitions(data);
@@ -92,9 +98,13 @@
         };
 
         this.update = function (delta) {
-            for (var i = 0; i < bhvCompInstances.length; ++i) {
-                bhvCompInstances[i].processBehaviorQueue(delta);
-            }
+            var activeGameStates = gameStateEngine.getActiveBhvGameStates();
+            activeGameStates.forEach(function (gameState) {
+                var bhvGameState = bhvGameStates[gameState];
+                for (var i = 0; i < bhvGameState.bhvCompInstances.length; ++i) {
+                    bhvGameState.bhvCompInstances[i].processBehaviorQueue(delta);
+                }
+            });
         };
 
         this.shutdown = function () {
@@ -109,43 +119,73 @@
                 resolve();
             });
         };
+        
+        var addGameState = function (name) {
+            if (!bhvGameStates[name]) { // intentional truthiness
+                bhvGameStates[name] = new namespace.Engines.BhvEngine.GameState(name);
+            }
+        };
 
-        this.createBehaviorComponentInstance = function (entity, bhvCompDefId) {
+        var removeGameState = function (name) {
+            if (bhvGameStates[name]) { // intentional truthiness
+                while (bhvGameStates[name].bhvCompInstances.length > 0) {
+                    var bhvCompInstance = bhvGameStates[name].bhvCompInstances.pop();
+                    bhvCompInstance.destroy(messengerEngine);
+                }
+                bhvGameStates[name] = null;
+            }
+        };
+
+        var addBehaviorComponentInstanceToGameState = function (instance, gameState) {
+            addGameState(gameState);
+            bhvGameStates[gameState].bhvCompInstances.push(instance);
+        };
+
+        var getBehaviorComponentInstanceById = function (instanceId) {
+            var inst = bhvGameStates.forOwnProperties(function (key, value) {
+                var instance = value.bhvCompInstance.firstOrNull(function (x) {
+                    return x.instanceId === instanceId;
+                });
+                if (instance !== null) {
+                    return instance;
+                }
+            });
+            return (inst !== undefined) ? inst : null;
+        };
+
+        this.createBehaviorComponentInstance = function (entity, bhvCompDefId, gameState) {
             var behavior = new bhvConstructors[bhvCompDefinitions[bhvCompDefId].behaviorConstructor](entity);
             var instance = new Inst.Behavior(entity, behavior);
-            bhvCompInstances.push(instance);
+            addBehaviorComponentInstanceToGameState(instance, gameState);
         };
 
         this.setBehaviorComponentInstanceData = function (instanceId, data) {
-            var instance = bhvCompInstances.firstOrNull(function (x) {
-                return x.instanceId === instanceId;
-            });
+            var instance = getBehaviorComponentInstanceById(instanceId);
             if (instance !== null) {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        instance.behavior.data[key] = data[key];
-                    }
-                }
+                data.forOwnProperties(function (key, value) {
+                    instance.behavior.data[key] = value;
+                });
             }
         };
 
         var getBehaviorComponentInstanceForEntityInstance = function (callback, instanceId) {
-            var instance = bhvCompInstances.firstOrNull(function (x) {
-                return x.instanceId === instanceId;
-            });
+            var instance = getBehaviorComponentInstanceById(instanceId);
             if (instance !== null) {
                 callback(instance);
             }
         };
 
         this.removeBehaviorComponentInstanceFromMessage = function (instanceId) {
-            for (var i = 0; i < bhvCompInstances.length; ++i) {
-                if (bhvCompInstances[i].instanceId === instanceId) {
-                    bhvCompInstances[i].destroy(messengerEngine);
-                    bhvCompInstances.splice(i, 1);
-                    break;
+            bhvGameStates.forOwnProperties(function (key, value) {
+                var bhvCompInstances = value.bhvCompInstances;
+                for (var i = 0; i < bhvCompInstances.length; ++i) {
+                    if (bhvCompInstances[i].instanceId === instanceId) {
+                        bhvCompInstances[i].destroy(messengerEngine);
+                        bhvCompInstances.splice(i, 1);
+                        return true;
+                    }
                 }
-            }
+            });
         };
 
         messengerEngine.registerForMessage("setInstanceData", this, this.setBehaviorComponentInstanceData);
@@ -181,11 +221,9 @@
             var checkScriptsLoaded = function () {
                 if (iterations < iterationsMax) {
                     var count = 0;
-                    for (var key in bhvConstructorList) {
-                        if (bhvConstructorList.hasOwnProperty(key)) {
-                            count += 1;
-                        }
-                    }
+                    bhvConstructorList.forOwnProperties(function (key, value) {
+                        count += 1;
+                    });
                     if (count === data.length) {
                         resolve();
                     } else {
@@ -211,4 +249,12 @@
             resolve();
         });
     };
+
+    ////////
+    // BhvEngine GameState
+    namespace.Engines.BhvEngine.GameState = function (name) {
+        this.name = name;
+        this.bhvCompInstances = [];
+    };
+
 }(window.TTTD = window.TTTD || {}));

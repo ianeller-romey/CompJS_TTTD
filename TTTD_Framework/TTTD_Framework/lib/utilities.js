@@ -8,6 +8,17 @@ String.prototype.isAlphanumeric = function () {
     return this !== null && this.match(/^[a-zA-Z0-9]+$/i) !== null;
 }
 
+Object.prototype.forOwnProperties = function (predicate) {
+    for (var key in this) {
+        if (this.hasOwnProperty(key)) {
+            var returned = predicate(key, this[key]);
+            if (returned !== undefined) {
+                return returned;
+            }
+        }
+    }
+};
+
 
 /****************/
 /* Linq-esque behavior */
