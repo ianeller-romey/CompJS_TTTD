@@ -96,6 +96,11 @@
                 that.state_enterIdle(delta);
                 return [that.state_updateIdle];
             };
+
+            /*messengerEngine.queueMessage("setInstanceGameState", {
+                instanceId: this.instanceId,
+                gameState: "exploration"
+            });*/
         };
 
         namespace.Globals.globalMessengerEngine.queueMessage("setBehaviorConstructor", {

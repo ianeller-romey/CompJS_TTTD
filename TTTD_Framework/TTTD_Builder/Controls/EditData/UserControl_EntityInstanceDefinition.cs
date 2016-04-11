@@ -22,6 +22,7 @@ namespace TTTD_Builder.EditData
 
         private TextBlock m_textBlock_id;
         private TextBox m_textBox_name;
+        private TextBox m_textBox_gameState;
 
         #endregion
 
@@ -43,11 +44,13 @@ namespace TTTD_Builder.EditData
             {
                 m_textBlock_id.Text = "N/A";
                 m_textBox_name.Text = string.Empty;
+                m_textBox_gameState.Text = string.Empty;
             }
             else
             {
                 m_textBlock_id.Text = m_entityInstanceDefinition.Id.ToString();
                 m_textBox_name.Text = m_entityInstanceDefinition.Name;
+                m_textBox_gameState.Text = m_entityInstanceDefinition.GameState;
             }
         }
 
@@ -59,6 +62,7 @@ namespace TTTD_Builder.EditData
         protected override void SetThisContent()
         {
             Grid grid_main = new Grid();
+            grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_main.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
 
@@ -86,9 +90,22 @@ namespace TTTD_Builder.EditData
             grid_main.SetRowColumn(grid_name, 1, 0);
 
             ////////
+            // GameState
+            m_textBox_gameState = new TextBox() { VerticalAlignment = VerticalAlignment.Center };
+            ValidatorPanel validator_gameState = new ValidatorPanel(m_textBox_gameState, TextBox.TextProperty, new Validate_StringIsNotNullOrEmpty());
+            Label label_gameState = new Label() { Content = "Game State: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            Grid grid_gameState = new Grid();
+            grid_gameState.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_gameState.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            grid_gameState.SetRowColumn(validator_gameState, 1, 0);
+            grid_gameState.SetRowColumn(label_gameState, 0, 0);
+            grid_main.SetRowColumn(grid_gameState, 1, 0);
+
+            ////////
             // FIN
             ThisContent = new ActivatableContent() { Content = grid_main, FirstFocus = m_textBox_name, Validators = new ValidatorBase[] {
-                validator_name
+                validator_name,
+                validator_gameState
             }};            
         }
 
@@ -101,6 +118,7 @@ namespace TTTD_Builder.EditData
         {
             m_entityInstanceDefinition = DataManager.Generate<EntityInstanceDefinition>();
             m_entityInstanceDefinition.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition.GameState = m_textBox_gameState.Text;
 
             DataManager.EntityInstanceDefinitions.Add(m_entityInstanceDefinition);
 
@@ -110,6 +128,7 @@ namespace TTTD_Builder.EditData
         protected override int UpdateExistingData()
         {
             m_entityInstanceDefinition.Name = m_textBox_name.Text;
+            m_entityInstanceDefinition.GameState = m_textBox_gameState.Text;
 
             return m_entityInstanceDefinition.Id;
         }
@@ -117,11 +136,13 @@ namespace TTTD_Builder.EditData
         protected override void RevertNewData()
         {
             m_textBox_name.Text = string.Empty;
+            m_textBox_gameState.Text = string.Empty;
         }
 
         protected override void RevertExistingData()
         {
             m_textBox_name.Text = m_entityInstanceDefinition.Name;
+            m_textBox_gameState.Text = m_entityInstanceDefinition.GameState;
         }
 
         #endregion

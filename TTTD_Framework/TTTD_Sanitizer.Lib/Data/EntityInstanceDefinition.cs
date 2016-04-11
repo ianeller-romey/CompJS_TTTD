@@ -11,6 +11,7 @@ namespace TTTD_Sanitizer.Lib.Data
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string GameState { get; set; }
         public int? Behavior { get; set; }
         public int? Graphics { get; set; }
         public int? Physics { get; set; }

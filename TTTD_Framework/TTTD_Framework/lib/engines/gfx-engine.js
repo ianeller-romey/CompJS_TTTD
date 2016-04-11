@@ -869,7 +869,7 @@
         this.init = function () {
             var that = this;
             gameStateEngine.getActiveGfxGameStates().forEach(function (gameState) {
-                that.addGameState(gameState);
+                addGameState(gameState);
             });
 
             var webGLPromise = new Promise(function (resolve, reject) {
@@ -996,7 +996,7 @@
         };
 
         var draw2DAnimations = function (gfx2DAnimationInstances, renderPass, delta) {
-            if (gfx2DAnimationInstances.length === 0) {
+            if (gfx2DAnimationInstances.length === 0 && gfx2DAnimationInstances.duplicates.length === 0) {
                 return;
             }
 
@@ -1047,7 +1047,7 @@
             }
             for (var i = 0; i < gfx2DAnimationInstances.duplicates.length; ++i) {
                 var gId = gfx2DAnimationInstances.duplicates[i];
-                var gfxComp = getGraphicsComponentInstance2DAnimation(gId).graphics;
+                var gfxComp = getGraphicsComponentInstance2DAnimationById(gId).graphics;
                 var animationFrameDefinition = getAnimationFrameDefinitionOfGraphicsComponentInstance(gfxComp);
                 // we need the animationFrameDefinition for duplicates, but we should definitely not be animating anybody
                 gfxCompFunc(gfxComp, i, animationFrameDefinition);
@@ -1055,7 +1055,7 @@
         };
 
         var drawFonts = function (gfxFontInstances, renderPass, delta) {
-            if (gfxFontInstances.length === 0) {
+            if (gfxFontInstances.length === 0 && gfxFontInstances.duplicates.length === 0) {
                 return;
             }
 
@@ -1101,7 +1101,7 @@
             }
             for (var i = 0; i < gfxFontInstances.duplicates.length; ++i) {
                 var gId = gfxFontInstances.duplicates[i];
-                var gfxComp = getGraphicsComponentInstanceFont(gId).graphics;
+                var gfxComp = getGraphicsComponentInstanceFontById(gId).graphics;
                 gfxCompFunc(gfxComp, i);
             }
         };
@@ -1165,7 +1165,7 @@
 
         var addGameState = function (name) {
             if (!gfxGameStates[name]) { // intentional truthiness
-                gfxGameStates[name] = new namespace.Engines.GfxEngine.GameState(name);
+                gfxGameStates[name] = new namespace.Engines.GfxEngine.GameState(name, zOrders, renderPasses);
             }
         };
 
@@ -1259,7 +1259,12 @@
             return instance;
         };
 
-        var getGraphicsComponentInstance2DAnimation = function (instanceId) {
+        var getGraphicsComponentInstance2DAnimationByIdAndGameState = function (instanceId, gameState) {
+            var inst = getGraphicsComponentInstance(instanceId, gfxGameState.gfx2DAnimationInstances, gfxGameState.zOrders, gfxGameState.renderPasses);
+            return inst;
+        };
+
+        var getGraphicsComponentInstance2DAnimationById = function (instanceId) {
             var inst = gfxGameStates.forOwnProperties(function (key, value) {
                 var instance = getGraphicsComponentInstance(instanceId, value.gfx2DAnimationInstances, value.zOrders, value.renderPasses);
                 if (instance !== null) {
@@ -1269,7 +1274,13 @@
             return (inst !== undefined) ? inst : null;
         };
 
-        var getGraphicsComponentInstanceFont = function (instanceId) {
+        var getGraphicsComponentInstanceFontByIdAndGameState = function (instanceId, gameState) {
+            var gfxGameState = gfxGameStates[gameState];
+            var inst = getGraphicsComponentInstance(instanceId, gfxGameState.gfxFontInstances, gfxGameState.zOrders, gfxGameState.renderPasses);
+            return inst;
+        };
+
+        var getGraphicsComponentInstanceFontById = function (instanceId) {
             var inst = gfxGameStates.forOwnProperties(function (key, value) {
                 var instance = getGraphicsComponentInstance(instanceId, value.gfxFontInstances, value.zOrders, value.renderPasses);
                 if (instance !== null) {
@@ -1280,7 +1291,7 @@
         };
 
         var setInstanceAnimationState = function (instanceId, animationState) {
-            var gfxInstance = getGraphicsComponentInstance2DAnimation(instanceId);
+            var gfxInstance = getGraphicsComponentInstance2DAnimationById(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.animationState = animationState;
                 setAnimationFrameFromDefinition(gfxInstance.graphics);
@@ -1288,7 +1299,7 @@
         };
 
         var setInstanceAnimationFrame = function (instanceId, animationFrame) {
-            var gfxInstance = getGraphicsComponentInstance2DAnimation(instanceId);
+            var gfxInstance = getGraphicsComponentInstance2DAnimationById(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.animationFrame = animationFrame;
                 setAnimationFrameFromDefinition(gfxInstance.graphics);
@@ -1305,12 +1316,12 @@
             throw "Not yet implemented.";
         };
 
-        var addDuplicateInstanceZOrderRenderPass = function (instanceId, zOrder, renderPass, gameState) {
-            var instanceToDuplicate = getGraphicsComponentInstance2DAnimation(instanceId);
+        var addDuplicateInstanceZOrderRenderPass = function (instanceId, gameState, zOrder, renderPass) {
+            var instanceToDuplicate = getGraphicsComponentInstance2DAnimationById(instanceId);
             if (instanceToDuplicate !== null) {
                 gfxGameStates[gameState].gfx2DAnimationInstances[zOrder][renderPass].duplicates.push(instanceId);
             } else {
-                instanceToDuplicate = getGraphicsComponentInstanceFont(instanceId);
+                instanceToDuplicate = getGraphicsComponentInstanceFontById(instanceId);
                 if (instanceToDuplicate !== null) {
                     gfxGameStates[gameState].gfxFontInstances[zOrder][renderPass].duplicates.push(instanceId);
                 }
@@ -1339,19 +1350,55 @@
         };
 
         var setInstanceText = function (instanceId, text) {
-            var gfxInstance = getGraphicsComponentInstanceFont(instanceId);
+            var gfxInstance = getGraphicsComponentInstanceFontById(instanceId);
             if (gfxInstance !== null) {
                 gfxInstance.graphics.setText(text ? text : "");
             }
         };
 
         var getGraphicsComponentInstanceForEntityInstance = function (callback, instanceId) {
-            var instance = getGraphicsComponentInstance2DAnimation(instanceId);
+            var instance = getGraphicsComponentInstance2DAnimationById(instanceId);
             if (instance === null) {
-                instance = getGraphicsComponentInstanceFont(instanceId);
+                instance = getGraphicsComponentInstanceFontById(instanceId);
             }
             if (instance !== null) {
                 callback(instance);
+            }
+        };
+
+        this.swapInstanceGameState = function (instanceId, oldGameState, newGameState) {
+            var oldGfxGameState = gfxGameStates[oldGameState];
+            var newGfxGameState = gfxGameStates[newGameState];
+            for (var z = 0, zEnd = oldGfxGameState.zOrders.length; z < zEnd; ++z) {
+                for (var rp = 0, rpEnd = oldGfxGameState.renderPasses.length; rp < rpEnd; ++rp) {
+                    if (oldGfxGameState.gfx2DAnimationInstances[z][rp].length > 0) {
+                        for (var k = 0; k < oldGfxGameState.gfx2DAnimationInstances[z][rp].length; ++k) {
+                            if (oldGfxGameState.gfx2DAnimationInstances[z][rp][k].instanceId === instanceId) {
+                                var instance = oldGfxGameState.gfx2DAnimationInstances[z][rp][k];
+                                oldGfxGameState.gfx2DAnimationInstances[z][rp].splice(k, 1);
+                                newGfxGameState.gfx2DAnimationInstances[z][rp].push(instance);
+
+                                // if we're swapping a game state, just remove all duplicates altogether
+                                removeDuplicateInstanceZOrderRenderPass(instanceId);
+                                return;
+                            }
+                        }
+                    }
+
+                    if (oldGfxGameState.gfxFontInstances[z][rp].length > 0) {
+                        for (var k = 0; k < oldGfxGameState.gfxFontInstances[z][rp].length; ++k) {
+                            if (oldGfxGameState.gfxFontInstances[z][rp][k].instanceId === instanceId) {
+                                var instance = oldGfxGameState.gfxFontInstances[z][rp][k];
+                                oldGfxGameState.gfxFontInstances[z][rp].splice(k, 1);
+                                newGfxGameState.gfxFontInstances[z][rp].push(instance);
+
+                                // if we're swapping a game state, just remove all duplicates altogether
+                                removeDuplicateInstanceZOrderRenderPass(instanceId);
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
         };
 
@@ -1375,7 +1422,7 @@
                                 if (value.gfxFontInstances[z][rp][k].instanceId === instanceId) {
                                     value.gfxFontInstances[z][rp][k].destroy(messengerEngine);
                                     value.gfxFontInstances[z][rp].splice(k, 1);
-                                    value.removeDuplicateInstanceZOrderRenderPass(instanceId);
+                                    removeDuplicateInstanceZOrderRenderPass(instanceId);
                                     return true;
                                 }
                             }
@@ -1502,15 +1549,23 @@
 
     ////////
     // GfxEngine GameState
-    namespace.Engines.BhvEngine.GfxEngine = function (name) {
+    namespace.Engines.GfxEngine.GameState = function (name, zOrders, renderPasses) {
         this.name = name;
         this.gfx2DAnimationInstances = [];
         this.gfxFontInstances = [];
         this.zOrders = [];
         this.renderPasses = [];
+
+        var that = this;
+        zOrders.forEach(function (zOrder) {
+            that.addZOrder(zOrder);
+        });
+        renderPasses.forEach(function (renderPass) {
+            that.addRenderPass(renderPass);
+        });
     };
 
-    namespace.Engines.BhvEngine.GfxEngine.prototype.addZOrder = function (zOrder) {
+    namespace.Engines.GfxEngine.GameState.prototype.addZOrder = function (zOrder) {
         if(!this.zOrders.contains(zOrder)) {
             this.zOrders.push(zOrder);
         }
@@ -1527,7 +1582,11 @@
         });
     };
 
-    namespace.Engines.BhvEngine.GfxEngine.prototype.addRenderPass = function (renderPass) {
+    namespace.Engines.GfxEngine.GameState.prototype.addRenderPass = function (renderPass) {
+        if (!this.renderPasses.contains(renderPass)) {
+            this.renderPasses.push(renderPass);
+        }
+
         var that = this;
         this.zOrders.forEach(function (zOrder) {
             if (that.gfx2DAnimationInstances[zOrder][renderPass] == null) { // intentional truthiness

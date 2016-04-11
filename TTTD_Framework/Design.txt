@@ -1,0 +1,10 @@
+Entities are divided into components
+	- Entity definitions have gameStates
+		- Aud/Bhv/Gfx/Phys engines have a list of all active gameStates
+		- Game states are used to dictate what should be heard/executed/drawn/collided, without having to delete and recreate
+	- Entity instances have priorities
+		- Dictated by level layout
+		- Priorities are used for clearing levels without deleting everything
+	- Gfx definitions have zOrder, renderPass
+		- zOrders are rendered from lowest to highest, used to draw layers
+		- renderPasses are used so that shaders can affect only certain entities

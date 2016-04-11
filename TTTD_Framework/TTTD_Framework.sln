@@ -20,6 +20,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_DataReaderWriter", "TT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTTD_DataReaderWriter.JSON", "TTTD_DataReaderWriter.JSON\TTTD_DataReaderWriter.JSON.csproj", "{3D28A291-03B5-4F32-BE00-13807EEE045A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{B7AF84B9-6B84-4ABA-B2DE-EC1780DD75BE}"
+	ProjectSection(SolutionItems) = preProject
+		Design.txt = Design.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

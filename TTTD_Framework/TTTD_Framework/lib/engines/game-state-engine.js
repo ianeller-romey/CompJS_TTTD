@@ -72,7 +72,7 @@
 
         this.addBhvGameState = function (gameState) {
             that.addGameState(gameState);
-            addGameStateToAnyArray(activeABhvGameStates, gameState);
+            addGameStateToAnyArray(activeBhvGameStates, gameState);
         };
 
 
@@ -105,9 +105,20 @@
         };
 
         this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.defaultGameState, true, true, true, true);
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.explorationGameState, true, true, true, true);
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.combatGameState, false, false, false, false);
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.tutorialGameState, false, false, false, false);
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.dialogGameState, false, false, false, false);
+        this.addActiveGameStateForAllEngines(namespace.Engines.GameStateEngine.menuGameState, false, false, false, false);
     };
 
+    // ordered from lowest to highest priority
     namespace.Engines.GameStateEngine.defaultGameState = "default";
+    namespace.Engines.GameStateEngine.explorationGameState = "exploration";
+    namespace.Engines.GameStateEngine.combatGameState = "combat";
+    namespace.Engines.GameStateEngine.tutorialGameState = "tutorial";
+    namespace.Engines.GameStateEngine.dialogGameState = "dialog";
+    namespace.Engines.GameStateEngine.menuGameState = "menu";
 
     namespace.Globals = namespace.Globals || {};
     namespace.Globals.globalGameStateEngine = new namespace.Engines.GameStateEngine();

@@ -50,6 +50,7 @@
             this.state_enterActive = function (delta) {
                 messengerEngine.queueMessage("addDuplicateInstanceZOrderRenderPass", {
                     instanceId: that.instanceId,
+                    gameState: "exploration",
                     zOrder: 1,
                     renderPass: 1
                 });

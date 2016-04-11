@@ -101,10 +101,11 @@
     // EntityInst
     namespace.Comp = namespace.Comp || {};
     namespace.Comp.Inst = namespace.Comp.Inst || {};
-    namespace.Comp.Inst.Entity = function (instanceId, entityInstanceDefinitionId, entityInstanceDefinitionName, priority, position, rotation, scale, velocity) {
+    namespace.Comp.Inst.Entity = function (instanceId, entityInstanceDefinitionId, entityInstanceDefinitionName, entityInstanceDefinitionGameState, priority, position, rotation, scale, velocity) {
         this.instanceId = instanceId;
         this.instanceDefinitionId = entityInstanceDefinitionId;
         this.instanceDefinitionName = entityInstanceDefinitionName;
+        this.gameState = entityInstanceDefinitionGameState;
         this.priority = priority;
 
         this.transformation = new namespace.Comp.Inst.Transformation(position, rotation, scale, velocity);
@@ -140,6 +141,7 @@
     namespace.Comp.Def = namespace.Comp.Def || {};
     namespace.Comp.Def.Entity = function (def) {
         this.name = def.name;
+        this.gameState = def.gameState;
         this.behavior = def.behavior;
         this.graphics = def.graphics;
         this.physics = def.physics;
@@ -155,6 +157,8 @@
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
         var dataEngine = namespace.Globals.globalDataEngine;
+        var gameStateEngine = namespace.Globals.globalGameStateEngine;
+
         var audioEngine = audEng;
         var behaviorEngine = bhvEng;
         var graphicsEngine = gfxEng;
@@ -166,6 +170,7 @@
 
         var playerEntityInstanceDefinitionName = "Player";
         var playerEntityInstanceDefaultPriority = 0;
+        var playerEntityInstanceDefaultGameState = namespace.Engines.GameStateEngine.defaultGameState;
         var playerEntityInstance = null;
 
         var entityHasBehavior = namespace.Comp.Inst.Entity.hasBehavior;
@@ -210,7 +215,7 @@
         };
 
         var createEntityInstance = function (xEntityType, priority, additional, callback) {
-            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, priority, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
+            var entity = new namespace.Comp.Inst.Entity(entityIdGenerator++, xEntityType.entityInstanceDefinitionId, xEntityType.entityInstanceDefinitionName, xEntityType.entityInstanceDefinitionGameState, priority, xEntityType.position, xEntityType.rotation, xEntityType.scale, xEntityType.velocity);
             entityInstances.push(entity);
 
             if (playerEntityInstance === null && xEntityType.entityInstanceDefinitionName === playerEntityInstanceDefinitionName) {
@@ -219,20 +224,20 @@
 
             var entityDefinition = entityInstanceDefinitions[entity.instanceDefinitionId];
             if (entityHasBehavior(entityDefinition)) {
-                behaviorEngine.createBehaviorComponentInstance(entity, entityDefinition.behavior);
+                behaviorEngine.createBehaviorComponentInstance(entity, entityDefinition.behavior, entityDefinition.gameState);
                 if (additional != null && additional.data != null) { // intentional truthiness
                     behaviorEngine.setBehaviorComponentInstanceData(entity.instanceId, additional.data);
                 }
             }
             if (entityHasGraphics(entityDefinition)) {
                 if (additional != null && additional.fontText != null) { // intentional truthiness
-                    graphicsEngine.createGraphicsComponentInstanceForFont(entity, entityDefinition.graphics, additional.fontText);
+                    graphicsEngine.createGraphicsComponentInstanceForFont(entity, entityDefinition.graphics, additional.fontText, entityDefinition.gameState);
                 } else {
-                    graphicsEngine.createGraphicsComponentInstance(entity, entityDefinition.graphics);
+                    graphicsEngine.createGraphicsComponentInstance(entity, entityDefinition.graphics, entityDefinition.gameState);
                 }
             }
             if (entityHasPhysics(entityDefinition)) {
-                physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics);
+                physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics, entityDefinition.gameState);
             }
             if (entityHasAudible(entityDefinition)) {
                 throw "Not yet implemented";
@@ -260,17 +265,21 @@
         var createEntityInstanceFromMessage = function (identifier, priority, additional, callback) {
             var entityInstanceDefinitionId;
             var entityInstanceDefinitionName;
+            var entityInstanceDefinitionGameState;
             if (typeof (identifier) === "number") {
                 entityInstanceDefinitionId = identifier;
                 entityInstanceDefinitionName = entityInstanceDefinitions[identifier].name;
+                entityInstanceDefinitionGameState = entityInstanceDefinitions[identifier].gameState;
             } else if (typeof (identifier) === "string") {
                 entityInstanceDefinitionId = entityInstanceDefinitionNamedIds[identifier];
                 entityInstanceDefinitionName = identifier;
+                entityInstanceDefinitionGameState = entityInstanceDefinitions[entityInstanceDefinitionId].gameState;
             }
             if (entityInstanceDefinitionId !== undefined && entityInstanceDefinitionId !== null) {
                 var xEntityType = {
                     entityInstanceDefinitionId: entityInstanceDefinitionId,
-                    entityInstanceDefinitionName: entityInstanceDefinitionName
+                    entityInstanceDefinitionName: entityInstanceDefinitionName,
+                    entityInstanceDefinitionGameState: entityInstanceDefinitionGameState
                 };
                 if (additional != undefined) {
                     if (additional.position !== undefined) {
@@ -359,6 +368,29 @@
             }
         };
 
+        var setInstanceGameState = function (instanceId, gameState) {
+            var instance = entityInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            if (instance !== null) {
+                var oldGameState = instance.gameState;
+                instance.gameState = gameState;
+                var entityDefinition = entityInstanceDefinitions[instanceId];
+                if (entityHasBehavior(entityDefinition)) {
+                    behaviorEngine.swapInstanceGameState(instanceId, oldGameState, gameState);
+                }
+                if (entityHasGraphics(entityDefinition)) {
+                    graphicsEngine.swapInstanceGameState(instanceId, oldGameState, gameState);
+                }
+                if (entityHasPhysics(entityDefinition)) {
+                    physicsEngine.swapInstanceGameState(instanceId, oldGameState, gameState);
+                }
+                if (entityHasAudible(entityDefinition)) {
+                    throw "Not yet implemented";
+                }
+            }
+        };
+
         var setInstancePosition = function (instanceId, position) {
             var instance = entityInstances.firstOrNull(function (x) {
                 return x.instanceId === instanceId;
@@ -397,6 +429,8 @@
         messengerEngine.registerForMessage("createEntityInstance", this, createEntityInstanceFromMessage);
         messengerEngine.registerForMessage("removeEntityInstance", this, removeEntityInstanceFromMessage);
         messengerEngine.registerForMessage("removeEntityInstancesByPriority", this, removeEntityInstancesByPriority);
+        messengerEngine.registerForMessage("setInstancePriority", this, setInstancePriority);
+        messengerEngine.registerForMessage("setInstanceGameState", this, setInstanceGameState);
         messengerEngine.registerForMessage("setInstancePosition", this, setInstancePosition);
         messengerEngine.registerForMessage("setInstanceScale", this, setInstanceScale);
         messengerEngine.registerForRequest("getTransformationForEntityInstance", this, getTransformationForEntityInstance);

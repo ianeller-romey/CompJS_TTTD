@@ -51,11 +51,12 @@
 
         var messengerEngine = namespace.Globals.globalMessengerEngine;
         var dataEngine = namespace.Globals.globalDataEngine;
+        var gameStateEngine = namespace.Globals.globalGameStateEngine;
 
         var physTypeDefinitions = [];
         var collisionTypeDefinitions = [];
         var physCompDefinitions = [];
-        var physCompInstances = [];
+        var physGameStates = {};
 
         var gravity = new namespace.Math.Vector2D(0, 50);
 
@@ -86,6 +87,11 @@
         };
 
         this.init = function () {
+            var that = this;
+            gameStateEngine.getActivePhysGameStates().forEach(function (gameState) {
+                addGameState(gameState);
+            });
+
             var physTypesPromise = new Promise(function (resolve, reject) {
                 dataEngine.loadPhysTypes().then(function (data) {
                     buildPhysTypeDefinitions(data);
@@ -143,57 +149,63 @@
 
         this.update = function (delta) {
             delta = delta / 1000; // translate milliseconds to seconds
-            for (var i = 0; i < physCompInstances.length; ++i) {
-                var instance = physCompInstances[i];
-                instance.physical.colliders = [];
 
-                var collisionTypeDefinition = collisionTypeDefinitions[instance.physical.collisionTypeId];
-                if (collisionTypeDefinition.name !== "Static") {
-                    var velocity = (collisionTypeDefinition.name !== "NoGravity") ? instance.transformation.velocity.translate(gravity.x, gravity.y) : instance.transformation.velocity.clone();
-                    var bounding = instance.physical.boundingData.clone();
 
-                    var hasNonGhostCollider = false;
-                    var totalDisplacementVector = new namespace.Math.Vector2D(0, 0);
-                    for (var j = 0; j < physCompInstances.length; ++j) {
-                        if (j === i) {
-                            continue;
-                        }
-                        // TODO: Optimize so we don't check the same two instances twice
-                        var otherInstance = physCompInstances[j];
-                        var otherTransformation = otherInstance.transformation;
-                        var otherBounding = otherInstance.physical.boundingData;
+            var activeGameStates = gameStateEngine.getActivePhysGameStates();
+            activeGameStates.forEach(function (gameState) {
+                var physGameState = physGameStates[gameState];
+                for (var i = 0; i < physGameState.physCompInstances.length; ++i) {
+                    var instance = physGameState.physCompInstances[i];
+                    instance.physical.colliders = [];
 
-                        var relativeVelocity = velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
-                        relativeVelocity.x *= delta;
-                        relativeVelocity.y *= delta;
-                        var currentDisplacementVector;
+                    var collisionTypeDefinition = collisionTypeDefinitions[instance.physical.collisionTypeId];
+                    if (collisionTypeDefinition.name !== "Static") {
+                        var velocity = (collisionTypeDefinition.name !== "NoGravity") ? instance.transformation.velocity.translate(gravity.x, gravity.y) : instance.transformation.velocity.clone();
+                        var bounding = instance.physical.boundingData.clone();
 
-                        if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "Circle") {
-                            currentDisplacementVector = bounding.collideWithBoundingCircle(otherBounding, relativeVelocity);
-                        } else if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "AABB") {
-                            currentDisplacementVector = bounding.collideWithBoundingAABB(otherBounding, relativeVelocity);
-                        }
-                        // TODO: OBB
-
-                        if (currentDisplacementVector) {
-                            if (!hasNonGhostCollider && collisionTypeDefinitions[otherInstance.physical.collisionTypeId].name !== "Ghost") {
-                                hasNonGhostCollider = true;
+                        var hasNonGhostCollider = false;
+                        var totalDisplacementVector = new namespace.Math.Vector2D(0, 0);
+                        for (var j = 0; j < physGameState.physCompInstances.length; ++j) {
+                            if (j === i) {
+                                continue;
                             }
-                            totalDisplacementVector.translateSelf(currentDisplacementVector.x, currentDisplacementVector.y);
-                            addColliders(instance, otherInstance);
-                        }
-                    }
+                            // TODO: Optimize so we don't check the same two instances twice
+                            var otherInstance = physGameState.physCompInstances[j];
+                            var otherTransformation = otherInstance.transformation;
+                            var otherBounding = otherInstance.physical.boundingData;
 
-                    //if (!hasNonGhostCollider || collisionTypeDefinition.name === "Ghost") {
+                            var relativeVelocity = velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
+                            relativeVelocity.x *= delta;
+                            relativeVelocity.y *= delta;
+                            var currentDisplacementVector;
+
+                            if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "Circle") {
+                                currentDisplacementVector = bounding.collideWithBoundingCircle(otherBounding, relativeVelocity);
+                            } else if (physTypeDefinitions[otherInstance.physical.physTypeId].name === "AABB") {
+                                currentDisplacementVector = bounding.collideWithBoundingAABB(otherBounding, relativeVelocity);
+                            }
+                            // TODO: OBB
+
+                            if (currentDisplacementVector) {
+                                if (!hasNonGhostCollider && collisionTypeDefinitions[otherInstance.physical.collisionTypeId].name !== "Ghost") {
+                                    hasNonGhostCollider = true;
+                                }
+                                totalDisplacementVector.translateSelf(currentDisplacementVector.x, currentDisplacementVector.y);
+                                addColliders(instance, otherInstance);
+                            }
+                        }
+
+                        //if (!hasNonGhostCollider || collisionTypeDefinition.name === "Ghost") {
                         var endVector = {
                             x: (velocity.x * delta) + totalDisplacementVector.x,
                             y: (velocity.y * delta) + totalDisplacementVector.y
                         };
                         instance.transformation.position.translateSelf(endVector.x, endVector.y);
                         instance.physical.boundingData.translateSelf(endVector.x, endVector.y);
-                    //}
+                        //}
+                    }
                 }
-            }
+            });
         };
 
         this.shutdown = function (gameId) {
@@ -211,25 +223,61 @@
             });
         };
 
-        this.createPhysicsComponentInstance = function (entity, physCompId) {
+        var addGameState = function (name) {
+            if (!physGameStates[name]) { // intentional truthiness
+                physGameStates[name] = new namespace.Engines.PhysEngine.GameState(name);
+            }
+        };
+
+        var removeGameState = function (name) {
+            if (physGameStates[name]) { // intentional truthiness
+                while (physGameStates[name].physCompInstances.length > 0) {
+                    var physCompInstance = physGameStates[name].physCompInstances.pop();
+                    physCompInstance.destroy(messengerEngine);
+                }
+                physGameStates[name] = null;
+            }
+        };
+
+        var addPhysicsComponentInstanceToGameState = function (instance, gameState) {
+            addGameState(gameState);
+            physGameStates[gameState].physCompInstances.push(instance);
+        };
+
+        var getPhysicsComponentInstanceByIdAndGameState = function (instanceId, gameState) {
+            var inst = physGameStates[gameState].physCompInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            return inst;
+        }
+
+        var getPhysicsComponentInstanceById = function (instanceId) {
+            var inst = physGameStates.forOwnProperties(function (key, value) {
+                var instance = value.physCompInstances.firstOrNull(function (x) {
+                    return x.instanceId === instanceId;
+                });
+                if (instance !== null) {
+                    return instance;
+                }
+            });
+            return (inst !== undefined) ? inst : null;
+        };
+
+        this.createPhysicsComponentInstance = function (entity, physCompId, gameState) {
             var physCompDefinition = physCompDefinitions[physCompId];
             var instance = new Inst.Physics(entity, physCompDefinition);
-            physCompInstances.push(instance);
+            addPhysicsComponentInstanceToGameState(instance, gameState);
         };
 
         var getPhysicsComponentInstanceForEntityInstance = function (callback, instanceId) {
-            var instance = physCompInstances.firstOrNull(function (x) {
-                return x.instanceId === instanceId;
-            });
+            var instance = getPhysicsComponentInstanceById(instanceId);
             if (instance !== null) {
                 callback(instance);
             }
         };
 
         this.setInstanceAndBoundingDataPosition = function (instanceId, position) {
-            var instance = physCompInstances.firstOrNull(function (x) {
-                return x.instanceId === instanceId;
-            });
+            var instance = getPhysicsComponentInstanceById(instanceId);
             if (instance !== null) {
                 var translation = position.subtract(instance.transformation.position.x, instance.transformation.position.y);
                 instance.transformation.position.translateSelf(translation.x, translation.y);
@@ -237,53 +285,83 @@
             }
         };
 
-        this.removePhysicsComponentInstanceFromMessage = function (instanceId) {
-            for (var i = 0; i < physCompInstances.length; ++i) {
-                var instance = physCompInstances[i];
-                if (instance.instanceId === instanceId) {
-                    physCompInstances[i].destroy(messengerEngine);
-                    physCompInstances.splice(i, 1);
-                    break;
+        this.swapInstanceGameState = function (instanceId, oldGameState, newGameState) {
+            var oldPhysGameState = physGameStates[oldGameState];
+            var newPhysGameState = physGameStates[newGameState];
+            for (var i = 0; i < oldPhysGameState.physCompInstances.length; ++i) {
+                if (oldPhysGameState.physCompInstances[i].instanceId === instanceId) {
+                    var instance = oldPhysGameState.physCompInstances[i];
+                    oldPhysGameState.physCompInstances.splice(i, 1);
+                    newPhysGameState.physCompInstances.push(instance);
+                    return;
                 }
             }
+        };
+
+        this.removePhysicsComponentInstanceFromMessage = function (instanceId) {
+            physGameStates.forOwnProperties(function (key, value) {
+                var physCompInstances = value.physCompInstances;
+                for (var i = 0; i < physCompInstances.length; ++i) {
+                    if (physCompInstances[i].instanceId === instanceId) {
+                        physCompInstances[i].destroy(messengerEngine);
+                        physCompInstances.splice(i, 1);
+                        return true;
+                    }
+                }
+            });
         };
 
         var setMouseClickCollider = function (point) {
-            for (var i = 0; i < physCompInstances.length; ++i) {
-                var instance = physCompInstances[i];
-                var boundingData = instance.physical.boundingData.clone();
-                if (boundingData.collideWithPoint(point)) {
-                    instance.physical.colliders.push({
-                        instanceId: -1,
-                        instanceDefinitionName: "MouseClick",
-                        position: point.clone()
-                    });
-                    // do not return
-                    // we want to let everyone know they're colliding
+            var activeGameStates = gameStateEngine.getActivePhysGameStates();
+            activeGameStates.forEach(function (gameState) {
+                var physGameState = physGameStates[gameState];
+                for (var i = 0; i < physGameState.physCompInstances.length; ++i) {
+                    var instance = physGameState.physCompInstances[i];
+                    var boundingData = instance.physical.boundingData.clone();
+                    if (boundingData.collideWithPoint(point)) {
+                        instance.physical.colliders.push({
+                            instanceId: -1,
+                            instanceDefinitionName: "MouseClick",
+                            position: point.clone()
+                        });
+                        // do not return
+                        // we want to let everyone know they're colliding
+                    }
                 }
-            }
+            });
         };
 
         var setMouseHeldCollider = function (point) {
-            for (var i = 0; i < physCompInstances.length; ++i) {
-                var instance = physCompInstances[i];
-                var boundingData = instance.physical.boundingData.clone();
-                if (boundingData.collideWithPoint(point)) {
-                    instance.physical.colliders.push({
-                        instanceId: -1,
-                        instanceDefinitionName: "MouseHeld",
-                        position: point.clone()
-                    });
-                    // do not return
-                    // we want to let everyone know they're colliding
+            var activeGameStates = gameStateEngine.getActivePhysGameStates();
+            activeGameStates.forEach(function (gameState) {
+                var physGameState = physGameStates[gameState];
+                for (var i = 0; i < physGameState.physCompInstances.length; ++i) {
+                    var instance = physGameState.physCompInstances[i];
+                    var boundingData = instance.physical.boundingData.clone();
+                    if (boundingData.collideWithPoint(point)) {
+                        instance.physical.colliders.push({
+                            instanceId: -1,
+                            instanceDefinitionName: "MouseHeld",
+                            position: point.clone()
+                        });
+                        // do not return
+                        // we want to let everyone know they're colliding
+                    }
                 }
-            }
+            });
         };
         
         messengerEngine.registerForMessage("setInstanceAndBoundingDataPosition", this, this.setInstanceAndBoundingDataPosition);
         messengerEngine.registerForRequest("getPhysicsComponentInstanceForEntityInstance", this, getPhysicsComponentInstanceForEntityInstance);
         messengerEngine.registerForNotice("setMouseClickCollider", this, setMouseClickCollider);
         messengerEngine.registerForNotice("setMouseHeldCollider", this, setMouseHeldCollider);
+    };
+
+    ////////
+    // BhvEngine GameState
+    namespace.Engines.PhysEngine.GameState = function (name) {
+        this.name = name;
+        this.physCompInstances = [];
     };
         
     var Phys = namespace.Engines.PhysEngine;

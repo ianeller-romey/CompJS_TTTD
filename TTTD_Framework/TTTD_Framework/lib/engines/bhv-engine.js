@@ -80,7 +80,7 @@
         this.init = function () {
             var that = this;
             gameStateEngine.getActiveBhvGameStates().forEach(function (gameState) {
-                that.addGameState(gameState);
+                addGameState(gameState);
             });
 
             return new Promise(function (resolve, reject) {
@@ -141,9 +141,16 @@
             bhvGameStates[gameState].bhvCompInstances.push(instance);
         };
 
+        var getBehaviorComponentInstanceByIdAndGameState = function (instanceId, gameState) {
+            var inst = bhvGameStates[gameState].bhvCompInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            return inst;
+        }
+
         var getBehaviorComponentInstanceById = function (instanceId) {
             var inst = bhvGameStates.forOwnProperties(function (key, value) {
-                var instance = value.bhvCompInstance.firstOrNull(function (x) {
+                var instance = value.bhvCompInstances.firstOrNull(function (x) {
                     return x.instanceId === instanceId;
                 });
                 if (instance !== null) {
@@ -172,6 +179,19 @@
             var instance = getBehaviorComponentInstanceById(instanceId);
             if (instance !== null) {
                 callback(instance);
+            }
+        };
+
+        this.swapInstanceGameState = function (instanceId, oldGameState, newGameState) {
+            var oldBhvGameState = bhvGameStates[oldGameState];
+            var newBhvGameState = bhvGameStates[newGameState];
+            for (var i = 0; i < oldBhvGameState.bhvCompInstances.length; ++i) {
+                if (oldBhvGameState.bhvCompInstances[i].instanceId === instanceId) {
+                    var instance = oldBhvGameState.bhvCompInstances[i];
+                    oldBhvGameState.bhvCompInstances.splice(i, 1);
+                    newBhvGameState.bhvCompInstances.push(instance);
+                    return;
+                }
             }
         };
 
