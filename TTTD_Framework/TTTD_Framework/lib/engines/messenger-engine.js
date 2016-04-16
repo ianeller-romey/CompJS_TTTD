@@ -410,8 +410,14 @@
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstancePosition", ["instanceId", "position"], function(values) {
             return [values.instanceId, values.position];
         }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceRotation", ["instanceId", "rotation"], function (values) {
+            return [values.instanceId, values.rotation];
+        }));
         createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceScale", ["instanceId", "scale"], function (values) {
             return [values.instanceId, values.scale];
+        }));
+        createMessageDefinition(new namespace.Comp.Def.MessageDefinition("setInstanceVelocity", ["instanceId", "velocity"], function (values) {
+            return [values.instanceId, values.velocity];
         }));
 
         ////////

@@ -15,6 +15,9 @@
             var destinationThreshold = .5;
             var playerSpeed = 50;
 
+            var playerRotation = 0;
+            var rotationTimer = 0;
+
             var controllerLeft = function () {
                 return inputEngine.isPressed(inputEngine.keys.arrowLeft) || inputEngine.isPressed(inputEngine.keys.a);
             };
@@ -45,8 +48,7 @@
             };
 
             this.state_enterIdle = function (delta) {
-                that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(0);
-                that.transformation.velocity.x = that.transformation.velocity.y.setAndNotify(0);
+                that.transformation.setVelocity(0, 0);
                 messengerEngine.queueMessage("setInstanceAnimationState", {
                     instanceId: that.instanceId,
                     animationState: 0
@@ -55,6 +57,16 @@
             };
 
             this.state_updateIdle = function (delta) {
+                rotationTimer += delta;
+                if (rotationTimer > 5) {
+                    rotationTimer = 0;
+                    playerRotation = (playerRotation + 1) % 360;
+                    messengerEngine.queueMessage("setInstanceRotation", {
+                        instanceId: that.instanceId,
+                        rotation: playerRotation
+                    });
+                    console.log(playerRotation);
+                }
                 if (that.getVelocityFromMouseClick()) {
                     return that.getState_moving();
                 } else {
@@ -68,7 +80,7 @@
 
             this.state_enterMoving = function (delta) {
                 var velocity = (destination.x > that.transformation.position.x) ? playerSpeed : -playerSpeed;
-                that.transformation.velocity.x = that.transformation.velocity.x.setAndNotify(velocity);
+                that.transformation.setVelocity(velocity, null);
                 //messengerEngine.queueMessage("setInstanceAnimationState", {
                 //    instanceId: that.instanceId, 
                 //    animationState: (playerSpeed > 0) ? 1 : 2
@@ -97,10 +109,10 @@
                 return [that.state_updateIdle];
             };
 
-            /*messengerEngine.queueMessage("setInstanceGameState", {
+            messengerEngine.queueMessage("setInstanceGameState", {
                 instanceId: this.instanceId,
                 gameState: "exploration"
-            });*/
+            });
         };
 
         namespace.Globals.globalMessengerEngine.queueMessage("setBehaviorConstructor", {

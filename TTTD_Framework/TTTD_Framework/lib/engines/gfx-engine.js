@@ -433,64 +433,57 @@
         this.currentDuration = 0;
         this.width = width;
         this.height = height;
-        this.vertices = [];
+        this.vertices = new Array(VERTICES.length);
         this.textureCoords = [];
 
         var that = this;
+
         var init = function () {
-            var verts = VERTICES;
-            var scaledVertices = [];
-            var translatedVertices = [];
-
-            verts.forEach(function (vert, i) {
-                scaledVertices.push(new namespace.Math.Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y));
-                translatedVertices.push(new namespace.Math.Vector2D(scaledVertices[i].x + transformation.position.x, scaledVertices[i].y + transformation.position.y));
-            });
-
-            that.vertices = translatedVertices;
-
-            var updateScaledVertices = function (w, h, scale) {
-                for (var i = 0; i < verts.length; ++i) {
-                    scaledVertices[i].x = verts[i].x * w * scale.x;
-                    scaledVertices[i].y = verts[i].y * h * scale.y;
-                }
-            };
-
-            var updateTranslatedVertices = function (position) {
-                for (var i = 0; i < verts.length; ++i) {
-                    translatedVertices[i].x = scaledVertices[i].x + position.x;
-                    translatedVertices[i].y = scaledVertices[i].y + position.y;
-                }
-            };
-
-            that.width.notifyMe(function (newWidth) {
-                updateScaledVertices(newWidth, that.height, transformation.scale);
-            });
-
-            that.height.notifyMe(function (newHeight) {
-                updateScaledVertices(that.width, newHeight, transformation.scale);
-            });
-
-            transformation.scale.notifyMe(function (newScale) {
-                updateScaledVertices(that.width, that.height, newScale);
-            });
-
-            transformation.position.notifyMe(function (newPosition) {
-                updateTranslatedVertices(newPosition);
+            VERTICES.forEach(function (vert, i) {
+                var scaled = new namespace.Math.Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y);
+                that.vertices[i] = new namespace.Math.Vector2D(scaled.x + transformation.position.x, scaled.y + transformation.position.y);
             });
         };
+
+        this.update = function () {
+            if (transformation.scaleChanged() && !transformation.positionChanged()) { // new scale, no translation
+                //if (transformation.scale.x !== 1 || transformation.scale.y !== 1) {
+                    VERTICES.forEach(function (vert, i) {
+                        var scaled = new namespace.Math.Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y);
+                        that.vertices[i].x = scaled.x + transformation.position.x;
+                        that.vertices[i].y = scaled.y + transformation.position.y;
+                    });
+                //}
+            } else if (!transformation.scaleChanged() && transformation.positionChanged()) { // no scale, new translation
+                var translation = transformation.getPositionChange();
+                VERTICES.forEach(function (vert, i) {
+                    that.vertices[i].translateSelf(translation.x, translation.y);
+                });
+            }  else if (transformation.scaleChanged() && transformation.positionChanged()) { // new scale, new translation
+                var translation = transformation.getPositionChange();
+                VERTICES.forEach(function (vert, i) {
+                    var scaled = new namespace.Math.Vector2D(vert.x * that.width * transformation.scale.x, vert.y * that.height * transformation.scale.y);
+                    that.vertices[i].x = scaled.x + transformation.position.x;
+                    that.vertices[i].y = scaled.y + transformation.position.y;
+                    that.vertices[i].translateSelf(translation.x, translation.y);
+                });
+            }
+
+
+            if (transformation.rotationChanged()) {
+                var origin = transformation.position.translate(that.width / 2, that.height / 2);
+                var theta = transformation.getRotationChange();
+
+                for(var i = 0; i < VERTICES.length; ++i) {
+                    that.vertices[i].rotateSelf(origin.x, origin.y, theta);
+                }
+            }
+        };
+
         init();
     };
 
-    namespace.Comp.Inst.Gfx2DAnim.Graphics.prototype.setWidth = function (newWidth) {
-        this.width = this.width.setAndNotify(newWidth);
-    };
-
-    namespace.Comp.Inst.Gfx2DAnim.Graphics.prototype.setHeight = function (newHeight) {
-        this.height = this.height.setAndNotify(newHeight);
-    };
-
-    namespace.Comp.Inst.Gfx2DAnim.Graphics.prototype.setTextureCoords = function () {
+    namespace.Comp.Inst.Gfx2DAnim.Graphics.prototype.setTextureCoords = function (t, r, b, l) {
         var top = arguments[0];
         var rgt = arguments[1];
         var bot = arguments[2];
@@ -516,139 +509,117 @@
 
     namespace.Comp.Inst.GfxFont.prototype = new namespace.Comp.Inst.Component();
 
-    namespace.Comp.Inst.GfxFont.Graphics = function (gfxCompDefId, startTop, startLeft, characterWidth, characterHeight, textureWidth, text, transformation) {
+    namespace.Comp.Inst.GfxFont.Graphics = function (gfxCompDefId, startTop, startLeft, characterWidth, characterHeight, textureWidth, initialText, transformation) {
         this.id = gfxCompDefId;
         this.textureWidth = textureWidth;
         this.startTop = startTop;
         this.startLeft = startLeft;
         this.characterWidth = characterWidth;
         this.characterHeight = characterHeight;
-        this.vertices = [];
-        this.textureCoords = [];
+        this.vertices = new Array();
+        this.textureCoords = new Array();
         this.text = new String();
 
         var that = this;
-        var init = function () {
-            var verts = VERTICES;
-            var fonts = FONT_DICTIONARY;
-            var transformationScale = transformation.scale.toXYObject();
-            var transformationPosition = transformation.position.toXYObject();
-            var scaledVertices = [];
-            var translatedVertices = [];
 
-            verts.forEach(function (vert, i) {
-                scaledVertices.push(new namespace.Math.Vector2D(vert.x * that.characterWidth * transformationScale.x, vert.y * that.characterHeight * transformationScale.y));
-            });
-
-            that.vertices = translatedVertices;
-
-            var updateScaledVertices = function (scale) {
-                transformationScale.x = scale.x;
-                transformationScale.y = scale.y
-                for (var i = 0; i < verts.length; ++i) {
-                    scaledVertices[i].x = verts[i].x * that.characterWidth * transformationScale.x;
-                    scaledVertices[i].y = verts[i].y * that.characterHeight * transformationScale.y;
+        var updateVertices = function () {
+            var yOff = 0;
+            var xOff = 0;
+            for (var letter = 0; letter < that.text.length; ++letter, ++xOff) {
+                if (that.text[letter] === "\n") {
+                    yOff += that.characterHeight;
+                    xOff = -1;
                 }
-            };
+                VERTICES.forEach(function (vert, i) {
+                    var scaled = new namespace.Math.Vector2D(vert.x * that.characterWidth * transformation.scale.x, vert.y * that.characterHeight * transformation.scale.y);
+                    that.vertices[letter][i].x = scaled.x + (transformation.position.x) + (xOff * that.characterWidth * transformation.scale.x);
+                    that.vertices[letter][i].y = scaled.y + (transformation.position.y) + (yOff * transformation.scale.y);
+                });
+            }
+        };
 
-            var updateTranslatedVertices = function (text, position) {
-                transformationPosition.x = position.x;
-                transformationPosition.y = position.y
+        var calculateTextureCoordinates = function (pixel) {
+            return (2 * pixel + 1) / (2 * that.textureWidth);
+        };
 
-                var yOff = 0;
-                var xOff = 0;
-                for (var i = 0; i < translatedVertices.length; ++i, ++xOff) {
-                    if (text[i] === "\n") {
-                        yOff += that.characterHeight;
-                        xOff = -1;
-                    }
-                    for (var j = 0; j < verts.length; ++j) {
-                        translatedVertices[i][j].x = scaledVertices[j].x + (transformationPosition.x) + (xOff * that.characterWidth * transformationScale.x);
-                        translatedVertices[i][j].y = scaledVertices[j].y + (transformationPosition.y) + (yOff * transformationScale.y);
-                    }
+        var updateTextureCoords = function () {
+            for (var i = 0; i < that.textureCoords.length; ++i) {
+                var letter = that.text[i];
+                if (letter === "\n") {
+                    letter = " ";
                 }
-            };
+                var xOff = that.startLeft + (FONT_DICTIONARY[letter].column * that.characterWidth);
+                var yOff = that.startTop + (FONT_DICTIONARY[letter].row * that.characterHeight);
 
-            var calculateTextureCoordinates = function (pixel) {
-                return (2 * pixel + 1) / (2 * that.textureWidth);
-            };
+                /*var texturePixelVerts = [lft, top,
+                                            rgt, top,
+                                            lft, bot,
+                                            lft, bot,
+                                            rgt, top,
+                                            rgt, bot];*/
 
-            var updateTextureCoords = function (text) {
-                for (var i = 0; i < that.textureCoords.length; ++i) {
-                    var letter = text[i];
-                    if (letter === "\n") {
-                        letter = " ";
-                    }
-                    var xOff = that.startLeft + (fonts[letter].column * that.characterWidth);
-                    var yOff = that.startTop + (fonts[letter].row * that.characterHeight);
+                that.textureCoords[i][0].x = calculateTextureCoordinates(xOff + .5);
+                that.textureCoords[i][0].y = calculateTextureCoordinates(yOff + .5);
 
-                    /*var texturePixelVerts = [lft, top,
-                                               rgt, top,
-                                               lft, bot,
-                                               lft, bot,
-                                               rgt, top,
-                                               rgt, bot];*/
+                that.textureCoords[i][1].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
+                that.textureCoords[i][1].y = calculateTextureCoordinates(yOff + .5);
 
-                    that.textureCoords[i][0].x = calculateTextureCoordinates(xOff + .5);
-                    that.textureCoords[i][0].y = calculateTextureCoordinates(yOff + .5);
+                that.textureCoords[i][2].x = calculateTextureCoordinates(xOff + .5);
+                that.textureCoords[i][2].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
 
-                    that.textureCoords[i][1].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
-                    that.textureCoords[i][1].y = calculateTextureCoordinates(yOff + .5);
+                that.textureCoords[i][3].x = calculateTextureCoordinates(xOff + .5);
+                that.textureCoords[i][3].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
 
-                    that.textureCoords[i][2].x = calculateTextureCoordinates(xOff + .5);
-                    that.textureCoords[i][2].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
+                that.textureCoords[i][4].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
+                that.textureCoords[i][4].y = calculateTextureCoordinates(yOff + .5);
 
-                    that.textureCoords[i][3].x = calculateTextureCoordinates(xOff + .5);
-                    that.textureCoords[i][3].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
+                that.textureCoords[i][5].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
+                that.textureCoords[i][5].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
 
-                    that.textureCoords[i][4].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
-                    that.textureCoords[i][4].y = calculateTextureCoordinates(yOff + .5);
+            }
+        };
 
-                    that.textureCoords[i][5].x = calculateTextureCoordinates(xOff + that.characterWidth - .5);
-                    that.textureCoords[i][5].y = calculateTextureCoordinates(yOff + that.characterHeight - .5);
+        this.updateText = function (newText) {
+            that.text = newText;
+            while (that.vertices.length < that.text.length) {
+                var i = that.vertices.push(new Array(VERTICES.length));
+                --i;
+                var j = that.textureCoords.push(new Array(VERTICES.length));
+                --j;
+                VERTICES.forEach(function (vert, k) {
+                    // we'll set the acutal vector values in updateVertices and updateTextureCoords, so we can initialize to 0
+                    that.vertices[i][k] = new namespace.Math.Vector2D(0, 0);
+                    that.textureCoords[j][k] = new namespace.Math.Vector2D(0, 0);
+                });
+            }
+            while (that.vertices.length > that.text.length) {
+                that.vertices.pop();
+                that.textureCoords.pop();
+            }
+            updateVertices();
+            updateTextureCoords();
+        };
 
-                }
-            };
-
-            var updateText = function (text) {
-                while (translatedVertices.length < text.length) {
-                    var i = translatedVertices.push(new Array(6));
-                    --i;
-                    var j = that.textureCoords.push(new Array(6));
-                    --j;
-                    verts.forEach(function (vert, k) {
-                        translatedVertices[i][k] = new namespace.Math.Vector2D(vert.x, vert.y);
-                        that.textureCoords[j][k] = new namespace.Math.Vector2D(vert.x, vert.y);
+        this.update = function () {
+            if (transformation.scaleChanged() && !transformation.positionChanged()) { // new scale, no translation
+                updateVertices();
+            } else if (!transformation.scaleChanged() && transformation.positionChanged()) { // no scale, new translation
+                var translation = transformation.position.subtract(transformation.lastPosition.x, transformation.lastPosition.y);
+                for (var letter = 0; letter < that.text.length; ++i) {
+                    VERTICES.forEach(function (vert, i) {
+                        that.vertices[letter][i].translateSelf(translation.x, translation.y);
                     });
                 }
-                while (translatedVertices.length > text.length) {
-                    translatedVertices.pop();
-                    that.textureCoords.pop();
-                }
-                updateTranslatedVertices(text, transformation.position);
-                updateTextureCoords(text);
-            };
-
-            transformation.scale.notifyMe(function (newScale) {
-                updateScaledVertices(newScale);
-                updateTranslatedVertices(that.text, transformationPosition);
-            });
-
-            transformation.position.notifyMe(function (newPosition) {
-                updateTranslatedVertices(that.text, newPosition);
-            });
-
-            that.text.notifyMe(function (newText) {
-                updateText(newText);
-            });
+            } else if (transformation.scaleChanged() && transformation.positionChanged()) { // new scale, new translation
+                updateVertices();
+            }
         };
-        init();
 
-        this.text = this.text.setAndNotify(text);
-    };
+        var init = function (text) {
+            that.updateText(text);
+        };
 
-    namespace.Comp.Inst.GfxFont.Graphics.prototype.setText = function (text) {
-        this.text = this.text.setAndNotify(text);
+        init(initialText);
     };
 
     ////////
@@ -1033,6 +1004,8 @@
                 var gfxComp = g.graphics;
                 var animationFrameDefinition = getAnimationFrameDefinitionOfGraphicsComponentInstance(gfxComp);
 
+                gfxComp.update();
+
                 // animate
                 gfxComp.currentDuration += delta;
                 if (animationFrameDefinition.duration !== null && gfxComp.currentDuration > animationFrameDefinition.duration) {
@@ -1097,6 +1070,9 @@
             for (var i = 0; i < gfxFontInstances.length; ++i) {
                 var g = gfxFontInstances[i];
                 var gfxComp = g.graphics;
+
+                gfxComp.update();
+
                 gfxCompFunc(gfxComp, i);
             }
             for (var i = 0; i < gfxFontInstances.duplicates.length; ++i) {
@@ -1352,7 +1328,7 @@
         var setInstanceText = function (instanceId, text) {
             var gfxInstance = getGraphicsComponentInstanceFontById(instanceId);
             if (gfxInstance !== null) {
-                gfxInstance.graphics.setText(text ? text : "");
+                gfxInstance.graphics.updateText(text ? text : "");
             }
         };
 

@@ -1,1 +1,1 @@
-[{"id":0,"name":"Player","gameState":"default"},{"id":1,"name":"Ground","gameState":"exploration"},{"id":2,"name":"Door","gameState":"exploration"},{"id":3,"name":"Text","gameState":"exploration"}]
+[{"id":0,"name":"Player","gameState":"default"},{"id":1,"name":"Ground","gameState":"exploration"},{"id":2,"name":"Door","gameState":"exploration"},{"id":3,"name":"Text","gameState":"exploration"},{"id":4,"name":"Box","gameState":"exploration"}]

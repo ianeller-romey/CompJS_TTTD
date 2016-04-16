@@ -15,7 +15,7 @@ using TTTD_Builder.Model.Interfaces;
 
 namespace TTTD_Builder.Model.Extensions
 {
-    public class PhysicsInstanceDefinition_WithAABB : PhysicsInstanceDefinition_Ex
+    public class PhysicsInstanceDefinition_WithBoundingBox : PhysicsInstanceDefinition_Ex
     {
         #region MEMBER FIELDS
 
@@ -92,7 +92,7 @@ namespace TTTD_Builder.Model.Extensions
 
         #region Public Functionality
 
-        public PhysicsInstanceDefinition_WithAABB(PhysicsInstanceDefinition physicsInstanceDefinition) :
+        public PhysicsInstanceDefinition_WithBoundingBox(PhysicsInstanceDefinition physicsInstanceDefinition) :
             base(physicsInstanceDefinition, PhysicsInstanceDefinitionType.AABB)
         {
         }

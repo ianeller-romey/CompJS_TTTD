@@ -86,12 +86,13 @@
                             if (delta > 100) {
                                 delta = 10;
                             }
+                            entManager.update(delta);
                             inputEngine.update(delta);
                             messengerEngine.update(delta);
                             audEngine.update(delta);
-                            gfxEngine.update(delta);
                             bhvEngine.update(delta);
                             physEngine.update(delta);
+                            gfxEngine.update(delta);
 
                             if (inputEngine.isTriggered(inputEngine.keys.escape)) {
                                 var shutdownPromise = Promise.all([audEngine.shutdown(), bhvEngine.shutdown(), gfxEngine.shutdown(), entManager.shutdown(), physEngine.shutdown(), inputEngine.shutdown(canvasElem)]);

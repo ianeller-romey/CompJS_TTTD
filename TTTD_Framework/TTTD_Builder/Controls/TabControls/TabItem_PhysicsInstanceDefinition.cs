@@ -78,7 +78,7 @@ namespace TTTD_Builder.Controls.TabControls
 
             if (physicsInstanceDefinition.BoundingData.ToLowerInvariant().Contains("halfvalues"))
             {
-                m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(new PhysicsInstanceDefinition_WithAABB(physicsInstanceDefinition));
+                m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(new PhysicsInstanceDefinition_WithBoundingBox(physicsInstanceDefinition));
             }
             else if (physicsInstanceDefinition.BoundingData.ToLowerInvariant().Contains("radius"))
             {

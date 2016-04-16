@@ -119,13 +119,13 @@ namespace TTTD_Builder.EditData
             m_textBox_name.Text = string.Empty;
         }
 
-        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_WithAABB physicsInstanceDefinition_ex) :
+        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_WithBoundingBox physicsInstanceDefinition_ex) :
             base("Physics Instance Type Definition", false)
         {
             PhysicsInstanceDefinitionType = physicsInstanceDefinition_ex.TypeOfInstance;
 
             m_physicsInstanceDefinition = physicsInstanceDefinition_ex.PhysicsInstanceDefinition;
-            
+
             if (DataIsNull())
             {
                 m_textBlock_id.Text = "N/A";
@@ -139,8 +139,8 @@ namespace TTTD_Builder.EditData
                 m_comboBox_collisionType.SelectedItem = m_physicsInstanceDefinition.CollisionType;
                 m_comboBox_physType.SelectedItem = m_physicsInstanceDefinition.PhysType;
 
-                var aabb = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithAABB;
-                SetAABBControls(aabb);
+                var bb = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithBoundingBox;
+                SetBBControls(bb);
             }
         }
 
@@ -360,7 +360,8 @@ namespace TTTD_Builder.EditData
             switch (PhysicsInstanceDefinitionType)
             {
                 case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.AABB:
-                    SetAABBControls(new PhysicsInstanceDefinition_WithAABB(m_physicsInstanceDefinition));
+                case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.OBB:
+                    SetBBControls(new PhysicsInstanceDefinition_WithBoundingBox(m_physicsInstanceDefinition));
                     break;
                 case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle:
                     SetCircleControls(new PhysicsInstanceDefinition_WithCircle(m_physicsInstanceDefinition));
@@ -425,9 +426,14 @@ namespace TTTD_Builder.EditData
             switch (physTypeName)
             {
                 case "AABB":
-                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithAABB(null);
+                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithBoundingBox(null);
                     PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.AABB;
-                    CreateAABBControls();
+                    CreateBBControls();
+                    break;
+                case "OBB":
+                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithBoundingBox(null);
+                    PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.OBB;
+                    CreateBBControls();
                     break;
                 case "Circle":
                     m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithCircle(null);
@@ -437,7 +443,7 @@ namespace TTTD_Builder.EditData
             }
         }
 
-        private void CreateAABBControls()
+        private void CreateBBControls()
         {
             m_grid_subSub.Children.Clear();
             m_grid_subSub.RowDefinitions.Clear();
@@ -479,7 +485,7 @@ namespace TTTD_Builder.EditData
             TextBox textBox_originX = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
             textBox_originX.TextChanged += (x, y) =>
             {
-                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithAABB);
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithBoundingBox);
                 if(p != null)
                     p.OriginX = double.Parse(textBox_originX.Text);
             };
@@ -497,7 +503,7 @@ namespace TTTD_Builder.EditData
             TextBox textBox_originY = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
             textBox_originY.TextChanged += (x, y) =>
             {
-                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithAABB);
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithBoundingBox);
                 if(p != null)
                     p.OriginY = double.Parse(textBox_originY.Text);
             };
@@ -515,7 +521,7 @@ namespace TTTD_Builder.EditData
             TextBox textBox_halfValueX = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
             textBox_halfValueX.TextChanged += (x, y) =>
             {
-                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithAABB);
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithBoundingBox);
                 if (p != null)
                     p.HalfValueX = double.Parse(textBox_halfValueX.Text);
             };
@@ -530,7 +536,7 @@ namespace TTTD_Builder.EditData
             TextBox textBox_halfValueY = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
             textBox_halfValueY.TextChanged += (x, y) =>
             {
-                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithAABB);
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithBoundingBox);
                 if (p != null)
                     p.HalfValueY = double.Parse(textBox_halfValueX.Text);
             };
@@ -541,7 +547,7 @@ namespace TTTD_Builder.EditData
             textBox_halfValueY.SetBinding(TextBox.TextProperty, binding_rectangle_halfHeight);
         }
 
-        private void SetAABBControls(PhysicsInstanceDefinition_WithAABB aabb)
+        private void SetBBControls(PhysicsInstanceDefinition_WithBoundingBox aabb)
         {
             Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, aabb.OriginX - aabb.HalfValueX);
             Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, aabb.OriginY - aabb.HalfValueY);

@@ -171,7 +171,7 @@
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_Ex.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_WithFontTextureDefinition.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_WithAnimationStateDefinitions.cs" />
-    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithAABB.cs" />
+    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithBoundingBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

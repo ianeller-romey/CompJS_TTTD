@@ -59,6 +59,7 @@
   <ItemGroup>
     <Content Include="lib\behaviors\behavior-player.js" />
     <Content Include="lib\behaviors\behavior-door.js" />
+    <Content Include="lib\behaviors\behavior-box.js" />
     <Content Include="lib\debug.js" />
     <Content Include="lib\driver.js" />
     <Content Include="lib\engines\aud-engine.js" />
@@ -71,6 +72,7 @@
     <Content Include="lib\engines\input-engine.js" />
     <Content Include="lib\engines\messenger-engine.js" />
     <Content Include="lib\engines\phys-engine.js" />
+    <Content Include="lib\math\trigonometry-tables.js" />
     <Content Include="lib\math\vector-2d.js" />
     <Content Include="lib\shaders\shader-outline.js" />
     <Content Include="lib\shaders\shader-texture.js" />

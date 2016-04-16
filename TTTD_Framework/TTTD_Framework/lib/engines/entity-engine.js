@@ -22,6 +22,7 @@
         var that = this;
 
         this.position = null;
+        this.lastPosition = null;
         var initPosition = function () {
             var x = 0;
             var y = 0;
@@ -34,18 +35,22 @@
                 }
             }
             that.position = new namespace.Math.Vector2D(x, y);
+            that.lastPosition = new namespace.Math.Vector2D(that.position.x, that.position.y);
         };
 
         this.rotation = null;
+        this.lastRotation = null;
         var initRotation = function () {
             var rot = 0;
             if (rotation != null) {
                 rot = rotation;
             }
-            that.rotation = new Number(rot);
+            that.rotation = rot;
+            that.lastRotation = that.rotation;
         };
 
         this.scale = null;
+        this.lastScale = null;
         var initScale = function () {
             var x = 1;
             var y = 1;
@@ -58,9 +63,11 @@
                 }
             }
             that.scale = new namespace.Math.Vector2D(x, y);
+            that.lastScale = new namespace.Math.Vector2D(that.scale.x, that.scale.y);
         };
 
         this.velocity = null;
+        this.lastVelocity = null;
         var initVelocity = function () {
             var x = 0;
             var y = 0;
@@ -73,6 +80,7 @@
                 }
             }
             that.velocity = new namespace.Math.Vector2D(x, y);
+            that.lastVelocity = new namespace.Math.Vector2D(that.velocity.x, that.velocity.y);
         };
 
         initPosition();
@@ -81,20 +89,88 @@
         initVelocity();
     };
 
+    namespace.Comp.Inst.Transformation.prototype.translateSelf = function (x, y) {
+        this.setPosition(this.position.x + x, this.position.y + y);
+    };
+
     namespace.Comp.Inst.Transformation.prototype.setPosition = function (x, y) {
-        this.position = this.position.setAndNotify(new namespace.Math.Vector2D(x, y));
+        if (x !== null || y !== null) {
+            if (x !== null) {
+                this.position.x = x;
+            }
+            if (y !== null) {
+                this.position.y = y;
+            }
+        }
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.positionChanged = function () {
+        return !this.position.equalsVector(this.lastPosition);
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.getPositionChange = function () {
+        return this.position.subtract(this.lastPosition.x, this.lastPosition.y);
     };
 
     namespace.Comp.Inst.Transformation.prototype.setRotation = function (rot) {
-        this.rotation = this.rotation.setAndNotify(rot);
+        if (rot !== null) {
+            this.lastRotation = this.rotation;
+            this.rotation = rot;
+        }
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.rotationChanged = function () {
+        return this.rotation !== this.lastRotation;
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.getRotationChange = function () {
+        // THIS IS PROBABLY BUGGY
+        return (this.rotation === 0 && this.lastRotation !== 0) ? 360 - this.lastRotation : this.rotation - this.lastRotation;
     };
 
     namespace.Comp.Inst.Transformation.prototype.setScale = function (x, y) {
-        this.scale = this.scale.setAndNotify(new namespace.Math.Vector2D(x, y));
+        if (x !== null || y !== null) {
+            if (x !== null) {
+                this.scale.x = x;
+            }
+            if (y !== null) {
+                this.scale.y = y;
+            }
+        }
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.scaleChanged = function () {
+        return !this.scale.equalsVector(this.lastScale);
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.getScaleChange = function () {
+        return this.scale.subtract(this.lastScale.x, this.lastScale.y);
     };
 
     namespace.Comp.Inst.Transformation.prototype.setVelocity = function (x, y) {
-        this.velocity = this.velocity.setAndNotify(new namespace.Math.Vector2D(x, y));
+        if (x !== null || y !== null) {
+            if (x !== null) {
+                this.velocity.x = x;
+            }
+            if (y !== null) {
+                this.velocity.y = y;
+            }
+        }
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.velocityChanged = function () {
+        return !this.velocity.equalsVector(this.lastVelocity);
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.getVelocityChange = function () {
+        return this.velocity.subtract(this.lastVelocity.x, this.lastVelocity.y);
+    };
+
+    namespace.Comp.Inst.Transformation.prototype.update = function () {
+        this.lastPosition = new namespace.Math.Vector2D(this.position.x, this.position.y);
+        this.lastRotation = this.rotation;
+        this.lastScale = new namespace.Math.Vector2D(this.scale.x, this.scale.y);
+        this.lastVelocity = new namespace.Math.Vector2D(this.velocity.x, this.velocity.y);
     };
 
     ////////
@@ -200,6 +276,12 @@
                     }
                     reject(reasonPlus);
                 });
+            });
+        };
+
+        this.update = function (delta) {
+            entityInstances.forEach(function (x) {
+                x.transformation.update();
             });
         };
 
@@ -396,15 +478,16 @@
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                var xPos = instance.transformation.position.x;
-                var yPos = instance.transformation.position.y;
-                if (position.x !== undefined) {
-                    xPos = position.x;
-                }
-                if (position.y !== undefined) {
-                    yPos = position.y;
-                }
-                instance.transformation.setPosition(xPos, yPos);
+                instance.transformation.setPosition(position.x, position.y);
+            }
+        };
+
+        var setInstanceRotation = function (instanceId, rotation) {
+            var instance = entityInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            if (instance !== null) {
+                instance.transformation.setRotation(rotation);
             }
         };
 
@@ -413,15 +496,16 @@
                 return x.instanceId === instanceId;
             });
             if (instance !== null) {
-                var xPos = instance.transformation.scale.x;
-                var yPos = instance.transformation.scale.y;
-                if (scale.x !== undefined) {
-                    xPos = scale.x;
-                }
-                if (scale.y !== undefined) {
-                    yPos = scale.y;
-                }
-                instance.transformation.setScale(xPos, yPos);
+                instance.transformation.setScale(scale.x, scale.y);
+            }
+        };
+
+        var setInstanceVelocity = function (instanceId, velocity) {
+            var instance = entityInstances.firstOrNull(function (x) {
+                return x.instanceId === instanceId;
+            });
+            if (instance !== null) {
+                instance.transformation.setVelocity(velocity.x, velocity.y);
             }
         };
 
@@ -432,7 +516,9 @@
         messengerEngine.registerForMessage("setInstancePriority", this, setInstancePriority);
         messengerEngine.registerForMessage("setInstanceGameState", this, setInstanceGameState);
         messengerEngine.registerForMessage("setInstancePosition", this, setInstancePosition);
+        messengerEngine.registerForMessage("setInstanceRotation", this, setInstanceRotation);
         messengerEngine.registerForMessage("setInstanceScale", this, setInstanceScale);
+        messengerEngine.registerForMessage("setInstanceVelocity", this, setInstanceVelocity);
         messengerEngine.registerForRequest("getTransformationForEntityInstance", this, getTransformationForEntityInstance);
     };
 }(window.TTTD = window.TTTD || {}));

@@ -3,10 +3,14 @@
 
     namespace.Math = namespace.Math || {};
     namespace.Math.Vector2D = function (x, y, normalized) {
-        this.x = new Number(x);
-        this.y = new Number(y);
+        this.x = x;
+        this.y = y;
         // normalized can be true, false, or null (unknown)
-        this.normalized = (normalized !== undefined) ? normalized : this.checkNormalized();
+        this.normalized = (normalized !== undefined && normalized !== null) ? normalized : this.checkNormalized();
+    };
+
+    namespace.Math.Vector2D.prototype.equalsVector = function (vector) {
+        return this.x === vector.x && this.y === vector.y;
     };
 
     namespace.Math.Vector2D.prototype.valueOf = function () {
@@ -14,14 +18,16 @@
     };
 
     namespace.Math.Vector2D.prototype.checkNormalized = function () {
-        this.normalized = (this.magnitude2() === 1);
+        if (this.normalized === null) {
+            this.normalized = (this.magnitude2() === 1);
+        }
         return this.normalized;
     };
 
     namespace.Math.Vector2D.prototype.toXYObject = function (x, y) {
         return {
-            x: (x) ? new Number(this.x + x) : new Number(this.x),
-            y: (y) ? new Number(this.y + y) : new Number(this.y)
+            x: (x) ? this.x + x : this.x,
+            y: (y) ? this.y + y : this.y
         };
     };
 
@@ -62,7 +68,6 @@
                 this.x = this.x / mag;
                 this.y = this.y / mag;
                 this.normalized = true;
-                this.notifyAll();
             }
         }
         return this;
@@ -76,7 +81,6 @@
         this.x = this.x + otherX;
         this.y = this.y + otherY;
         this.normalized = null;
-        this.notifyAll();
         return this;
     };
 
@@ -84,11 +88,23 @@
         return new namespace.Math.Vector2D(this.x + otherX, this.y + otherY);
     };
 
+    namespace.Math.Vector2D.prototype.rotateSelf = function (originX, originY, theta) {
+        var translated = this.subtract(originX, originY);
+        var rotated = new namespace.Math.Vector2D(translated.x * namespace.Math.cos(theta) - translated.y * namespace.Math.sin(theta), translated.x * namespace.Math.sin(theta) + translated.y * namespace.Math.cos(theta));
+        this.x = rotated.x + originX;
+        this.y = rotated.y + originY;
+    };
+
+    namespace.Math.Vector2D.prototype.rotate = function (originX, originY, theta) {
+        var translated = this.subtract(originX, originY);
+        var rotated = new namespace.Math.Vector2D(translated.x * namespace.Math.cos(theta) - translated.y * namespace.Math.sin(theta), translated.x * namespace.Math.sin(theta) + translated.y * namespace.Math.cos(theta));
+        return rotated.translate(originX, originY);
+    };
+
     namespace.Math.Vector2D.prototype.scaleSelf = function (scalar) {
         this.x = this.x * scalar;
         this.y = this.y * scalar;
         this.normalized = null;
-        this.notifyAll();
         return this;
     };
 

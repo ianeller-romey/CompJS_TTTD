@@ -99,7 +99,7 @@ namespace TTTD_Builder.EditData
             grid_gameState.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
             grid_gameState.SetRowColumn(validator_gameState, 1, 0);
             grid_gameState.SetRowColumn(label_gameState, 0, 0);
-            grid_main.SetRowColumn(grid_gameState, 1, 0);
+            grid_main.SetRowColumn(grid_gameState, 2, 0);
 
             ////////
             // FIN

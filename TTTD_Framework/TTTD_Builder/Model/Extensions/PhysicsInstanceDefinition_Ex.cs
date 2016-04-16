@@ -23,6 +23,7 @@ namespace TTTD_Builder.Model.Extensions
         {
             Undetermined,
             AABB,
+            OBB,
             Circle
         }
 
