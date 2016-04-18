@@ -469,7 +469,6 @@
                 });
             }
 
-
             if (transformation.rotationChanged()) {
                 var origin = transformation.position.translate(that.width / 2, that.height / 2);
                 var theta = transformation.getRotationChange();

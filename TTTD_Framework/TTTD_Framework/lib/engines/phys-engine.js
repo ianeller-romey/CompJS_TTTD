@@ -426,9 +426,24 @@
         Phys.Collision.Axes.X = new namespace.Math.Vector2D(1, 0, true);
         Phys.Collision.Axes.Y = new namespace.Math.Vector2D(0, 1, true);
         Phys.Collision.Axes.ProjectionData = function (min, max) {
-            this.min = min;
-            this.max = max;
+            this.min = (min !== undefined) ? min : Number.MAX_VALUE;
+            this.max = (max !== undefined) ? max : -Number.MAX_VALUE;
         };
+
+        Phys.Collision.Axes.ProjectionData.prototype.update = function (value) {
+            if (value < this.min) {
+                this.min = value;
+            }
+            if (value > this.max) {
+                this.max = value;
+            }
+        };
+
+        Phys.Collision.Axes.ProjectionData.prototype.projectPointAndUpdate = function (normalizedAxis, normalizedMagnitude, point) {
+            var scalarProjection = normalizedAxis.dot(point) / normalizedMagnitude;
+            this.update(scalarProjection);
+        };
+
         Phys.Collision.Axes.ProjectionData.prototype.getIntervalDistance = function (other) {
             return (this.min < other.min) ? other.min - this.max : this.min - other.max;
         };
@@ -603,32 +618,14 @@
                 }
             }
 
-            // start with maxVals as voronoiVertex
-            var voronoiVertex = obb.maxVals;
-            var voronoiDistance = this.origin.distance2(obb.maxVals);
-
-            // check minVals for voronoiVertex
-            var tempVoronoiDistance = this.origin.distance2(obb.minVals);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = obb.minVals;
-                voronoiDistance = tempVoronoiDistance;
-            }
-
-            // check maxVals.x, minVals.y for voronoiVertex
-            var tempVoronoiVertex = new namespace.Math.Vector2D(obb.maxVals.x, obb.minVals.y);
-            tempVoronoiDistance = this.origin.distance2(tempVoronoiVertex);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = tempVoronoiVertex;
-                voronoiDistance = tempVoronoiDistance;
-            }
-
-            // check minVals.x, maxVals.y for voronoiVertex
-            tempVoronoiVertex.x = obb.minVals.x;
-            tempVoronoiVertex.y = obb.maxVals.y;
-            tempVoronoiDistance = this.origin.distance2(tempVoronoiVertex);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = tempVoronoiVertex;
-                voronoiDistance = tempVoronoiDistance;
+            var voronoiVertex;
+            var voronoiDistance = Number.MAX_VALUE;
+            for (var i = 0; i < obb.vertices.length; ++i) {
+                var tempVoronoiDistance = this.origin.distance2(obb.vertices[i]);
+                if (tempVoronoiDistance < voronoiDistance) {
+                    voronoiVertex = obb.vertices[i];
+                    voronoiDistance = tempVoronoiDistance;
+                }
             }
 
             var finalAxis = this.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
@@ -651,10 +648,10 @@
         /*
             The provided axis should already be normalized.
         */
-        Phys.Collision.BoundingCircle.prototype.projectOntoAxis = function (axis) {
-            var translated = axis.translate(this.origin.x, this.origin.y);
-            var scaledUp = axis.dot(translated.translate(axis.x * this.radius, axis.y * this.radius));
-            var scaledDown = axis.dot(translated.translate(axis.x * -this.radius, axis.y * -this.radius));
+        Phys.Collision.BoundingCircle.prototype.projectOntoAxis = function (normalizedAxis) {
+            var translated = normalizedAxis.translate(this.origin.x, this.origin.y);
+            var scaledUp = normalizedAxis.dot(translated.translate(normalizedAxis.x * this.radius, normalizedAxis.y * this.radius));
+            var scaledDown = normalizedAxis.dot(translated.translate(normalizedAxis.x * -this.radius, normalizedAxis.y * -this.radius));
 
             return (scaledDown < scaledUp) ? new Phys.Collision.Axes.ProjectionData(scaledDown, scaledUp) : new Phys.Collision.Axes.ProjectionData(scaledUp, scaledDown);
         };
@@ -805,36 +802,20 @@
         /*
             The provided axis should already be normalized.
         */
-        Phys.Collision.BoundingAABB.prototype.projectOntoAxis = function (axis) {
-            var dot = axis.dot(this.minVals);
-            var data = new Phys.Collision.Axes.ProjectionData(dot, dot);
+        Phys.Collision.BoundingAABB.prototype.projectOntoAxis = function (normalizedAxis) {
+            var normalizedMagnitude = normalizedAxis.magnitude();
 
-            dot = axis.dot({
+            var data = new Phys.Collision.Axes.ProjectionData();
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.minVals, data);
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, {
                 x: this.minVals.x,
                 y: this.maxVals.y
             });
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
-            }
-
-            dot = axis.dot({
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, {
                 x: this.maxVals.x,
                 y: this.minVals.y
             });
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
-            }
-
-            dot = axis.dot(this.maxVals);
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
-            }
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.maxVals);
 
             return data;
         };
@@ -846,11 +827,14 @@
 
             this.rotation = 0;
             this.axes = new Array(2);
+            this.vertices = new Array(4);
 
             var halfVals = vals.halfVals;
             if (halfVals) { // intentional truthiness
-                this.minVals = new namespace.Math.Vector2D(this.origin.x - halfVals.width, this.origin.y - halfVals.height);
-                this.maxVals = new namespace.Math.Vector2D(this.origin.x + halfVals.width, this.origin.y + halfVals.height);
+                this.vertices[0] = new namespace.Math.Vector2D(this.origin.x - halfVals.width, this.origin.y - halfVals.height);
+                this.vertices[1] = new namespace.Math.Vector2D(this.origin.x + halfVals.width, this.origin.y - halfVals.height);
+                this.vertices[2] = new namespace.Math.Vector2D(this.origin.x - halfVals.width, this.origin.y + halfVals.height);
+                this.vertices[3] = new namespace.Math.Vector2D(this.origin.x + halfVals.width, this.origin.y + halfVals.height);
 
                 this.axes[0] = Phys.Collision.Axes.X.clone();
                 this.axes[1] = Phys.Collision.Axes.Y.clone();
@@ -861,25 +845,26 @@
             } else {
                 var rotatedVals = vals.rotatedVals;
                 if (rotatedVals) { // intentional truthiness
-                    this.minVals = rotatedVals.minVals.clone();
-                    this.maxVals = rotatedVals.maxVals.clone();
+                    for (var i = 0; i < rotatedVals.vertices.length; ++i) {
+                        this.vertices[i] = rotatedVals.vertices[i].clone();
+                    }
 
-                    this.axes[0] = rotatedVals.axes[0].clone();
-                    this.axes[1] = rotatedVals.axes[1].clone();
+                    for (var i = 0; i < rotatedVals.axes.length; ++i) {
+                        this.axes[i] = rotatedVals.axes[i].clone();
+                    }
                 } else {
                     throw "BoundingOBB created without providing valid values.";
                 }
             }
 
             this.rotation = rotation;
-            this.halfDiag = this.maxVals.distance(this.minVals) / 2;
+            this.halfDiag = this.vertices[3].distance(this.vertices[0]) / 2;
         };
 
         Phys.Collision.BoundingOBB.prototype.clone = function () {
             return new Phys.Collision.BoundingOBB(this.origin, {
                 rotatedVals: {
-                    minVals: this.minVals,
-                    maxVals: this.maxVals,
+                    vertices: this.vertices,
                     axes: this.axes
                 }
             }, this.rotation);
@@ -888,8 +873,9 @@
         Phys.Collision.BoundingOBB.prototype.translateSelf = function (translateX, translateY) {
             this.origin.translateSelf(translateX, translateY);
 
-            this.minVals.translateSelf(translateX, translateY);
-            this.maxVals.translateSelf(translateX, translateY);
+            for (var i = 0; i < this.vertices.length; ++i) {
+                this.vertices[i].translateSelf(translateX, translateY);
+            }
 
             // we don't need to translate our axes
             //this.axes[0].translateSelf(translateX, translateY);
@@ -897,13 +883,15 @@
         };
 
         Phys.Collision.BoundingOBB.prototype.rotateSelf = function (rotation) {
-            this.rotation += rotation;
+            this.rotation = (this.rotation + rotation) % 360;
 
-            this.minVals.rotateSelf(this.origin.x, this.origin.y, rotation);
-            this.maxVals.rotateSelf(this.origin.x, this.origin.y, rotation);
+            for (var i = 0; i < this.vertices.length; ++i) {
+                this.vertices[i].rotateSelf(this.origin.x, this.origin.y, rotation);
+            }
             
-            this.axes[0].rotateSelf(0, 0, rotation);
-            this.axes[1].rotateSelf(0, 0, rotation);
+            for (var i = 0; i < this.axes.length; ++i) {
+                this.axes[i].rotateSelf(0, 0, rotation);
+            }
         };
 
         /*
@@ -926,32 +914,14 @@
                 }
             }
 
-            // start with maxVals as voronoiVertex
-            var voronoiVertex = this.maxVals;
-            var voronoiDistance = circle.origin.distance2(this.maxVals);
-
-            // check minVals for voronoiVertex
-            var tempVoronoiDistance = circle.origin.distance2(this.minVals);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = this.minVals;
-                voronoiDistance = tempVoronoiDistance;
-            }
-
-            // check maxVals.x, minVals.y for voronoiVertex
-            var tempVoronoiVertex = new namespace.Math.Vector2D(this.maxVals.x, this.minVals.y);
-            tempVoronoiDistance = circle.origin.distance2(tempVoronoiVertex);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = tempVoronoiVertex;
-                voronoiDistance = tempVoronoiDistance;
-            }
-
-            // check minVals.x, maxVals.y for voronoiVertex
-            tempVoronoiVertex.x = this.minVals.x;
-            tempVoronoiVertex.y = this.maxVals.y;
-            tempVoronoiDistance = circle.origin.distance2(tempVoronoiVertex);
-            if (tempVoronoiDistance < voronoiDistance) {
-                voronoiVertex = tempVoronoiVertex;
-                voronoiDistance = tempVoronoiDistance;
+            var voronoiVertex;
+            var voronoiDistance = Number.MAX_VALUE;
+            for (var i = 0; i < this.vertices.length; ++i) {
+                var tempVoronoiDistance = circle.origin.distance2(this.vertices[i]);
+                if (tempVoronoiDistance < voronoiDistance) {
+                    voronoiVertex = this.vertices[i];
+                    voronoiDistance = tempVoronoiDistance;
+                }
             }
 
             var finalAxis = circle.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
@@ -1032,16 +1002,16 @@
         Phys.Collision.BoundingOBB.prototype.collideWithPoint = function (point) {
             var rotatedPoint = point.rotate(this.origin.x, this.origin.y, this.rotation);
 
-            if (rotatedPoint.x > this.maxVals.x) {
+            if (rotatedPoint.x > this.vertices[3].x) {
                 return false;
             }
-            if (rotatedPoint.x < this.minVals.x) {
+            if (rotatedPoint.x < this.vertices[0].x) {
                 return false;
             }
-            if (rotatedPoint.y > this.maxVals.y) {
+            if (rotatedPoint.y > this.vertices[3].y) {
                 return false;
             }
-            if (rotatedPoint.y < this.minVals.y) {
+            if (rotatedPoint.y < this.vertices[0].y) {
                 return false;
             }
             return true;
@@ -1050,35 +1020,12 @@
         /*
             The provided axis should already be normalized.
         */
-        Phys.Collision.BoundingOBB.prototype.projectOntoAxis = function (axis) {
-            var dot = axis.dot(this.minVals);
-            var data = new Phys.Collision.Axes.ProjectionData(dot, dot);
+        Phys.Collision.BoundingOBB.prototype.projectOntoAxis = function (normalizedAxis) {
+            var normalizedMagnitude = normalizedAxis.magnitude();
 
-            dot = axis.dot({
-                x: this.minVals.x,
-                y: this.maxVals.y
-            });
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
-            }
-
-            dot = axis.dot({
-                x: this.maxVals.x,
-                y: this.minVals.y
-            });
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
-            }
-
-            dot = axis.dot(this.maxVals);
-            if (dot < data.min) {
-                data.min = dot;
-            } else if (dot > data.max) {
-                data.max = dot;
+            var data = new Phys.Collision.Axes.ProjectionData();
+            for (var i = 0; i < this.vertices.length; ++i) {
+                data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.vertices[i]);
             }
 
             return data;

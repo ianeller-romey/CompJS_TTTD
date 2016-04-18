@@ -18,7 +18,7 @@
     };
 
     namespace.Math.Vector2D.prototype.checkNormalized = function () {
-        if (this.normalized === null) {
+        if (this.normalized === undefined || this.normalized === null) {
             this.normalized = (this.magnitude2() === 1);
         }
         return this.normalized;

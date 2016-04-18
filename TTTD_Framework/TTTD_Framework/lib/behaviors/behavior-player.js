@@ -57,7 +57,7 @@
             };
 
             this.state_updateIdle = function (delta) {
-                rotationTimer += delta;
+                /*rotationTimer += delta;
                 if (rotationTimer > 5) {
                     rotationTimer = 0;
                     playerRotation = (playerRotation + 1) % 360;
@@ -66,7 +66,7 @@
                         rotation: playerRotation
                     });
                     console.log(playerRotation);
-                }
+                }*/
                 if (that.getVelocityFromMouseClick()) {
                     return that.getState_moving();
                 } else {
