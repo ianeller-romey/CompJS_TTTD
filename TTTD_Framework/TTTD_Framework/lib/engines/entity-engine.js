@@ -319,7 +319,11 @@
                 }
             }
             if (entityHasPhysics(entityDefinition)) {
-                physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics, entityDefinition.gameState);
+                if (additional != null && additional.fontText != null) { // intentional truthiness
+                    physicsEngine.createPhysicsComponentFontInstance(entity, entityDefinition.physics, additional.fontText, entityDefinition.gameState);
+                } else {
+                    physicsEngine.createPhysicsComponentInstance(entity, entityDefinition.physics, entityDefinition.gameState);
+                }
             }
             if (entityHasAudible(entityDefinition)) {
                 throw "Not yet implemented";

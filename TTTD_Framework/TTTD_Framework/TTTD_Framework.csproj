@@ -60,6 +60,7 @@
     <Content Include="lib\behaviors\behavior-player.js" />
     <Content Include="lib\behaviors\behavior-door.js" />
     <Content Include="lib\behaviors\behavior-box.js" />
+    <Content Include="lib\behaviors\behavior-text.js" />
     <Content Include="lib\debug.js" />
     <Content Include="lib\driver.js" />
     <Content Include="lib\engines\aud-engine.js" />

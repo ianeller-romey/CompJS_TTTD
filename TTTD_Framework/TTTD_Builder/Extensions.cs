@@ -78,6 +78,20 @@ namespace TTTD_Builder
             return aniFrame;
         }
 
+        public static FontTextureDefinition GetFontTextureDefinition(this EntityInstanceDefinition entityInstanceDefinition)
+        {
+            FontTextureDefinition fontTextureDefinition = null;
+            if (entityInstanceDefinition != null)
+            {
+                var gfx = DataManager.GraphicsInstanceDefinitions.FirstOrDefault(x => x.EntityInstanceDefinition == entityInstanceDefinition);
+                if (gfx != null)
+                {
+                    fontTextureDefinition = DataManager.FontTextureDefinitions.FirstOrDefault(x => x.GraphicsInstanceDefinition == gfx);
+                }
+            }
+            return fontTextureDefinition;   
+        }
+
         public static bool HasLayout(this Level level)
         {
             return DataManager.LevelLayouts.Any(x => x.Level == level);

@@ -166,6 +166,7 @@
     <Compile Include="Model\Data\Shader.cs" />
     <Compile Include="Model\Extensions\Base\ExtensionsBase.cs" />
     <Compile Include="Model\Extensions\AnimationStateDefinition_WithAnimationFrameDefinitions.cs" />
+    <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithFont.cs" />
     <Compile Include="Model\Extensions\PhysicsInstanceDefinition_WithCircle.cs" />
     <Compile Include="Model\Extensions\PhysicsInstanceDefinition_Ex.cs" />
     <Compile Include="Model\Extensions\GraphicsInstanceDefinition_Ex.cs" />

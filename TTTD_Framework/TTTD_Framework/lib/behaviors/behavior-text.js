@@ -1,8 +1,8 @@
 ﻿(function (namespace, undefined) {
     "use strict";
 
-    if (namespace.BehaviorBox === undefined) {
-        namespace.BehaviorBox = function (entity) {
+    if (namespace.BehaviorText === undefined) {
+        namespace.BehaviorText = function (entity) {
             this.instanceId = entity.instanceId;
             this.transformation = entity.transformation;
 
@@ -11,25 +11,25 @@
             var messengerEngine = namespace.Globals.globalMessengerEngine;
             var inputEngine = namespace.Globals.globalInputEngine;
 
-            var boxVelocity = 50;
-            var boxRotation = 0;
+            var textVelocity = 50;
+            var textRotation = 0;
             var rotationTimer = 0;
             var rotationInterval = 5;
 
             var controllerLeft = function () {
-                return inputEngine.isPressed(inputEngine.keys.a);
+                return inputEngine.isPressed(inputEngine.keys.j);
             };
 
             var controllerRight = function () {
-                return inputEngine.isPressed(inputEngine.keys.d);
+                return inputEngine.isPressed(inputEngine.keys.l);
             };
 
             var controllerUp = function () {
-                return inputEngine.isPressed(inputEngine.keys.w);
+                return inputEngine.isPressed(inputEngine.keys.i);
             };
 
             var controllerDown = function () {
-                return inputEngine.isPressed(inputEngine.keys.s);
+                return inputEngine.isPressed(inputEngine.keys.k);
             };
 
             var controllerAction = function () {
@@ -42,35 +42,35 @@
 
             this.state_updateIdle = function (delta) {
                 if (controllerLeft()) {
-                    that.transformation.setVelocity(-boxVelocity, null);
+                    that.transformation.setVelocity(-textVelocity, null);
                 } else if (controllerRight()) {
-                    that.transformation.setVelocity(boxVelocity, null);
+                    that.transformation.setVelocity(textVelocity, null);
                 } else {
                     that.transformation.setVelocity(0, null);
                 }
 
                 if (controllerUp()) {
-                    that.transformation.setVelocity(null, -boxVelocity);
+                    that.transformation.setVelocity(null, -textVelocity);
                 } else if (controllerDown()) {
-                    that.transformation.setVelocity(null, boxVelocity);
+                    that.transformation.setVelocity(null, textVelocity);
                 } else {
                     that.transformation.setVelocity(null, 0);
                 }
 
-                if (controllerAction()) {
+                /*if (controllerAction()) {
                     rotationTimer += delta;
                     if (rotationTimer > 5) {
                         rotationTimer = 0;
-                        boxRotation = (boxRotation + 1) % 360;
+                        textRotation = (textRotation + 1) % 360;
                         messengerEngine.queueMessage("setInstanceRotation", {
                             instanceId: that.instanceId,
-                            rotation: boxRotation
+                            rotation: textRotation
                         });
-                        console.log(boxRotation);
+                        console.log(textRotation);
                     }
                 } else {
                     rotationTimer = rotationInterval;
-                }
+                }*/
                 return false;
             };
             
@@ -85,8 +85,8 @@
         };
 
         namespace.Globals.globalMessengerEngine.queueMessage("setBehaviorConstructor", {
-            constructorName: "BehaviorBox",
-            constructorFunction: namespace.BehaviorBox
+            constructorName: "BehaviorText",
+            constructorFunction: namespace.BehaviorText
         });
     }
 }(window.TTTD = window.TTTD || {}));

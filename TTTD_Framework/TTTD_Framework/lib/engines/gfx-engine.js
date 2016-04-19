@@ -604,13 +604,16 @@
                 updateVertices();
             } else if (!transformation.scaleChanged() && transformation.positionChanged()) { // no scale, new translation
                 var translation = transformation.position.subtract(transformation.lastPosition.x, transformation.lastPosition.y);
-                for (var letter = 0; letter < that.text.length; ++i) {
+                for (var letter = 0; letter < that.text.length; ++letter) {
                     VERTICES.forEach(function (vert, i) {
                         that.vertices[letter][i].translateSelf(translation.x, translation.y);
                     });
                 }
             } else if (transformation.scaleChanged() && transformation.positionChanged()) { // new scale, new translation
                 updateVertices();
+            }
+
+            if (transformation.rotationChanged()) {
             }
         };
 
@@ -1325,9 +1328,9 @@
         };
 
         var setInstanceText = function (instanceId, text) {
-            var gfxInstance = getGraphicsComponentInstanceFontById(instanceId);
-            if (gfxInstance !== null) {
-                gfxInstance.graphics.updateText(text ? text : "");
+            var instance = getGraphicsComponentInstanceFontById(instanceId);
+            if (instance !== null) {
+                instance.graphics.updateText(text ? text : "");
             }
         };
 

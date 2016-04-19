@@ -31,7 +31,6 @@ namespace TTTD_Builder.EditData
         private ComboBox m_comboBox_collisionType;
         private ComboBox m_comboBox_physType;
         private Grid m_grid_subSub;
-        private Grid m_grid_boundingData;
 
         private BitmapSource m_bitmapSource;
         private Image m_image;
@@ -166,6 +165,31 @@ namespace TTTD_Builder.EditData
 
                 var circle = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithCircle;
                 SetCircleControls(circle);
+            }
+        }
+
+        public UserControl_PhysicsInstanceDefinition(PhysicsInstanceDefinition_WithFont physicsInstanceDefinition_ex) :
+            base("Physics Instance Type Definition", false)
+        {
+            PhysicsInstanceDefinitionType = physicsInstanceDefinition_ex.TypeOfInstance;
+
+            m_physicsInstanceDefinition = physicsInstanceDefinition_ex.PhysicsInstanceDefinition;
+
+            if (DataIsNull())
+            {
+                m_textBlock_id.Text = "N/A";
+                m_textBox_name.Text = string.Empty;
+            }
+            else
+            {
+                m_textBlock_id.Text = m_physicsInstanceDefinition.Id.ToString();
+                m_textBox_name.Text = m_physicsInstanceDefinition.Name;
+                m_comboBox_entityInstanceDefinition.SelectedItem = m_physicsInstanceDefinition.EntityInstanceDefinition;
+                m_comboBox_collisionType.SelectedItem = m_physicsInstanceDefinition.CollisionType;
+                m_comboBox_physType.SelectedItem = m_physicsInstanceDefinition.PhysType;
+
+                var font = physicsInstanceDefinition_ex as PhysicsInstanceDefinition_WithFont;
+                SetFontControls(font);
             }
         }
 
@@ -366,6 +390,9 @@ namespace TTTD_Builder.EditData
                 case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle:
                     SetCircleControls(new PhysicsInstanceDefinition_WithCircle(m_physicsInstanceDefinition));
                     break;
+                case PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Font:
+                    SetFontControls(new PhysicsInstanceDefinition_WithFont(m_physicsInstanceDefinition));
+                    break;
             }
         }
 
@@ -391,6 +418,11 @@ namespace TTTD_Builder.EditData
             m_image.Source = m_bitmapSource;
         }
 
+        private void DisplayFont(FontTextureDefinition fontTextureDefinition)
+        {
+            m_image.Source = new BitmapImage(new Uri(fontTextureDefinition.Texture));
+        }
+
         private void ComboBox_EntityInstanceDefinition_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var comboBox = sender as ComboBox;
@@ -403,6 +435,14 @@ namespace TTTD_Builder.EditData
                     if (aniFrame != null)
                     {
                         DisplayAnimationFrame(aniFrame);
+                        return;
+                    }
+
+                    var fontTextureDefinition = ent.GetFontTextureDefinition();
+                    if (fontTextureDefinition != null)
+                    {
+                        DisplayFont(fontTextureDefinition);
+                        return;
                     }
                 }
             }
@@ -439,6 +479,11 @@ namespace TTTD_Builder.EditData
                     m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithCircle(null);
                     PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Circle;
                     CreateCircleControls();
+                    break;
+                case "Font":
+                    m_physicsInstanceDefinitionEx = new PhysicsInstanceDefinition_WithFont(null);
+                    PhysicsInstanceDefinitionType = PhysicsInstanceDefinition_Ex.PhysicsInstanceDefinitionType.Font;
+                    CreateFontControls();
                     break;
             }
         }
@@ -649,6 +694,81 @@ namespace TTTD_Builder.EditData
             Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, circle.OriginY - circle.Radius);
             m_canvasWithRectangle.SizableRectangle.Width = circle.Radius * 2.0;
             m_canvasWithRectangle.SizableRectangle.Height = circle.Radius * 2.0;
+        }
+
+        private void CreateFontControls()
+        {
+            m_grid_subSub.Children.Clear();
+            m_grid_subSub.RowDefinitions.Clear();
+            m_grid_subSub.ColumnDefinitions.Clear();
+            m_grid_subSub.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_subSub.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            m_grid_subSub.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(30.0, GridUnitType.Star) });
+            m_grid_subSub.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(70.0, GridUnitType.Star) });
+
+            Binding binding_rectangle_width =
+                new Binding("Width")
+                {
+                    Source = m_canvasWithRectangle.SizableRectangle
+                };
+            Binding binding_rectangle_height =
+                new Binding("Height")
+                {
+                    Source = m_canvasWithRectangle.SizableRectangle
+                };
+
+            ////////
+            // CharacterWidth
+            TextBox textBox_characterWidth = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
+            textBox_characterWidth.TextChanged += (x, y) =>
+            {
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithFont);
+                if (p != null)
+                    p.CharacterWidth = double.Parse(textBox_characterWidth.Text);
+            };
+            Label label_characterWidth = new Label() { Content = "Character Width: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            m_grid_subSub.SetRowColumn(textBox_characterWidth, 0, 1);
+            m_grid_subSub.SetRowColumn(label_characterWidth, 0, 0);
+
+            textBox_characterWidth.SetBinding(TextBox.TextProperty, binding_rectangle_width);
+
+            ////////
+            // CharacterHeight
+            TextBox textBox_characterHeight = new TextBox() { VerticalAlignment = VerticalAlignment.Center, IsEnabled = false };
+            textBox_characterHeight.TextChanged += (x, y) =>
+            {
+                var p = (m_physicsInstanceDefinitionEx as PhysicsInstanceDefinition_WithFont);
+                if (p != null)
+                    p.CharacterHeight = double.Parse(textBox_characterHeight.Text);
+            };
+            Label label_characterHeight = new Label() { Content = "Character Height: ", FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
+            m_grid_subSub.SetRowColumn(textBox_characterHeight, 1, 1);
+            m_grid_subSub.SetRowColumn(label_characterHeight, 1, 0);
+
+            textBox_characterHeight.SetBinding(TextBox.TextProperty, binding_rectangle_height);
+
+            ////////
+            // FIN
+            var entityInstanceDefinition = m_comboBox_entityInstanceDefinition.SelectedItem as EntityInstanceDefinition;
+            if(entityInstanceDefinition != null)
+            {
+                var fontTextureDefinition = entityInstanceDefinition.GetFontTextureDefinition();
+                if (fontTextureDefinition != null)
+                {
+                    Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, fontTextureDefinition.StartLeft);
+                    Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, fontTextureDefinition.StartTop);
+                    m_canvasWithRectangle.SizableRectangle.Width = fontTextureDefinition.CharacterWidth;
+                    m_canvasWithRectangle.SizableRectangle.Height = fontTextureDefinition.CharacterHeight;
+                }
+            }
+        }
+
+        private void SetFontControls(PhysicsInstanceDefinition_WithFont font)
+        {
+            Canvas.SetLeft(m_canvasWithRectangle.SizableRectangle, font.StartLeft);
+            Canvas.SetTop(m_canvasWithRectangle.SizableRectangle, font.StartTop);
+            m_canvasWithRectangle.SizableRectangle.Width = font.CharacterWidth;
+            m_canvasWithRectangle.SizableRectangle.Height = font.CharacterHeight;
         }
 
         #endregion

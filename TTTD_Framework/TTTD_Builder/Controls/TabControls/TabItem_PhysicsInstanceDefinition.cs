@@ -84,6 +84,10 @@ namespace TTTD_Builder.Controls.TabControls
             {
                 m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(new PhysicsInstanceDefinition_WithCircle(physicsInstanceDefinition));
             }
+            else if (physicsInstanceDefinition.BoundingData.ToLowerInvariant().Contains("characterwidth"))
+            {
+                m_userControl_physicsInstanceDefinition = new UserControl_PhysicsInstanceDefinition(new PhysicsInstanceDefinition_WithFont(physicsInstanceDefinition));
+            }
 
             m_grid_main.SetRowColumn(m_userControl_physicsInstanceDefinition, 1, 0);
         }

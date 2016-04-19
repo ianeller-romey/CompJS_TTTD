@@ -21,7 +21,7 @@ namespace TTTD_Builder.EditData
     {
         #region MEMBER FIELDS
 
-        private static readonly Regex m_regex_behaviorConstructor = new Regex("\\(\"setBehaviorConstructor\", \"(?<behaviorConstructorName>\\w+)\", namespace\\.(?<behaviorConstructorFunction>\\w+)\\);", RegexOptions.Compiled);
+        private static readonly Regex m_regex_behaviorConstructor = new Regex("\\(\"setBehaviorConstructor\", {\\s+constructorName:\\s+\"(?<behaviorConstructorName>\\w+)\",\\s+constructorFunction:\\s+namespace\\.(?<behaviorConstructorFunction>\\w+)\\s+}\\);", RegexOptions.Compiled);
 
         private BehaviorInstanceDefinition m_behaviorInstanceDefinition;
 

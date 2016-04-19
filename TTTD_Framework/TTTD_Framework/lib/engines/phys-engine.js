@@ -91,6 +91,10 @@
                     boundingData = new namespace.Engines.PhysEngine.Collision.BoundingOBB(parsed.origin, {
                         halfVals: parsed.halfValues
                     }, 0);
+                } else if (physType.name === "AAFont") {
+                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingAAFont(parsed.characterWidth, parsed.characterHeight);
+                } else if (physType.name === "OFont") {
+                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingOFont(parsed.characterWidth, parsed.characterHeight);
                 }
                 physCompDefinitions[x.id] = new Def.Physics(x, boundingData);
             });
@@ -186,21 +190,11 @@
                             // TODO: Optimize so we don't check the same two instances twice
                             var otherInstance = physGameState.physCompInstances[j];
                             var otherTransformation = otherInstance.transformation;
-                            var otherBounding = otherInstance.physical.boundingData;
+                            var otherBounding = otherInstance.physical.boundingData.clone();
 
                             var relativeVelocity = velocity.translate(-otherTransformation.velocity.x, -otherTransformation.velocity.y);
-                            relativeVelocity.x *= delta;
-                            relativeVelocity.y *= delta;
-                            var currentCollisionData;
-
-                            var otherPhysTypeName = physTypeDefinitions[otherInstance.physical.physTypeId].name;
-                            if (otherPhysTypeName === "Circle") {
-                                currentCollisionData = bounding.collideWithBoundingCircle(otherBounding, relativeVelocity);
-                            } else if (otherPhysTypeName === "AABB") {
-                                currentCollisionData = bounding.collideWithBoundingAABB(otherBounding, relativeVelocity);
-                            } else if (otherPhysTypeName === "OBB") {
-                                currentCollisionData = bounding.collideWithBoundingOBB(otherBounding, relativeVelocity);
-                            }
+                            relativeVelocity.scaleSelf(delta);
+                            var currentCollisionData = namespace.Engines.PhysEngine.Collision.Collide(bounding, otherBounding, relativeVelocity);
 
                             if (currentCollisionData) { // intentional truthiness
                                 if (!hasNonGhostCollider && collisionTypeDefinitions[otherInstance.physical.collisionTypeId].name !== "Ghost") {
@@ -221,20 +215,20 @@
                                 // if so, update the displacement vector
                                 var displacementVectorX = currentCollisionData.displacementVector.x;
                                 var displacementVectorY = currentCollisionData.displacementVector.y;
-                                if (displacementAxisX > 0) {
+                                if (displacementAxisX > 0) { // if we're going right, we want to displace ourselves as far left as we can
                                     if (displacementAxes[displacementAxisX][displacementAxisY].x < displacementVectorX) {
                                         displacementAxes[displacementAxisX][displacementAxisY].x = displacementVectorX;
                                     }
-                                } else {
+                                } else { // if we're going left, we want to displace ourselves as far right as we can
                                     if (displacementAxes[displacementAxisX][displacementAxisY].x > displacementVectorX) {
                                         displacementAxes[displacementAxisX][displacementAxisY].x = displacementVectorX;
                                     }
                                 }
-                                if (displacementAxisY > 0) {
+                                if (displacementAxisY > 0) { // if we're going up (or down, really), we want to displace ourselves as far down (up) as we can
                                     if (displacementAxes[displacementAxisX][displacementAxisY].y < displacementVectorY) {
                                         displacementAxes[displacementAxisX][displacementAxisY].y = displacementVectorY;
                                     }
-                                } else {
+                                } else { // if we're going down (again, actually up), we want to displace ourselves as far up (down) as we can
                                     if (displacementAxes[displacementAxisX][displacementAxisY].y > displacementVectorY) {
                                         displacementAxes[displacementAxisX][displacementAxisY].y = displacementVectorY;
                                     }
@@ -323,6 +317,15 @@
             addPhysicsComponentInstanceToGameState(instance, gameState);
         };
 
+        this.createPhysicsComponentFontInstance = function (entity, physCompId, fontText, gameState) {
+            var physCompDefinition = physCompDefinitions[physCompId];
+            var instance = new Inst.Physics(entity, physCompDefinition);
+            addPhysicsComponentInstanceToGameState(instance, gameState);
+            if (instance.physical.boundingData.updateText !== undefined) {
+                instance.physical.boundingData.updateText(fontText);
+            }
+        };
+
         var getPhysicsComponentInstanceForEntityInstance = function (callback, instanceId) {
             var instance = getPhysicsComponentInstanceById(instanceId);
             if (instance !== null) {
@@ -336,6 +339,13 @@
                 var translation = position.subtract(instance.transformation.position.x, instance.transformation.position.y);
                 instance.transformation.translateSelf(translation.x, translation.y);
                 instance.physical.boundingData.translateSelf(translation.x, translation.y);
+            }
+        };
+
+        var setInstanceText = function (instanceId, text) {
+            var instance = getPhysicsComponentInstanceById(instanceId);
+            if (instance !== null && instance.physical.boundingData.updateText !== undefined) {
+                instance.physical.boundingData.updateText(text ? text : "");
             }
         };
 
@@ -406,6 +416,8 @@
         };
         
         messengerEngine.registerForMessage("setInstanceAndBoundingDataPosition", this, this.setInstanceAndBoundingDataPosition);
+        messengerEngine.registerForMessage("setInstanceText", this, setInstanceText);
+        messengerEngine.registerForMessage("clearInstanceText", this, setInstanceText);
         messengerEngine.registerForRequest("getPhysicsComponentInstanceForEntityInstance", this, getPhysicsComponentInstanceForEntityInstance);
         messengerEngine.registerForNotice("setMouseClickCollider", this, setMouseClickCollider);
         messengerEngine.registerForNotice("setMouseHeldCollider", this, setMouseHeldCollider);
@@ -449,7 +461,31 @@
         };
     }
 
-    if(!Phys.Collision.Data) {
+    if (!Phys.Collision.Data) { // intentional truthiness
+        /*
+            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
+            the necessary displacement vector can be 0, 0.
+        */
+        Phys.Collision.Collide = function (first, second, relativeVelocity) {
+            var r = first.getShortcutRadius() + second.getShortcutRadius();
+            r *= r;
+            if (second.origin.distance2(first.origin) > r) {
+                return false;
+            }
+
+            var calculation = new Phys.Collision.Calculation();
+
+            var axes = first.getAxes(second).addRange(second.getAxes(first)).distinct();
+            for (var axis = 0; axis < axes.length; ++axis) {
+                var yesOnThisAxis = Phys.Collision.SAT(first, second, axes[axis], relativeVelocity, calculation);
+                if (!yesOnThisAxis) {
+                    return false;
+                }
+            }
+
+            return new Phys.Collision.Data(calculation);
+        };
+
         Phys.Collision.Calculation = function() {
             this.intersecting = true;
             this.willIntersect = true;
@@ -519,7 +555,7 @@
         };
 
         Phys.Collision.BoundingCircle.prototype.clone = function () {
-            return new Phys.Collision.BoundingCircle(this.origin, this.radius);
+            return new Phys.Collision.BoundingCircle(this.origin.clone(), this.radius);
         };
 
         Phys.Collision.BoundingCircle.prototype.translateSelf = function(translateX, translateY) {
@@ -529,112 +565,28 @@
         Phys.Collision.BoundingCircle.prototype.rotateSelf = function () {
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingCircle.prototype.collideWithBoundingCircle = function (circle, relativeVelocity) {
-            var r = this.radius + circle.radius;
-            r *= r;
-            if(this.origin.distance2(circle.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, circle, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, circle, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            // naive voronoi calculation
-            // don't check for equals; unnecessary
-            var finalAxis = circle.origin.subtract(this.origin.x, this.origin.y).normalize();
-            yesOnThisAxis = Phys.Collision.SAT(this, circle, finalAxis, relativeVelocity, calculation);
-            if(!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingCircle.prototype.getShortcutRadius = function () {
+            return this.radius;
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingCircle.prototype.collideWithBoundingAABB = function (rect, relativeVelocity) {
-            var r = rect.halfVals.diag + this.radius;
-            r *= r;
-            if (this.origin.distance2(rect.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, rect, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, rect, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            // naive voronoi calculation
-            // don't check for equals; unnecessary
-            var voronoiVertex = new namespace.Math.Vector2D((rect.origin.x > this.origin.x) ? rect.minVals.x : rect.maxVals.x, (rect.origin.y > this.origin.y) ? rect.minVals.y : rect.maxVals.y, false);
-            var finalAxis = this.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
-            yesOnThisAxis = Phys.Collision.SAT(this, rect, finalAxis, relativeVelocity, calculation);
-            if(!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingCircle.prototype.getVertices = function () {
+            return [this.origin];
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingCircle.prototype.collideWithBoundingOBB = function (obb, relativeVelocity) {
-            var r = this.radius + obb.halfDiag;
-            r *= r;
-            if (obb.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            for (var axis = 0; axis < obb.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, obb, obb.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
+        Phys.Collision.BoundingCircle.prototype.getAxes = function (otherBounding) {
             var voronoiVertex;
             var voronoiDistance = Number.MAX_VALUE;
-            for (var i = 0; i < obb.vertices.length; ++i) {
-                var tempVoronoiDistance = this.origin.distance2(obb.vertices[i]);
+            var vertices = otherBounding.getVertices();
+            for (var i = 0; i < vertices.length; ++i) {
+                var tempVoronoiDistance = this.origin.distance2(vertices[i]);
                 if (tempVoronoiDistance < voronoiDistance) {
-                    voronoiVertex = obb.vertices[i];
+                    voronoiVertex = vertices[i];
                     voronoiDistance = tempVoronoiDistance;
                 }
             }
-
             var finalAxis = this.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
-            yesOnThisAxis = Phys.Collision.SAT(this, obb, finalAxis, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
 
-            return new Phys.Collision.Data(calculation);
+            return [Phys.Collision.Axes.X, Phys.Collision.Axes.Y, finalAxis];
         };
 
         /*
@@ -670,7 +622,7 @@
         };
 
         Phys.Collision.BoundingAABB.prototype.clone = function () {
-            return new Phys.Collision.BoundingAABB(this.origin, {
+            return new Phys.Collision.BoundingAABB(this.origin.clone(), {
                 width: this.halfVals.x,
                 height: this.halfVals.y
             });
@@ -685,99 +637,16 @@
         Phys.Collision.BoundingAABB.prototype.rotateSelf = function () {
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingAABB.prototype.collideWithBoundingCircle = function (circle, relativeVelocity) {
-            var r = this.halfVals.diag + circle.radius;
-            r *= r;
-            if (circle.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, circle, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, circle, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            // naive voronoi calculation
-            // don't check for equals; unnecessary
-            var voronoiVertex = new namespace.Math.Vector2D((this.origin.x > circle.origin.x) ? this.minVals.x : this.maxVals.x, (this.origin.y > circle.origin.y) ? this.minVals.y : this.maxVals.y, false);
-            var finalAxis = circle.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
-            yesOnThisAxis = Phys.Collision.SAT(this, circle, finalAxis, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingAABB.prototype.getShortcutRadius = function () {
+            return this.halfVals.diag;
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingAABB.prototype.collideWithBoundingAABB = function (aabb, relativeVelocity) {
-            if (this.maxVals.x < aabb.minVals.x || this.minVals.x > aabb.maxVals.x) {
-                return false;
-            }
-            if (this.maxVals.y < aabb.minVals.y || this.minVals.y > aabb.maxVals.y) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, aabb, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, aabb, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingAABB.prototype.getVertices = function () {
+            return [this.minVals, new namespace.Math.Vector2D(this.maxVals.x, this.minVals.y), new namespace.Math.Vector2D(this.minVals.x, this.maxVals.y), this.maxVals];
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingAABB.prototype.collideWithBoundingOBB = function (obb, relativeVelocity) {
-            var r = this.halfVals.diag + obb.halfDiag;
-            r *= r;
-            if (obb.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, obb, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, obb, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            for (var axis = 0; axis < obb.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, obb, obb.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingAABB.prototype.getAxes = function () {
+            return [Phys.Collision.Axes.X, Phys.Collision.Axes.Y];
         };
 
         /*
@@ -862,7 +731,7 @@
         };
 
         Phys.Collision.BoundingOBB.prototype.clone = function () {
-            return new Phys.Collision.BoundingOBB(this.origin, {
+            return new Phys.Collision.BoundingOBB(this.origin.clone(), {
                 rotatedVals: {
                     vertices: this.vertices,
                     axes: this.axes
@@ -894,106 +763,16 @@
             }
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingOBB.prototype.collideWithBoundingCircle = function (circle, relativeVelocity) {
-            var r = this.halfDiag + circle.radius;
-            r *= r;
-            if (circle.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            for (var axis = 0; axis < this.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, circle, this.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
-            var voronoiVertex;
-            var voronoiDistance = Number.MAX_VALUE;
-            for (var i = 0; i < this.vertices.length; ++i) {
-                var tempVoronoiDistance = circle.origin.distance2(this.vertices[i]);
-                if (tempVoronoiDistance < voronoiDistance) {
-                    voronoiVertex = this.vertices[i];
-                    voronoiDistance = tempVoronoiDistance;
-                }
-            }
-
-            var finalAxis = circle.origin.subtract(voronoiVertex.x, voronoiVertex.y).normalize();
-            yesOnThisAxis = Phys.Collision.SAT(this, circle, finalAxis, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingOBB.prototype.getShortcutRadius = function () {
+            return this.halfDiag;
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingOBB.prototype.collideWithBoundingAABB = function (aabb, relativeVelocity) {
-            var r = this.halfDiag + aabb.halfVals.diag;
-            r *= r;
-            if (aabb.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            for (var axis = 0; axis < this.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, aabb, this.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
-            var yesOnThisAxis = Phys.Collision.SAT(this, aabb, Phys.Collision.Axes.X, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            yesOnThisAxis = Phys.Collision.SAT(this, aabb, Phys.Collision.Axes.Y, relativeVelocity, calculation);
-            if (!yesOnThisAxis) {
-                return false;
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingOBB.prototype.getVertices = function () {
+            return this.vertices;
         };
 
-        /*
-            Returns false if no collision will happen, and the necessary displacement vector if a collision has happened (or will happen if the velocity is added);
-            the necessary displacement vector can be 0, 0.
-        */
-        Phys.Collision.BoundingOBB.prototype.collideWithBoundingOBB = function (obb, relativeVelocity) {
-            var r = this.halfDiag + obb.halfDiag;
-            r *= r;
-            if (obb.origin.distance2(this.origin) > r) {
-                return false;
-            }
-
-            var calculation = new Phys.Collision.Calculation();
-
-            for (var axis = 0; axis < this.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, obb, this.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
-            for (var axis = 0; axis < obb.axes.length; ++axis) {
-                var yesOnThisAxis = Phys.Collision.SAT(this, obb, obb.axes[axis], relativeVelocity, calculation);
-                if (!yesOnThisAxis) {
-                    return false;
-                }
-            }
-
-            return new Phys.Collision.Data(calculation);
+        Phys.Collision.BoundingOBB.prototype.getAxes = function () {
+            return this.axes;
         };
 
         /*
@@ -1027,6 +806,139 @@
             for (var i = 0; i < this.vertices.length; ++i) {
                 data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.vertices[i]);
             }
+
+            return data;
+        };
+    }
+
+    if (!Phys.Collision.BoundingAAFont) { // intentional truthiness
+        Phys.Collision.BoundingAAFont = function (characterWidth, characterHeight, vals) {
+            this.characterWidth = characterWidth;
+            this.characterHeight = characterHeight;
+            if (vals) { // intentional truthiness
+                this.minVals = vals.minVals;
+                this.maxVals = vals.maxVals;
+                this.halfVals = vals.halfVals;
+                this.origin = vals.origin;
+            } else {
+                this.halfVals = {
+                    x: this.characterWidth / 2,
+                    y: this.characterHeight / 2
+                };
+                // default origin is half of height, zero width
+                this.origin = new namespace.Math.Vector2D(0, this.halfVals.y);
+                this.minVals = new namespace.Math.Vector2D(0, this.origin.y - this.halfVals.y);
+                this.maxVals = new namespace.Math.Vector2D(0, this.origin.y + this.halfVals.y);
+                this.halfVals.diag = this.maxVals.distance(this.minVals) / 2;
+            }
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.updateText = function (text) {
+            var maxX = 0;
+            var maxY = 1;
+            
+            var xOff = 0;
+            for (var letter = 0; letter < text.length; ++letter, ++xOff) {
+                if (text[letter] === "\n") {
+                    // always increase y value with newline
+                    ++maxY;
+
+                    // check to see if we need to increase x value
+                    if (xOff > maxX) {
+                        maxX = xOff;
+                    }
+
+                    // reset x value counter; will be set to 0 by the ++xOff at the end of the loop
+                    xOff = -1;
+                }
+            }
+            // in case there's only one line
+            if (maxX === 0) {
+                maxX = xOff;
+            }
+            maxX *= this.characterWidth;
+            maxY *= this.characterHeight;
+
+            this.halfVals = {
+                x: maxX / 2,
+                y: maxY / 2
+            };
+            // minVals never changes; we only ever translate it, because that's all the graphics engine knows about the "origin" of this object
+            this.origin = new namespace.Math.Vector2D(this.minVals.x + this.halfVals.x, this.minVals.y + this.halfVals.y);
+            this.maxVals = new namespace.Math.Vector2D(this.origin.x + this.halfVals.x, this.origin.y + this.halfVals.y);
+            this.halfVals.diag = this.maxVals.distance(this.minVals) / 2;
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.clone = function () {
+            return new Phys.Collision.BoundingAAFont(this.characterWidth, this.characterHeight, {
+                minVals: this.minVals.clone(),
+                maxVals: this.maxVals.clone(),
+                halfVals: {
+                    x: this.halfVals.x,
+                    y: this.halfVals.y,
+                    diag: this.halfVals.diag
+                },
+                origin: this.origin.clone()
+            });
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.translateSelf = function (translateX, translateY) {
+            this.minVals.translateSelf(translateX, translateY);
+            this.maxVals.translateSelf(translateX, translateY);
+            this.origin.translateSelf(translateX, translateY);
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.rotateSelf = function () {
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.getShortcutRadius = function () {
+            return this.halfVals.diag;
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.getVertices = function () {
+            return [this.minVals, new namespace.Math.Vector2D(this.maxVals.x, this.minVals.y), new namespace.Math.Vector2D(this.minVals.x, this.maxVals.y), this.maxVals];
+        };
+
+        Phys.Collision.BoundingAAFont.prototype.getAxes = function () {
+            return [Phys.Collision.Axes.X, Phys.Collision.Axes.Y];
+        };
+
+        /*
+            Simply returns true or false, not a displacement vector.
+        */
+        Phys.Collision.BoundingAAFont.prototype.collideWithPoint = function (point) {
+            if (point.x > this.maxVals.x) {
+                return false;
+            }
+            if (point.x < this.minVals.x) {
+                return false;
+            }
+            if (point.y > this.maxVals.y) {
+                return false;
+            }
+            if (point.y < this.minVals.y) {
+                return false;
+            }
+            return true;
+        };
+
+        /*
+            The provided axis should already be normalized.
+        */
+        Phys.Collision.BoundingAAFont.prototype.projectOntoAxis = function (normalizedAxis) {
+            var normalizedMagnitude = normalizedAxis.magnitude();
+
+            var data = new Phys.Collision.Axes.ProjectionData();
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.minVals, data);
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, {
+                x: this.minVals.x,
+                y: this.maxVals.y
+            });
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, {
+                x: this.maxVals.x,
+                y: this.minVals.y
+            });
+            data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.maxVals);
 
             return data;
         };
