@@ -31,9 +31,16 @@
         
         this.boundingData.translateSelf(transformation.position.x, transformation.position.y);
 
-        this.update = function () {
+        this.updateFirst = function () {
             if (transformation.rotationChanged()) {
                 this.boundingData.rotateSelf(transformation.getRotationChange());
+            }
+        };
+
+        this.updateSecond = function () {
+            if (transformation.positionChanged()) {
+                var translation = transformation.getPositionChange();
+                this.boundingData.translateSelf(translation.x, translation.y);
             }
         };
     };
@@ -94,7 +101,7 @@
                 } else if (physType.name === "AAFont") {
                     boundingData = new namespace.Engines.PhysEngine.Collision.BoundingAAFont(parsed.characterWidth, parsed.characterHeight);
                 } else if (physType.name === "OFont") {
-                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingOFont(parsed.characterWidth, parsed.characterHeight);
+                    boundingData = new namespace.Engines.PhysEngine.Collision.BoundingOFont(parsed.characterWidth, parsed.characterHeight, null, 0);
                 }
                 physCompDefinitions[x.id] = new Def.Physics(x, boundingData);
             });
@@ -172,8 +179,8 @@
                     var instance = physGameState.physCompInstances[i];
                     instance.physical.colliders = [];
 
-                    instance.physical.update(delta);
-
+                    // update handles rotation; let's do that before translation
+                    instance.physical.updateFirst(delta);
 
                     var collisionTypeDefinition = collisionTypeDefinitions[instance.physical.collisionTypeId];
                     if (collisionTypeDefinition.name !== "Static") {
@@ -249,7 +256,7 @@
                             y: (velocity.y * delta) + totalDisplacementVector.y
                         };
                         instance.transformation.translateSelf(endVector.x, endVector.y);
-                        instance.physical.boundingData.translateSelf(endVector.x, endVector.y);
+                        instance.physical.updateSecond();
                         //}
                     }
                 }
@@ -815,12 +822,12 @@
         Phys.Collision.BoundingAAFont = function (characterWidth, characterHeight, vals) {
             this.characterWidth = characterWidth;
             this.characterHeight = characterHeight;
-            if (vals) { // intentional truthiness
+            if /* cloned */ (vals) { // intentional truthiness
                 this.minVals = vals.minVals;
                 this.maxVals = vals.maxVals;
                 this.halfVals = vals.halfVals;
                 this.origin = vals.origin;
-            } else {
+            } /* new */ else {
                 this.halfVals = {
                     x: this.characterWidth / 2,
                     y: this.characterHeight / 2
@@ -834,34 +841,13 @@
         };
 
         Phys.Collision.BoundingAAFont.prototype.updateText = function (text) {
-            var maxX = 0;
-            var maxY = 1;
-            
-            var xOff = 0;
-            for (var letter = 0; letter < text.length; ++letter, ++xOff) {
-                if (text[letter] === "\n") {
-                    // always increase y value with newline
-                    ++maxY;
-
-                    // check to see if we need to increase x value
-                    if (xOff > maxX) {
-                        maxX = xOff;
-                    }
-
-                    // reset x value counter; will be set to 0 by the ++xOff at the end of the loop
-                    xOff = -1;
-                }
-            }
-            // in case there's only one line
-            if (maxX === 0) {
-                maxX = xOff;
-            }
-            maxX *= this.characterWidth;
-            maxY *= this.characterHeight;
+            var dimensions = text.dimensions();
+            dimensions.x *= this.characterWidth;
+            dimensions.y *= this.characterHeight;
 
             this.halfVals = {
-                x: maxX / 2,
-                y: maxY / 2
+                x: dimensions.x / 2,
+                y: dimensions.y / 2
             };
             // minVals never changes; we only ever translate it, because that's all the graphics engine knows about the "origin" of this object
             this.origin = new namespace.Math.Vector2D(this.minVals.x + this.halfVals.x, this.minVals.y + this.halfVals.y);
@@ -939,6 +925,155 @@
                 y: this.minVals.y
             });
             data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.maxVals);
+
+            return data;
+        };
+    }
+
+    if (!Phys.Collision.BoundingOFont) { // intentional truthiness
+        Phys.Collision.BoundingOFont = function (characterWidth, characterHeight, vals, rotation) {
+            this.characterWidth = characterWidth;
+            this.characterHeight = characterHeight;
+
+            this.rotation = 0;
+            this.axes = new Array(2);
+            this.vertices = new Array(4);
+
+            if /* new */ (!vals) { // intentional truthiness
+                var halfVals = {
+                    width: this.characterWidth / 2,
+                    height: this.characterHeight / 2
+                };
+
+                // originalOrigin here represents unrotated minimum values
+                this.originalOrigin = new namespace.Math.Vector2D(0, 0);
+                // default rotation origin is half of height, zero width
+                this.origin = new namespace.Math.Vector2D(this.originalOrigin.x, this.originalOrigin.y);
+                this.vertices[0] = new namespace.Math.Vector2D(0, this.originalOrigin.y - halfVals.height);
+                this.vertices[1] = new namespace.Math.Vector2D(0, this.originalOrigin.y - halfVals.height);
+                this.vertices[2] = new namespace.Math.Vector2D(0, this.originalOrigin.y + halfVals.height);
+                this.vertices[3] = new namespace.Math.Vector2D(0, this.originalOrigin.y + halfVals.height);
+
+                this.axes[0] = Phys.Collision.Axes.X.clone();
+                this.axes[1] = Phys.Collision.Axes.Y.clone();
+
+                if (rotation) { // intentional truthiness
+                    this.rotateSelf(rotation);
+                }
+            } /* cloned */ else {
+                this.originalOrigin = vals.originalOrigin;
+                this.origin = vals.origin;
+
+                for (var i = 0; i < vals.vertices.length; ++i) {
+                    this.vertices[i] = vals.vertices[i].clone();
+                }
+
+                for (var i = 0; i < vals.axes.length; ++i) {
+                    this.axes[i] = vals.axes[i].clone();
+                }
+            }
+
+            this.rotation = rotation;
+            this.halfDiag = this.vertices[3].distance(this.vertices[0]) / 2;
+        };
+
+        Phys.Collision.BoundingOFont.prototype.updateText = function (text) {
+            var dimensions = text.dimensions();
+            dimensions.x *= this.characterWidth;
+            dimensions.y *= this.characterHeight;
+
+            this.origin = new namespace.Math.Vector2D(this.originalOrigin.x + (dimensions.x / 2), this.originalOrigin.y + (dimensions.y / 2));
+            this.vertices[0] = new namespace.Math.Vector2D(this.originalOrigin.x, this.originalOrigin.y);
+            this.vertices[1] = new namespace.Math.Vector2D(this.originalOrigin.x + dimensions.x, this.originalOrigin.y);
+            this.vertices[2] = new namespace.Math.Vector2D(this.originalOrigin.x, this.originalOrigin.y + dimensions.y);
+            this.vertices[3] = new namespace.Math.Vector2D(this.originalOrigin.x + dimensions.x, this.originalOrigin.y + dimensions.y);
+            this.halfDiag = this.vertices[3].distance(this.vertices[0]) / 2;
+
+            // kind of a hacky way to force rotation of our vertices
+            if (this.rotation !== 0) {
+                var rotation = this.rotation;
+                this.rotation = 0;
+                this.rotateSelf(rotation);
+            }
+        };
+
+        Phys.Collision.BoundingOFont.prototype.clone = function () {
+            return new Phys.Collision.BoundingOFont(this.characterWidth, this.characterHeight, {
+                    originalOrigin: this.originalOrigin.clone(),
+                    origin: this.origin.clone(),
+                    vertices: this.vertices,
+                    axes: this.axes
+                }, this.rotation);
+        };
+
+        Phys.Collision.BoundingOFont.prototype.translateSelf = function (translateX, translateY) {
+            this.originalOrigin.translateSelf(translateX, translateY);
+            this.origin.translateSelf(translateX, translateY);
+
+            for (var i = 0; i < this.vertices.length; ++i) {
+                this.vertices[i].translateSelf(translateX, translateY);
+            }
+
+            // we don't need to translate our axes
+            //this.axes[0].translateSelf(translateX, translateY);
+            //this.axes[1].translateSelf(translateX, translateY);
+        };
+
+        Phys.Collision.BoundingOFont.prototype.rotateSelf = function (rotation) {
+            this.rotation = (this.rotation + rotation) % 360;
+
+            for (var i = 0; i < this.vertices.length; ++i) {
+                this.vertices[i].rotateSelf(this.origin.x, this.origin.y, rotation);
+            }
+
+            for (var i = 0; i < this.axes.length; ++i) {
+                this.axes[i].rotateSelf(0, 0, rotation);
+            }
+        };
+
+        Phys.Collision.BoundingOFont.prototype.getShortcutRadius = function () {
+            return this.halfDiag;
+        };
+
+        Phys.Collision.BoundingOFont.prototype.getVertices = function () {
+            return this.vertices;
+        };
+
+        Phys.Collision.BoundingOFont.prototype.getAxes = function () {
+            return this.axes;
+        };
+
+        /*
+            Simply returns true or false, not a displacement vector.
+        */
+        Phys.Collision.BoundingOFont.prototype.collideWithPoint = function (point) {
+            var rotatedPoint = point.rotate(this.originalOrigin.x, this.originalOrigin.y, this.rotation);
+
+            if (rotatedPoint.x > this.vertices[3].x) {
+                return false;
+            }
+            if (rotatedPoint.x < this.vertices[0].x) {
+                return false;
+            }
+            if (rotatedPoint.y > this.vertices[3].y) {
+                return false;
+            }
+            if (rotatedPoint.y < this.vertices[0].y) {
+                return false;
+            }
+            return true;
+        };
+
+        /*
+            The provided axis should already be normalized.
+        */
+        Phys.Collision.BoundingOFont.prototype.projectOntoAxis = function (normalizedAxis) {
+            var normalizedMagnitude = normalizedAxis.magnitude();
+
+            var data = new Phys.Collision.Axes.ProjectionData();
+            for (var i = 0; i < this.vertices.length; ++i) {
+                data.projectPointAndUpdate(normalizedAxis, normalizedMagnitude, this.vertices[i]);
+            }
 
             return data;
         };

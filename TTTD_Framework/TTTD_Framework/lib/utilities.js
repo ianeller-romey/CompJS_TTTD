@@ -6,7 +6,40 @@ String.prototype.isNullOrWhitespace = function () {
 
 String.prototype.isAlphanumeric = function () {
     return this !== null && this.match(/^[a-zA-Z0-9]+$/i) !== null;
-}
+};
+
+String.prototype.dimensions = function () {
+    var x = 0;
+    var y = 1;
+
+    var xOff = 0;
+    for (var letter = 0; letter < this.length; ++letter, ++xOff) {
+        if (this[letter] === "\n") {
+            // always increase y value with newline
+            ++y;
+
+            // check to see if we need to increase x value
+            if (xOff > x) {
+                x = xOff;
+            }
+
+            // reset x value counter; will be set to 0 by the ++xOff at the end of the loop
+            xOff = -1;
+        }
+    }
+    // in case there's only one line
+    if (x === 0) {
+        x = xOff;
+    }
+    // if we've gotten this far and there's no character, just return 0 for all dimensions
+    if (x === 0) {
+        y = 0;
+    }
+    return {
+        x: x,
+        y: y
+    };
+};
 
 Object.prototype.forOwnProperties = function (predicate) {
     for (var key in this) {

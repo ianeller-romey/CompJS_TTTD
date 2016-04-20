@@ -470,8 +470,8 @@
             }
 
             if (transformation.rotationChanged()) {
-                var origin = transformation.position.translate(that.width / 2, that.height / 2);
                 var theta = transformation.getRotationChange();
+                var origin = transformation.position.translate(that.width / 2, that.height / 2);
 
                 for(var i = 0; i < VERTICES.length; ++i) {
                     that.vertices[i].rotateSelf(origin.x, origin.y, theta);
@@ -521,7 +521,7 @@
 
         var that = this;
 
-        var updateVertices = function () {
+        var scaleTranslateVertices = function () {
             var yOff = 0;
             var xOff = 0;
             for (var letter = 0; letter < that.text.length; ++letter, ++xOff) {
@@ -533,6 +533,23 @@
                     var scaled = new namespace.Math.Vector2D(vert.x * that.characterWidth * transformation.scale.x, vert.y * that.characterHeight * transformation.scale.y);
                     that.vertices[letter][i].x = scaled.x + (transformation.position.x) + (xOff * that.characterWidth * transformation.scale.x);
                     that.vertices[letter][i].y = scaled.y + (transformation.position.y) + (yOff * transformation.scale.y);
+                });
+            }
+        };
+
+        var rotateVertices = function () {
+            var theta = transformation.getRotationChange();
+            if (theta === 0) {
+                return;
+            }
+
+            var dimensions = that.text.dimensions();
+            dimensions.x *= that.characterWidth;
+            dimensions.y *= that.characterHeight;
+            var origin = transformation.position.translate(dimensions.x / 2, dimensions.y / 2);
+            for (var letter = 0; letter < that.text.length; ++letter) {
+                VERTICES.forEach(function (vert, i) {
+                    that.vertices[letter][i].rotateSelf(origin.x, origin.y, theta);
                 });
             }
         };
@@ -586,7 +603,7 @@
                 var j = that.textureCoords.push(new Array(VERTICES.length));
                 --j;
                 VERTICES.forEach(function (vert, k) {
-                    // we'll set the acutal vector values in updateVertices and updateTextureCoords, so we can initialize to 0
+                    // we'll set the acutal vector values later, so we can initialize to 0
                     that.vertices[i][k] = new namespace.Math.Vector2D(0, 0);
                     that.textureCoords[j][k] = new namespace.Math.Vector2D(0, 0);
                 });
@@ -595,25 +612,30 @@
                 that.vertices.pop();
                 that.textureCoords.pop();
             }
-            updateVertices();
+            scaleTranslateVertices();
+            rotateVertices();
             updateTextureCoords();
         };
 
         this.update = function () {
             if (transformation.scaleChanged() && !transformation.positionChanged()) { // new scale, no translation
-                updateVertices();
+                scaleTranslateVertices();
+                rotateVertices();
             } else if (!transformation.scaleChanged() && transformation.positionChanged()) { // no scale, new translation
-                var translation = transformation.position.subtract(transformation.lastPosition.x, transformation.lastPosition.y);
+                var translation = transformation.getPositionChange();
                 for (var letter = 0; letter < that.text.length; ++letter) {
                     VERTICES.forEach(function (vert, i) {
                         that.vertices[letter][i].translateSelf(translation.x, translation.y);
                     });
                 }
+                if (transformation.rotationChanged()) {
+                    rotateVertices();
+                }
             } else if (transformation.scaleChanged() && transformation.positionChanged()) { // new scale, new translation
-                updateVertices();
-            }
-
-            if (transformation.rotationChanged()) {
+                scaleTranslateVertices();
+                rotateVertices();
+            } else if (transformation.rotationChanged()) { // only rotation changed
+                rotateVertices();
             }
         };
 

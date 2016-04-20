@@ -57,7 +57,7 @@
                     that.transformation.setVelocity(null, 0);
                 }
 
-                /*if (controllerAction()) {
+                if (controllerAction()) {
                     rotationTimer += delta;
                     if (rotationTimer > 5) {
                         rotationTimer = 0;
@@ -70,7 +70,7 @@
                     }
                 } else {
                     rotationTimer = rotationInterval;
-                }*/
+                }
                 return false;
             };
             
